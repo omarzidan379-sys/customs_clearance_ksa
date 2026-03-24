@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <data noupdate="1">
+    <record id="doc_type_bl" model="customs.document.type">
+      <field name="name">Bill of Lading / بوليصة الشحن</field>
+      <field name="code">BL</field><field name="sequence">10</field><field name="required">True</field>
+    </record>
+    <record id="doc_type_invoice" model="customs.document.type">
+      <field name="name">Commercial Invoice (FATOORAH) / فاتورة تجارية</field>
+      <field name="code">INV</field><field name="sequence">20</field><field name="required">True</field>
+    </record>
+    <record id="doc_type_packing_list" model="customs.document.type">
+      <field name="name">Packing List / قائمة العبوة</field>
+      <field name="code">PL</field><field name="sequence">30</field><field name="required">True</field>
+    </record>
+    <record id="doc_type_coo" model="customs.document.type">
+      <field name="name">Certificate of Origin / شهادة المنشأ</field>
+      <field name="code">COO</field><field name="sequence">40</field><field name="required">True</field>
+    </record>
+    <record id="doc_type_fasah_declaration" model="customs.document.type">
+      <field name="name">FASAH Electronic Declaration / بيان جمركي إلكتروني في فسح</field>
+      <field name="code">FASAH-DEC</field><field name="sequence">50</field><field name="required">True</field>
+    </record>
+    <record id="doc_type_acd" model="customs.document.type">
+      <field name="name">Advance Cargo Declaration (ACD) / إخطار مسبق بالبضائع</field>
+      <field name="code">ACD</field><field name="sequence">55</field><field name="required">True</field>
+    </record>
+    <record id="doc_type_saber_pcoc" model="customs.document.type">
+      <field name="name">SABER — Product CoC (PCoC) / شهادة مطابقة المنتج</field>
+      <field name="code">SABER-PCOC</field><field name="sequence">60</field><field name="required">False</field>
+    </record>
+    <record id="doc_type_saber_scoc" model="customs.document.type">
+      <field name="name">SABER — Shipment CoC (SCoC) / شهادة مطابقة الشحنة</field>
+      <field name="code">SABER-SCOC</field><field name="sequence">65</field><field name="required">False</field>
+    </record>
+    <record id="doc_type_sfda" model="customs.document.type">
+      <field name="name">SFDA Import Approval / موافقة هيئة الغذاء والدواء</field>
+      <field name="code">SFDA</field><field name="sequence">70</field><field name="required">False</field>
+    </record>
+    <record id="doc_type_citc" model="customs.document.type">
+      <field name="name">CITC Certificate / شهادة هيئة الاتصالات</field>
+      <field name="code">CITC</field><field name="sequence">75</field><field name="required">False</field>
+    </record>
+    <record id="doc_type_insurance" model="customs.document.type">
+      <field name="name">Insurance Certificate / شهادة التأمين</field>
+      <field name="code">INS</field><field name="sequence">80</field><field name="required">False</field>
+    </record>
+    <record id="doc_type_release_permit" model="customs.document.type">
+      <field name="name">Electronic Release Permit / إذن الإفراج الإلكتروني</field>
+      <field name="code">RELEASE</field><field name="sequence">90</field><field name="required">False</field>
+    </record>
+    <record id="doc_type_aeo" model="customs.document.type">
+      <field name="name">AEO Certificate / شهادة المشغل الاقتصادي المعتمد</field>
+      <field name="code">AEO</field><field name="sequence">100</field><field name="required">False</field>
+    </record>
+    <record id="doc_type_moi" model="customs.document.type">
+      <field name="name">MoI Permit — Restricted Goods / تصريح وزارة الداخلية</field>
+      <field name="code">MOI</field><field name="sequence">110</field><field name="required">False</field>
+    </record>
+    <record id="doc_type_sadad" model="customs.document.type">
+      <field name="name">SADAD Payment Receipt / إيصال سداد الرسوم</field>
+      <field name="code">SADAD</field><field name="sequence">120</field><field name="required">False</field>
+    </record>
+  </data>
+</odoo>

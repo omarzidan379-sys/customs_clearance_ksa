@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <menuitem id="menu_customs_clearance_root"
+            name="Customs Clearance KSA / تخليص جمركي"
+            sequence="80"
+            groups="customs_clearance_ksa.group_customs_user,customs_clearance_ksa.group_customs_manager"/>
+
+  <menuitem id="menu_customs_portal_main" name="Portal Requests / طلبات البوابة"
+            parent="menu_customs_clearance_root" sequence="5"/>
+  <menuitem id="menu_portal_all"     name="All Requests"
+            parent="menu_customs_portal_main" action="action_customs_portal_requests" sequence="10"/>
+  <menuitem id="menu_portal_pending" name="Pending Review"
+            parent="menu_customs_portal_main" action="action_portal_requests_pending" sequence="20"/>
+
+  <menuitem id="menu_customs_clearance_main" name="Clearance Orders"
+            parent="menu_customs_clearance_root" sequence="10"/>
+  <menuitem id="menu_customs_all"        name="All Clearances"
+            parent="menu_customs_clearance_main" action="action_customs_clearance" sequence="10"/>
+  <menuitem id="menu_customs_import"     name="Import / استيراد"
+            parent="menu_customs_clearance_main" action="action_customs_clearance_import" sequence="20"/>
+  <menuitem id="menu_customs_export"     name="Export / تصدير"
+            parent="menu_customs_clearance_main" action="action_customs_clearance_export" sequence="30"/>
+  <menuitem id="menu_customs_red_lane"   name="Red Lane — Inspection"
+            parent="menu_customs_clearance_main" action="action_clearance_red_lane" sequence="40"/>
+
+  <menuitem id="menu_customs_shipments_main" name="Shipments / الشحنات"
+            parent="menu_customs_clearance_root" sequence="20"/>
+  <menuitem id="menu_customs_shipments" name="Shipments"
+            parent="menu_customs_shipments_main" action="action_customs_shipment" sequence="10"/>
+
+  <menuitem id="menu_customs_docs_main" name="Documents / المستندات"
+            parent="menu_customs_clearance_root" sequence="30"/>
+  <menuitem id="menu_customs_documents" name="All Documents"
+            parent="menu_customs_docs_main" action="action_customs_document" sequence="10"/>
+
+  <menuitem id="menu_customs_analytics" name="Analytics / التحليلات"
+            parent="menu_customs_clearance_root" sequence="40"/>
+  <menuitem id="menu_customs_dashboard" name="Dashboard"
+            parent="menu_customs_analytics" action="action_customs_dashboard" sequence="10"/>
+
+  <menuitem id="menu_customs_config"     name="Configuration / الإعدادات"
+            parent="menu_customs_clearance_root" sequence="100"
+            groups="customs_clearance_ksa.group_customs_manager"/>
+  <menuitem id="menu_customs_ports"      name="Saudi Ports &amp; Customs Offices"
+            parent="menu_customs_config" action="action_customs_port" sequence="10"/>
+  <menuitem id="menu_customs_brokers"    name="Customs Brokers"
+            parent="menu_customs_config" action="action_customs_broker" sequence="20"/>
+  <menuitem id="menu_customs_hs_codes"   name="HS Codes"
+            parent="menu_customs_config" action="action_customs_hs_code" sequence="30"/>
+  <menuitem id="menu_customs_duty_types" name="Duty &amp; Tax Types"
+            parent="menu_customs_config" action="action_customs_duty_type" sequence="40"/>
+  <menuitem id="menu_customs_doc_types"  name="Document Types"
+            parent="menu_customs_config" action="action_customs_document_type" sequence="50"/>
+  <menuitem id="menu_customs_dashboard" name="Dashboard / لوحة التحكم" parent="menu_customs_clearance_root"
+            action="action_controller_dashboard" sequence="50"/>
+
+</odoo>

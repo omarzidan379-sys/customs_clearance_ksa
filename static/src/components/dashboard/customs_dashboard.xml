@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="customs_clearance_ksa.Dashboard" owl="1">
+        <div class="o_customs_dashboard">
+            <!-- Compact Header with Actions -->
+            <div class="dashboard-header">
+                <div class="header-content">
+                    <div class="header-left">
+                        <h1>🚢 Customs Dashboard</h1>
+                        <p>Real-time clearance monitoring</p>
+                    </div>
+                    <div class="header-actions">
+                        <button class="btn-refresh" t-on-click="refreshDashboard" title="Refresh Dashboard">
+                            🔄
+                        </button>
+                        <button class="btn-create" t-on-click="createNewClearance" title="Create New Clearance">
+                            ➕ New
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content - Two Column Layout -->
+            <div class="dashboard-content">
+                <!-- Left Column: KPIs + Chart -->
+                <div class="left-column">
+                    <!-- Interactive KPI Cards -->
+                    <div class="kpi-grid">
+                        <div class="kpi-card gradient-blue interactive" t-on-click="() => this.onKpiClick('total_shipments')" title="Click to view all active shipments">
+                            <div class="kpi-icon">📦</div>
+                            <div class="kpi-content">
+                                <div class="kpi-value"><t t-esc="state.stats.total_shipments || 0"/></div>
+                                <div class="kpi-label">Active</div>
+                            </div>
+                            <div class="kpi-arrow">→</div>
+                        </div>
+                        <div class="kpi-card gradient-purple interactive" t-on-click="() => this.onKpiClick('in_customs')" title="Click to view clearances in review">
+                            <div class="kpi-icon">⏳</div>
+                            <div class="kpi-content">
+                                <div class="kpi-value"><t t-esc="state.stats.in_customs || 0"/></div>
+                                <div class="kpi-label">Review</div>
+                            </div>
+                            <div class="kpi-arrow">→</div>
+                        </div>
+                        <div class="kpi-card gradient-orange interactive" t-on-click="() => this.onKpiClick('delayed')" title="Click to view urgent clearances">
+                            <div class="kpi-icon">⚠️</div>
+                            <div class="kpi-content">
+                                <div class="kpi-value"><t t-esc="state.stats.delayed || 0"/></div>
+                                <div class="kpi-label">Urgent</div>
+                            </div>
+                            <div class="kpi-arrow">→</div>
+                        </div>
+                        <div class="kpi-card gradient-green interactive" t-on-click="() => this.onKpiClick('cleared_today')" title="Click to view today's cleared items">
+                            <div class="kpi-icon">✅</div>
+                            <div class="kpi-content">
+                                <div class="kpi-value"><t t-esc="state.stats.cleared_today || 0"/></div>
+                                <div class="kpi-label">Today</div>
+                            </div>
+                            <div class="kpi-arrow">→</div>
+                        </div>
+                        <div class="kpi-card gradient-teal interactive" t-on-click="() => this.onKpiClick('revenue')" title="Click to view revenue details">
+                            <div class="kpi-icon">💰</div>
+                            <div class="kpi-content">
+                                <div class="kpi-value"><t t-esc="state.stats.monthly_revenue || '0'"/></div>
+                                <div class="kpi-label">Revenue</div>
+                            </div>
+                            <div class="kpi-arrow">→</div>
+                        </div>
+                    </div>
+
+                    <!-- Interactive Status Chart -->
+                    <div class="chart-box interactive-chart">
+                        <div class="chart-header-row">
+                            <div class="chart-title">📊 Status Distribution</div>
+                            <div class="chart-hint">Click segments to filter</div>
+                        </div>
+                        <canvas t-ref="statusChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Right Column: Table -->
+                <div class="right-column">
+                    <div class="clearance-table">
+                        <div class="table-header-row">
+                            <div class="table-title">📋 Recent Clearances</div>
+                            <div class="table-filters">
+                                <button 
+                                    t-attf-class="filter-btn {{ state.selectedFilter === 'all' ? 'active' : '' }}"
+                                    t-on-click="() => this.filterClearances('all')">
+                                    All
+                                </button>
+                                <button 
+                                    t-attf-class="filter-btn {{ state.selectedFilter === 'pending' ? 'active' : '' }}"
+                                    t-on-click="() => this.filterClearances('pending')">
+                                    Pending
+                                </button>
+                                <button 
+                                    t-attf-class="filter-btn {{ state.selectedFilter === 'cleared' ? 'active' : '' }}"
+                                    t-on-click="() => this.filterClearances('cleared')">
+                                    Cleared
+                                </button>
+                            </div>
+                        </div>
+                        <div class="table-wrapper">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Reference</th>
+                                        <th>Partner</th>
+                                        <th>Type</th>
+                                        <th>Date</th>
+                                        <th>Status</th>
+                                        <th>Progress</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-if="state.recent_clearances.length > 0">
+                                        <t t-foreach="state.recent_clearances" t-as="item" t-key="item.id">
+                                            <tr t-on-click="() => this.openClearance(item.id)" class="interactive-row">
+                                                <td class="ref-col"><t t-esc="item.name"/></td>
+                                                <td><t t-esc="item.partner_name"/></td>
+                                                <td><span class="type-badge"><t t-esc="item.type"/></span></td>
+                                                <td class="date-col"><t t-esc="item.date"/></td>
+                                                <td>
+                                                    <span t-attf-class="status-pill {{ this.getStatusClass(item.state) }}">
+                                                        <t t-esc="item.state_label"/>
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <div class="progress-bar-wrapper">
+                                                        <div class="progress-bar-fill" t-attf-style="width: {{ item.progress }}%"></div>
+                                                        <span class="progress-text"><t t-esc="item.progress"/>%</span>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </t>
+                                    <t t-else="">
+                                        <tr>
+                                            <td colspan="6" class="no-data">
+                                                <div class="no-data-message">
+                                                    📭 No clearances found
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+</templates>

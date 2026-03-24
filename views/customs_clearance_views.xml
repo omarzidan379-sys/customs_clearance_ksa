@@ -1,0 +1,436 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+  <!-- ═══ FORM VIEW ═══════════════════════════════════════════════════════ -->
+  <record id="view_customs_clearance_form" model="ir.ui.view">
+    <field name="name">customs.clearance.form.ksa</field>
+    <field name="model">customs.clearance</field>
+    <field name="arch" type="xml">
+      <form string="Customs Clearance — KSA">
+        <header>
+          <!-- Stage 1: ACD -->
+          <button name="action_submit_acd" string="Submit ACD" type="object"
+                  class="btn-primary" invisible="state != 'draft'"/>
+          <!-- Stage 3: FASAH -->
+          <button name="action_submit_fasah" string="Submit to FASAH" type="object"
+                  class="btn-primary" invisible="state != 'acd_submitted'"/>
+          <!-- Lane assignment -->
+          <button name="action_green_lane" string="Green Lane ✓" type="object"
+                  class="btn-success"
+                  invisible="state != 'submitted'"/>
+          <button name="action_yellow_lane" string="Yellow Lane" type="object"
+                  invisible="state != 'submitted'"/>
+          <button name="action_red_lane" string="Red Lane" type="object"
+                  class="btn-warning"
+                  invisible="state != 'submitted'"/>
+          <!-- Inspection done -->
+          <button name="action_duty_payment" string="Proceed to Payment" type="object"
+                  class="btn-primary"
+                  invisible="state not in ('customs_review','inspection')"/>
+          <!-- Release -->
+          <button name="action_release" string="Issue Release Permit" type="object"
+                  class="btn-primary"
+                  invisible="state != 'duty_payment'"/>
+          <!-- Deliver -->
+          <button name="action_deliver" string="Mark Delivered" type="object"
+                  class="btn-primary"
+                  invisible="state != 'released'"/>
+          <button name="action_cancel" string="Cancel" type="object"
+                  class="btn-danger"
+                  invisible="state in ('delivered','cancelled')"/>
+          <button name="action_draft" string="Reset to Draft" type="object"
+                  invisible="state != 'cancelled'"/>
+          <field name="state" widget="statusbar"
+                 statusbar_visible="draft,acd_submitted,submitted,duty_payment,released,delivered"/>
+        </header>
+        <sheet>
+          <!-- Smart buttons -->
+          <div class="oe_button_box" name="button_box">
+            <button name="action_view_documents" type="object"
+                    class="oe_stat_button" icon="fa-file-text-o">
+              <field name="document_count" widget="statinfo" string="Documents"/>
+            </button>
+            <button name="action_open_compliance_wizard" type="object"
+                    class="oe_stat_button" icon="fa-check-circle-o">
+              <span class="o_stat_text">Compliance</span>
+              <field name="compliance_status" widget="badge"
+                     decoration-success="compliance_status == 'compliant'"
+                     decoration-warning="compliance_status == 'partial'"
+                     decoration-danger="compliance_status in ('pending','violation')"/>
+            </button>
+            <button name="action_create_vendor_bill" type="object"
+                    class="oe_stat_button" icon="fa-usd">
+              <span class="o_stat_text">Create Bill</span>
+            </button>
+          </div>
+
+          <widget name="web_ribbon" title="Cancelled"          bg_color="bg-danger"  invisible="state != 'cancelled'"/>
+          <widget name="web_ribbon" title="Released ✓"          bg_color="bg-success" invisible="state not in ('released','delivered')"/>
+          <widget name="web_ribbon" title="Red Lane — Inspection" bg_color="bg-warning" invisible="inspection_lane != 'red' or state not in ('inspection','customs_review')"/>
+
+          <div class="oe_title">
+            <label for="name"/>
+            <h1><field name="name" readonly="1"/></h1>
+          </div>
+
+          <!-- Row 1: General + Compliance -->
+          <group>
+            <group string="General Information">
+              <field name="clearance_type" widget="radio" options="{'horizontal': true}"/>
+              <field name="partner_id"/>
+              <field name="date"/>
+              <field name="expected_clearance_date"/>
+              <field name="actual_clearance_date" readonly="1"/>
+              <field name="priority" widget="priority"/>
+              <field name="is_aeo"/>
+              <field name="aeo_certificate_no" invisible="not is_aeo"/>
+            </group>
+            <group string="Saudi Compliance Status">
+              <field name="compliance_status" widget="badge"
+                     decoration-success="compliance_status == 'compliant'"
+                     decoration-warning="compliance_status == 'partial'"
+                     decoration-danger="compliance_status in ('pending','violation')"/>
+              <field name="inspection_lane" widget="badge"
+                     decoration-success="inspection_lane == 'green'"
+                     decoration-warning="inspection_lane == 'yellow'"
+                     decoration-danger="inspection_lane == 'red'"/>
+              <field name="payment_status" widget="badge"
+                     decoration-success="payment_status == 'paid'"
+                     decoration-warning="payment_status == 'partial'"
+                     decoration-muted="payment_status == 'unpaid'"/>
+              <field name="broker_id"/>
+              <field name="broker_license_no" readonly="1"/>
+              <field name="port_id"/>
+              <field name="customs_office_id"/>
+            </group>
+          </group>
+
+          <notebook>
+            <!-- ── TAB 1: Saudi References ──────────────────────────── -->
+            <page string="Saudi References / المراجع السعودية" name="saudi_refs">
+              <group>
+                <group string="ZATCA / FASAH">
+                  <field name="fasah_declaration_no"/>
+                  <field name="customs_declaration_no"/>
+                  <field name="customs_declaration_date"/>
+                  <field name="fatoorah_invoice_no"/>
+                  <field name="acd_reference_no"/>
+                  <field name="acd_submission_date" readonly="1"/>
+                  <field name="sadad_payment_ref"/>
+                </group>
+                <group string="Release / Tracking">
+                  <field name="release_permit_no"/>
+                  <field name="release_date" readonly="1"/>
+                  <field name="masar_tracking_no"/>
+                  <field name="bill_of_lading_no"/>
+                  <field name="airway_bill_no"/>
+                  <field name="shipment_id"/>
+                  <field name="purchase_order_id"/>
+                </group>
+              </group>
+              <group string="SABER Certificates / شهادات سابر">
+                <field name="requires_saber"/>
+                <field name="saber_pcoc_no" invisible="not requires_saber"/>
+                <field name="saber_scoc_no" invisible="not requires_saber"/>
+                <field name="saber_scoc_expiry" invisible="not requires_saber"/>
+                <field name="saber_scoc_verified" invisible="not requires_saber"/>
+              </group>
+            </page>
+
+            <!-- ── TAB 2: Regulatory Approvals ──────────────────────── -->
+            <page string="Regulatory Approvals / الموافقات التنظيمية" name="regulatory">
+              <group>
+                <group string="SFDA — هيئة الغذاء والدواء">
+                  <field name="requires_sfda"/>
+                  <field name="sfda_approval_no" invisible="not requires_sfda"/>
+                  <field name="sfda_approved" invisible="not requires_sfda"/>
+                </group>
+                <group string="CITC — هيئة الاتصالات">
+                  <field name="requires_citc"/>
+                  <field name="citc_certificate_no" invisible="not requires_citc"/>
+                  <field name="citc_approved" invisible="not requires_citc"/>
+                </group>
+              </group>
+              <group>
+                <group string="SASO — هيئة المواصفات">
+                  <field name="requires_saso"/>
+                  <field name="saso_certificate_no" invisible="not requires_saso"/>
+                  <field name="saso_approved" invisible="not requires_saso"/>
+                </group>
+                <group string="MoI — وزارة الداخلية">
+                  <field name="requires_moi"/>
+                  <field name="moi_permit_no" invisible="not requires_moi"/>
+                  <field name="moi_approved" invisible="not requires_moi"/>
+                </group>
+              </group>
+            </page>
+
+            <!-- ── TAB 3: Goods Lines ────────────────────────────────── -->
+            <page string="Goods Lines / البضاعة" name="goods_lines">
+              <field name="goods_line_ids">
+                <tree editable="bottom">
+                  <field name="sequence" widget="handle"/>
+                  <field name="description"/>
+                  <field name="hs_code_id"/>
+                  <field name="hs_code" optional="show"/>
+                  <field name="country_origin_id" optional="hide"/>
+                  <field name="quantity"/>
+                  <field name="uom_id"/>
+                  <field name="unit_weight" optional="show"/>
+                  <field name="total_weight" optional="show"/>
+                  <field name="unit_value"/>
+                  <field name="total_value"/>
+                  <field name="saudi_import_duty_rate" optional="show" string="KSA Duty %"/>
+                  <field name="saudi_vat_rate" optional="show" string="VAT %"/>
+                  <field name="excise_rate" optional="show" string="Excise %"/>
+                  <field name="requires_saber" optional="show" widget="boolean_toggle"/>
+                  <field name="requires_sfda"  optional="show" widget="boolean_toggle"/>
+                  <field name="requires_citc"  optional="show" widget="boolean_toggle"/>
+                  <field name="notes" optional="hide"/>
+                  <field name="currency_id" column_invisible="True"/>
+                </tree>
+              </field>
+            </page>
+
+            <!-- ── TAB 4: Duties & Taxes ─────────────────────────────── -->
+            <page string="Duties &amp; Taxes / الرسوم والضرائب" name="duties">
+              <field name="duty_line_ids">
+                <tree editable="bottom">
+                  <field name="duty_type_id"/>
+                  <field name="duty_category" optional="show"/>
+                  <field name="base_amount"/>
+                  <field name="rate"/>
+                  <field name="amount"/>
+                  <field name="payment_date" optional="show"/>
+                  <field name="payment_reference" optional="show"/>
+                  <field name="notes" optional="hide"/>
+                  <field name="currency_id" column_invisible="True"/>
+                  <field name="is_percentage" column_invisible="True"/>
+                  <field name="fixed_amount" optional="hide"/>
+                </tree>
+              </field>
+              <group>
+                <group/>
+                <group>
+                  <field name="currency_id" invisible="1"/>
+                  <field name="goods_value"/>
+                  <field name="freight_amount"/>
+                  <field name="insurance_amount"/>
+                  <field name="cif_value" class="oe_subtotal_footer_separator"/>
+                  <field name="total_duty_amount"/>
+                  <field name="service_fee"/>
+                  <field name="port_charges"/>
+                  <field name="demurrage_fee"/>
+                  <field name="other_charges"/>
+                  <field name="total_cost" class="oe_subtotal_footer_separator" widget="monetary"/>
+                </group>
+              </group>
+            </page>
+
+            <!-- ── TAB 5: Documents ──────────────────────────────────── -->
+            <page string="Documents / المستندات" name="documents">
+              <field name="document_ids">
+                <tree>
+                  <field name="document_type_id"/>
+                  <field name="name"/>
+                  <field name="document_number"/>
+                  <field name="issue_date"/>
+                  <field name="expiry_date" optional="show"/>
+                  <field name="state" widget="badge"
+                         decoration-success="state == 'verified'"
+                         decoration-warning="state == 'pending'"
+                         decoration-danger="state == 'rejected'"
+                         decoration-info="state == 'received'"/>
+                  <field name="attachment_count" string="Files"/>
+                </tree>
+              </field>
+            </page>
+
+            <!-- ── TAB 6: Origin / Port ───────────────────────────────── -->
+            <page string="Origin &amp; Route" name="origin">
+              <group>
+                <group>
+                  <field name="country_origin_id"/>
+                  <field name="country_destination_id"/>
+                  <field name="port_id"/>
+                  <field name="customs_office_id"/>
+                </group>
+                <group>
+                  <field name="invoice_id"/>
+                </group>
+              </group>
+            </page>
+
+            <!-- ── TAB 7: Notes ───────────────────────────────────────── -->
+            <page string="Notes" name="notes_tab">
+              <group>
+                <field name="description" placeholder="Goods description..."/>
+              </group>
+              <group>
+                <field name="internal_notes"/>
+                <field name="customs_notes"/>
+                <field name="zatca_remarks"/>
+              </group>
+            </page>
+          </notebook>
+        </sheet>
+        <chatter/>
+      </form>
+    </field>
+  </record>
+
+  <!-- ═══ LIST VIEW ═══════════════════════════════════════════════════════ -->
+  <record id="view_customs_clearance_list" model="ir.ui.view">
+    <field name="name">customs.clearance.list.ksa</field>
+    <field name="model">customs.clearance</field>
+    <field name="arch" type="xml">
+      <tree string="Customs Clearance Orders"
+            decoration-muted="state == 'cancelled'"
+            decoration-success="state in ('released','delivered')"
+            decoration-warning="state in ('duty_payment','inspection')">
+        <field name="name"/>
+        <field name="clearance_type" widget="badge"/>
+        <field name="partner_id"/>
+        <field name="date"/>
+        <field name="port_id"/>
+        <field name="broker_id" optional="show"/>
+        <field name="fasah_declaration_no" optional="show"/>
+        <field name="acd_reference_no" optional="show"/>
+        <field name="inspection_lane" widget="badge"
+               decoration-success="inspection_lane == 'green'"
+               decoration-warning="inspection_lane == 'yellow'"
+               decoration-danger="inspection_lane == 'red'"/>
+        <field name="compliance_status" widget="badge"
+               decoration-success="compliance_status == 'compliant'"
+               decoration-warning="compliance_status == 'partial'"
+               decoration-danger="compliance_status == 'pending'"/>
+        <field name="cif_value" sum="Total CIF"/>
+        <field name="total_duty_amount" sum="Total Duties"/>
+        <field name="total_cost" sum="Total Cost"/>
+        <field name="payment_status" widget="badge"
+               decoration-success="payment_status == 'paid'"
+               decoration-warning="payment_status == 'partial'"
+               decoration-muted="payment_status == 'unpaid'"/>
+        <field name="state" widget="badge"
+               decoration-success="state in ('released','delivered')"
+               decoration-info="state in ('submitted','customs_review','acd_submitted')"
+               decoration-warning="state in ('duty_payment','inspection')"
+               decoration-muted="state == 'cancelled'"/>
+        <field name="priority" widget="priority" optional="show"/>
+        <field name="currency_id" column_invisible="True"/>
+      </tree>
+    </field>
+  </record>
+
+  <!-- ═══ KANBAN VIEW ════════════════════════════════════════════════════ -->
+  <record id="view_customs_clearance_kanban" model="ir.ui.view">
+    <field name="name">customs.clearance.kanban.ksa</field>
+    <field name="model">customs.clearance</field>
+    <field name="arch" type="xml">
+      <kanban default_group_by="state" class="o_kanban_small_column">
+        <field name="name"/><field name="partner_id"/><field name="clearance_type"/>
+        <field name="state"/><field name="date"/><field name="total_cost"/>
+        <field name="currency_id"/><field name="priority"/><field name="color"/>
+        <field name="inspection_lane"/><field name="compliance_status"/>
+        <templates>
+          <t t-name="kanban-box">
+            <div t-attf-class="oe_kanban_color_#{record.color.raw_value}">
+              <div class="oe_kanban_details">
+                <strong><field name="name"/></strong>
+                <div><field name="partner_id"/></div>
+                <div><field name="clearance_type"/></div>
+                <div t-if="record.inspection_lane.raw_value">
+                  Lane: <field name="inspection_lane"/>
+                </div>
+                <div><field name="compliance_status" widget="badge"/></div>
+                <div class="oe_kanban_bottom_right">
+                  <field name="priority" widget="priority"/>
+                  <strong><field name="total_cost" widget="monetary"/></strong>
+                </div>
+              </div>
+            </div>
+          </t>
+        </templates>
+      </kanban>
+    </field>
+  </record>
+
+  <!-- ═══ SEARCH VIEW ════════════════════════════════════════════════════ -->
+  <record id="view_customs_clearance_search" model="ir.ui.view">
+    <field name="name">customs.clearance.search.ksa</field>
+    <field name="model">customs.clearance</field>
+    <field name="arch" type="xml">
+      <search string="Customs Clearance">
+        <field name="name" string="Reference"/>
+        <field name="partner_id"/>
+        <field name="broker_id"/>
+        <field name="port_id"/>
+        <field name="customs_declaration_no"/>
+        <field name="fasah_declaration_no"/>
+        <field name="acd_reference_no"/>
+        <field name="bill_of_lading_no"/>
+        <separator/>
+        <filter string="Draft"         name="draft"      domain="[('state','=','draft')]"/>
+        <filter string="ACD Submitted" name="acd"        domain="[('state','=','acd_submitted')]"/>
+        <filter string="In FASAH"      name="submitted"  domain="[('state','=','submitted')]"/>
+        <filter string="Under Review"  name="review"     domain="[('state','in',['customs_review','inspection'])]"/>
+        <filter string="Pending Payment" name="payment"  domain="[('state','=','duty_payment')]"/>
+        <filter string="Released"      name="released"   domain="[('state','=','released')]"/>
+        <filter string="Delivered"     name="delivered"  domain="[('state','=','delivered')]"/>
+        <separator/>
+        <filter string="Green Lane"    name="green"      domain="[('inspection_lane','=','green')]"/>
+        <filter string="Yellow Lane"   name="yellow"     domain="[('inspection_lane','=','yellow')]"/>
+        <filter string="Red Lane"      name="red"        domain="[('inspection_lane','=','red')]"/>
+        <separator/>
+        <filter string="Import"        name="import"     domain="[('clearance_type','=','import')]"/>
+        <filter string="Export"        name="export"     domain="[('clearance_type','=','export')]"/>
+        <filter string="AEO Importers" name="aeo"        domain="[('is_aeo','=',True)]"/>
+        <separator/>
+        <filter string="Compliant"     name="compliant"  domain="[('compliance_status','=','compliant')]"/>
+        <filter string="Non-Compliant" name="noncompliant" domain="[('compliance_status','in',['pending','violation'])]"/>
+        <filter string="Unpaid Duties" name="unpaid"     domain="[('payment_status','=','unpaid')]"/>
+        <separator/>
+        <filter string="This Month"    name="this_month"
+                domain="[('date','&gt;=',(context_today()).strftime('%Y-%m-01'))]"/>
+        <group expand="0" string="Group By">
+          <filter string="State"     name="grp_state"  context="{'group_by':'state'}"/>
+          <filter string="Lane"      name="grp_lane"   context="{'group_by':'inspection_lane'}"/>
+          <filter string="Type"      name="grp_type"   context="{'group_by':'clearance_type'}"/>
+          <filter string="Broker"    name="grp_broker" context="{'group_by':'broker_id'}"/>
+          <filter string="Port"      name="grp_port"   context="{'group_by':'port_id'}"/>
+          <filter string="Partner"   name="grp_partner" context="{'group_by':'partner_id'}"/>
+          <filter string="Month"     name="grp_date"   context="{'group_by':'date:month'}"/>
+        </group>
+      </search>
+    </field>
+  </record>
+
+  <!-- ═══ ACTIONS ════════════════════════════════════════════════════════ -->
+  <record id="action_customs_clearance" model="ir.actions.act_window">
+    <field name="name">Customs Clearance Orders</field>
+    <field name="res_model">customs.clearance</field>
+    <field name="view_mode">tree,kanban,form</field>
+    <field name="search_view_id" ref="view_customs_clearance_search"/>
+  </record>
+  <record id="action_customs_clearance_import" model="ir.actions.act_window">
+    <field name="name">Import Clearance / استيراد</field>
+    <field name="res_model">customs.clearance</field>
+    <field name="view_mode">tree,kanban,form</field>
+    <field name="domain">[('clearance_type','=','import')]</field>
+    <field name="context">{'default_clearance_type':'import'}</field>
+  </record>
+  <record id="action_customs_clearance_export" model="ir.actions.act_window">
+    <field name="name">Export Clearance / تصدير</field>
+    <field name="res_model">customs.clearance</field>
+    <field name="view_mode">tree,kanban,form</field>
+    <field name="domain">[('clearance_type','=','export')]</field>
+    <field name="context">{'default_clearance_type':'export'}</field>
+  </record>
+  <record id="action_clearance_red_lane" model="ir.actions.act_window">
+    <field name="name">Red Lane — Inspection Required</field>
+    <field name="res_model">customs.clearance</field>
+    <field name="view_mode">tree,form</field>
+    <field name="domain">[('inspection_lane','=','red'),('state','=','inspection')]</field>
+  </record>
+
+</odoo>

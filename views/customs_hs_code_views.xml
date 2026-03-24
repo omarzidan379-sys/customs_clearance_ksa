@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_customs_hs_code_form" model="ir.ui.view">
+    <field name="name">customs.hs.code.form.ksa</field>
+    <field name="model">customs.hs.code</field>
+    <field name="arch" type="xml">
+      <form string="HS Code — Saudi">
+        <sheet>
+          <widget name="web_ribbon" title="Prohibited in KSA" bg_color="bg-danger"
+                  invisible="not is_prohibited"/>
+          <widget name="web_ribbon" title="Restricted" bg_color="bg-warning"
+                  invisible="not is_restricted or is_prohibited"/>
+          <div class="oe_title">
+            <label for="code"/>
+            <h1><field name="code"/></h1>
+          </div>
+          <group>
+            <group>
+              <field name="name"/>
+              <field name="name_ar"/>
+              <field name="chapter" readonly="1"/>
+              <field name="heading" readonly="1"/>
+              <field name="category"/>
+              <field name="unit_of_quantity"/>
+            </group>
+            <group string="Saudi Duty Rates (KSA 2025)">
+              <field name="import_duty_rate"/>
+              <field name="export_duty_rate"/>
+              <field name="vat_rate"/>
+              <field name="excise_rate"/>
+              <field name="gcc_duty_rate"/>
+            </group>
+          </group>
+          <group string="Saudi Regulatory Requirements / المتطلبات التنظيمية السعودية">
+            <field name="requires_saber"/>
+            <field name="requires_sfda"/>
+            <field name="requires_citc"/>
+            <field name="requires_moi"/>
+            <field name="is_prohibited"/>
+            <field name="is_restricted"/>
+          </group>
+          <group><field name="notes"/></group>
+        </sheet>
+      </form>
+    </field>
+  </record>
+  <record id="view_customs_hs_code_list" model="ir.ui.view">
+    <field name="name">customs.hs.code.list.ksa</field>
+    <field name="model">customs.hs.code</field>
+    <field name="arch" type="xml">
+      <tree decoration-danger="is_prohibited" decoration-warning="is_restricted">
+        <field name="is_restricted" column_invisible="1"/>
+        <field name="code"/>
+        <field name="name"/>
+        <field name="name_ar" optional="show"/>
+        <field name="chapter"/>
+        <field name="import_duty_rate" string="KSA Duty %"/>
+        <field name="vat_rate" string="VAT %"/>
+        <field name="excise_rate" string="Excise %" optional="show"/>
+        <field name="gcc_duty_rate" string="GCC %" optional="show"/>
+        <field name="requires_saber" optional="show" widget="boolean_toggle"/>
+        <field name="requires_sfda"  optional="show" widget="boolean_toggle"/>
+        <field name="requires_citc"  optional="show" widget="boolean_toggle"/>
+        <field name="is_prohibited"  optional="show" widget="boolean_toggle"/>
+      </tree>
+    </field>
+  </record>
+  <record id="action_customs_hs_code" model="ir.actions.act_window">
+    <field name="name">HS Codes / الأرمزة الجمركية</field>
+    <field name="res_model">customs.hs.code</field>
+    <field name="view_mode">tree,form</field>
+  </record>
+</odoo>

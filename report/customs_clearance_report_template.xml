@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<template id="report_customs_clearance_document">
+  <t t-call="web.html_container">
+    <t t-foreach="docs" t-as="o">
+      <t t-call="web.external_layout">
+        <div class="page" style="font-family:Arial,sans-serif;">
+
+          <!-- Header -->
+          <div class="row mb-3">
+            <div class="col-12 text-center">
+              <h2 style="color:#1A3A5C;border-bottom:3px solid #1A3A5C;padding-bottom:6px;">
+                Customs Clearance Order — KSA / أمر التخليص الجمركي
+              </h2>
+              <small style="color:#555;">هيئة الزكاة والضريبة والجمارك — ZATCA</small>
+            </div>
+          </div>
+
+          <!-- Key info table -->
+          <div class="row mb-2">
+            <div class="col-6">
+              <table class="table table-sm table-bordered" style="font-size:11px;">
+                <tr><td style="background:#D6EAF8;font-weight:bold;width:42%;">Reference / المرجع</td>
+                    <td><strong><t t-esc="o.name"/></strong></td></tr>
+                <tr><td style="background:#D6EAF8;font-weight:bold;">Type / النوع</td>
+                    <td><t t-esc="dict(o._fields['clearance_type'].selection).get(o.clearance_type)"/></td></tr>
+                <tr><td style="background:#D6EAF8;font-weight:bold;">Date / التاريخ</td>
+                    <td><t t-esc="o.date"/></td></tr>
+                <tr><td style="background:#D6EAF8;font-weight:bold;">Status / الحالة</td>
+                    <td><t t-esc="dict(o._fields['state'].selection).get(o.state)"/></td></tr>
+                <tr><td style="background:#D6EAF8;font-weight:bold;">Lane / الممر</td>
+                    <td><t t-esc="dict(o._fields['inspection_lane'].selection).get(o.inspection_lane) if o.inspection_lane else '—'"/></td></tr>
+              </table>
+            </div>
+            <div class="col-6">
+              <table class="table table-sm table-bordered" style="font-size:11px;">
+                <tr><td style="background:#D6EAF8;font-weight:bold;width:42%;">Importer / المستورد</td>
+                    <td><t t-esc="o.partner_id.name"/></td></tr>
+                <tr><td style="background:#D6EAF8;font-weight:bold;">Broker / المخلص</td>
+                    <td><t t-esc="o.broker_id.name or '—'"/></td></tr>
+                <tr><td style="background:#D6EAF8;font-weight:bold;">Port / الميناء</td>
+                    <td><t t-esc="o.port_id.name or '—'"/></td></tr>
+                <tr><td style="background:#D6EAF8;font-weight:bold;">Country of Origin</td>
+                    <td><t t-esc="o.country_origin_id.name or '—'"/></td></tr>
+                <tr><td style="background:#D6EAF8;font-weight:bold;">AEO / مشغل معتمد</td>
+                    <td><t t-esc="'Yes / نعم' if o.is_aeo else 'No / لا'"/></td></tr>
+              </table>
+            </div>
+          </div>
+
+          <!-- Saudi References -->
+          <h6 style="color:#1A3A5C;margin-top:12px;border-bottom:1px solid #ccc;">Saudi Reference Numbers / أرقام مرجعية سعودية</h6>
+          <div class="row mb-2">
+            <div class="col-6">
+              <table class="table table-sm" style="font-size:11px;">
+                <tr><td style="color:#555;width:50%;">FASAH Declaration No.</td>
+                    <td><t t-esc="o.fasah_declaration_no or '—'"/></td></tr>
+                <tr><td style="color:#555;">ACD Reference No.</td>
+                    <td><t t-esc="o.acd_reference_no or '—'"/></td></tr>
+                <tr><td style="color:#555;">FATOORAH Invoice No.</td>
+                    <td><t t-esc="o.fatoorah_invoice_no or '—'"/></td></tr>
+                <tr><td style="color:#555;">SADAD Payment Ref.</td>
+                    <td><t t-esc="o.sadad_payment_ref or '—'"/></td></tr>
+              </table>
+            </div>
+            <div class="col-6">
+              <table class="table table-sm" style="font-size:11px;">
+                <tr><td style="color:#555;width:50%;">Release Permit No. (إذن الإفراج)</td>
+                    <td><t t-esc="o.release_permit_no or '—'"/></td></tr>
+                <tr><td style="color:#555;">MASAR Tracking No.</td>
+                    <td><t t-esc="o.masar_tracking_no or '—'"/></td></tr>
+                <tr><td style="color:#555;">SABER SCoC No.</td>
+                    <td><t t-esc="o.saber_scoc_no or '—'"/></td></tr>
+                <tr><td style="color:#555;">Bill of Lading No.</td>
+                    <td><t t-esc="o.bill_of_lading_no or '—'"/></td></tr>
+              </table>
+            </div>
+          </div>
+
+          <!-- Goods Table -->
+          <h6 style="color:#1A3A5C;margin-top:10px;">Goods Description / وصف البضاعة</h6>
+          <table class="table table-sm table-bordered" style="font-size:10px;">
+            <thead style="background:#1A3A5C;color:white;">
+              <tr>
+                <th>#</th><th>Description / الوصف</th><th>HS Code</th>
+                <th>Origin</th><th>Qty</th><th>Wt (kg)</th>
+                <th>Unit Value</th><th>Total Value</th>
+                <th>Duty %</th><th>VAT %</th>
+              </tr>
+            </thead>
+            <tbody>
+              <t t-foreach="o.goods_line_ids" t-as="line">
+                <tr>
+                  <td><t t-esc="line_index+1"/></td>
+                  <td><t t-esc="line.description"/></td>
+                  <td><t t-esc="line.hs_code or '—'"/></td>
+                  <td><t t-esc="line.country_origin_id.name or '—'"/></td>
+                  <td><t t-esc="'%.2f' % line.quantity"/></td>
+                  <td><t t-esc="'%.2f' % line.total_weight"/></td>
+                  <td class="text-right"><t t-esc="'%.2f %s' % (line.unit_value, o.currency_id.symbol)"/></td>
+                  <td class="text-right"><t t-esc="'%.2f %s' % (line.total_value, o.currency_id.symbol)"/></td>
+                  <td><t t-esc="'%.1f%%' % line.saudi_import_duty_rate"/></td>
+                  <td><t t-esc="'%.1f%%' % line.saudi_vat_rate"/></td>
+                </tr>
+              </t>
+            </tbody>
+          </table>
+
+          <!-- Duties Table -->
+          <t t-if="o.duty_line_ids">
+            <h6 style="color:#1A3A5C;margin-top:10px;">Duties &amp; Taxes / الرسوم والضرائب</h6>
+            <table class="table table-sm table-bordered" style="font-size:10px;">
+              <thead style="background:#1A3A5C;color:white;">
+                <tr><th>Type</th><th>Base Amount</th><th>Rate</th><th>Amount</th><th>SADAD Ref.</th></tr>
+              </thead>
+              <tbody>
+                <t t-foreach="o.duty_line_ids" t-as="d">
+                  <tr>
+                    <td><t t-esc="d.duty_type_id.name"/></td>
+                    <td class="text-right"><t t-esc="'%.2f %s' % (d.base_amount, o.currency_id.symbol)"/></td>
+                    <td class="text-right"><t t-esc="'%.2f%%' % d.rate"/></td>
+                    <td class="text-right"><strong><t t-esc="'%.2f %s' % (d.amount, o.currency_id.symbol)"/></strong></td>
+                    <td><t t-esc="d.payment_reference or '—'"/></td>
+                  </tr>
+                </t>
+              </tbody>
+            </table>
+          </t>
+
+          <!-- Financial Summary -->
+          <div class="row mt-2">
+            <div class="col-5 offset-7">
+              <table class="table table-sm table-bordered" style="font-size:11px;">
+                <tr><td>CIF Value</td>
+                    <td class="text-right"><t t-esc="'%.2f %s' % (o.cif_value, o.currency_id.symbol)"/></td></tr>
+                <tr><td>Total Duties &amp; Taxes</td>
+                    <td class="text-right"><t t-esc="'%.2f %s' % (o.total_duty_amount, o.currency_id.symbol)"/></td></tr>
+                <tr><td>Broker Fee</td>
+                    <td class="text-right"><t t-esc="'%.2f %s' % ((o.service_fee or 0), o.currency_id.symbol)"/></td></tr>
+                <tr><td>Port Charges</td>
+                    <td class="text-right"><t t-esc="'%.2f %s' % ((o.port_charges or 0), o.currency_id.symbol)"/></td></tr>
+                <tr style="background:#1A3A5C;color:white;font-weight:bold;">
+                  <td>TOTAL COST / الإجمالي</td>
+                  <td class="text-right"><t t-esc="'%.2f %s' % (o.total_cost, o.currency_id.symbol)"/></td>
+                </tr>
+              </table>
+            </div>
+          </div>
+
+          <!-- Compliance Status -->
+          <div class="row mt-2">
+            <div class="col-12">
+              <table class="table table-sm table-bordered" style="font-size:10px;">
+                <thead style="background:#1A3A5C;color:white;">
+                  <tr><th colspan="8">Regulatory Compliance Status / حالة الامتثال التنظيمي</th></tr>
+                  <tr><th>SABER SCoC</th><th>SFDA</th><th>CITC</th><th>SASO</th><th>MoI Permit</th><th>ACD</th><th>FASAH</th><th>AEO</th></tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><t t-esc="'Verified' if o.saber_scoc_verified else (o.saber_scoc_no or 'N/A')"/></td>
+                    <td><t t-esc="'Approved' if o.sfda_approved else ('Required' if o.requires_sfda else 'N/A')"/></td>
+                    <td><t t-esc="'Approved' if o.citc_approved else ('Required' if o.requires_citc else 'N/A')"/></td>
+                    <td><t t-esc="'Approved' if o.saso_approved else ('Required' if o.requires_saso else 'N/A')"/></td>
+                    <td><t t-esc="'Approved' if o.moi_approved else ('Required' if o.requires_moi else 'N/A')"/></td>
+                    <td><t t-esc="o.acd_reference_no or '—'"/></td>
+                    <td><t t-esc="o.fasah_declaration_no or '—'"/></td>
+                    <td><t t-esc="'AEO' if o.is_aeo else 'Standard'"/></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Signatures -->
+          <div class="row mt-4">
+            <div class="col-4 text-center">
+              <div style="border-top:1px solid black;padding-top:4px;margin-top:40px;">Prepared By / أعده</div>
+            </div>
+            <div class="col-4 text-center">
+              <div style="border-top:1px solid black;padding-top:4px;margin-top:40px;">Customs Broker / المخلص الجمركي</div>
+            </div>
+            <div class="col-4 text-center">
+              <div style="border-top:1px solid black;padding-top:4px;margin-top:40px;">ZATCA Officer / موظف ZATCA</div>
+            </div>
+          </div>
+
+        </div>
+      </t>
+    </t>
+  </t>
+</template>
+</odoo>

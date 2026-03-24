@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <style>
+        body { font-family: Arial, sans-serif; color: #333; }
+        h1 { color: #1a5276; }
+        h2 { color: #2874a6; border-bottom: 2px solid #2874a6; padding-bottom: 4px; }
+        .feature-grid { display: flex; flex-wrap: wrap; gap: 16px; margin: 16px 0; }
+        .feature-card { background: #eaf4fb; border-left: 4px solid #1a5276; padding: 12px 16px; flex: 1 1 200px; border-radius: 4px; }
+        .feature-card h3 { margin: 0 0 8px; font-size: 14px; color: #1a5276; }
+        .feature-card p { margin: 0; font-size: 13px; }
+        table { width: 100%; border-collapse: collapse; margin: 12px 0; }
+        th { background: #1a5276; color: white; padding: 8px; text-align: left; }
+        td { padding: 7px 8px; border: 1px solid #ddd; font-size: 13px; }
+        tr:nth-child(even) td { background: #f4f9fd; }
+    </style>
+</head>
+<body>
+<h1>🛃 Customs Clearance — نظام التخليص الجمركي</h1>
+<p><strong>Version 1.0 for Odoo 17</strong> — A comprehensive end-to-end customs clearance management system.</p>
+
+<h2>Key Features</h2>
+<div class="feature-grid">
+    <div class="feature-card"><h3>📋 Clearance Orders</h3><p>Full lifecycle workflow for Import, Export, Transit &amp; Temporary Admission</p></div>
+    <div class="feature-card"><h3>🚢 Shipment Tracking</h3><p>Vessels, containers, Bill of Lading, ETA tracking</p></div>
+    <div class="feature-card"><h3>🔢 HS Codes</h3><p>Harmonized System code library with duty rates</p></div>
+    <div class="feature-card"><h3>👤 Brokers</h3><p>Customs broker management with license tracking</p></div>
+    <div class="feature-card"><h3>📁 Documents</h3><p>BL, Invoice, Packing List, COO, and more</p></div>
+    <div class="feature-card"><h3>💰 Duties &amp; Taxes</h3><p>Automatic duty calculation, VAT, Excise Tax</p></div>
+    <div class="feature-card"><h3>📄 PDF Reports</h3><p>Professional bilingual clearance reports</p></div>
+    <div class="feature-card"><h3>🏦 Accounting</h3><p>Vendor bill creation for fees and duties</p></div>
+</div>
+
+<h2>Workflow States</h2>
+<table>
+    <tr><th>State</th><th>Arabic</th><th>Description</th></tr>
+    <tr><td>Draft</td><td>مسودة</td><td>Initial state, editable</td></tr>
+    <tr><td>Submitted</td><td>مقدمة</td><td>Submitted to customs</td></tr>
+    <tr><td>Customs Review</td><td>مراجعة جمركية</td><td>Under customs review</td></tr>
+    <tr><td>Under Inspection</td><td>تحت الفحص</td><td>Physical goods inspection</td></tr>
+    <tr><td>Duty Payment</td><td>سداد الرسوم</td><td>Awaiting duty payment</td></tr>
+    <tr><td>Released</td><td>مُطلق</td><td>Goods released by customs</td></tr>
+    <tr><td>Delivered</td><td>مُسلَّم</td><td>Goods delivered to consignee</td></tr>
+</table>
+</body>
+</html>

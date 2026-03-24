@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Duty Type list -->
+    <record id="view_customs_duty_type_list" model="ir.ui.view">
+        <field name="name">customs.duty.type.list</field>
+        <field name="model">customs.duty.type</field>
+        <field name="arch" type="xml">
+            <tree editable="bottom">
+                <field name="name"/>
+                <field name="code"/>
+                <field name="duty_category"/>
+                <field name="default_rate"/>
+                <field name="is_percentage"/>
+                <field name="active"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_customs_duty_type" model="ir.actions.act_window">
+        <field name="name">Duty &amp; Tax Types</field>
+        <field name="res_model">customs.duty.type</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+</odoo>

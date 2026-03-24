@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_customs_document_form" model="ir.ui.view">
+        <field name="name">customs.document.form</field>
+        <field name="model">customs.document</field>
+        <field name="arch" type="xml">
+            <form string="Customs Document">
+                <header>
+                    <button name="action_receive" string="Mark Received" type="object"
+                            class="btn-primary" invisible="state != 'pending'"/>
+                    <button name="action_verify" string="Verify" type="object"
+                            class="btn-success" invisible="state != 'received'"/>
+                    <button name="action_reject" string="Reject" type="object"
+                            class="btn-danger" invisible="state in ('rejected','verified')"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="pending,received,verified"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="clearance_id"/>
+                            <field name="document_type_id"/>
+                            <field name="document_number"/>
+                            <field name="issuing_authority"/>
+                        </group>
+                        <group>
+                            <field name="issue_date"/>
+                            <field name="expiry_date"/>
+                        </group>
+                    </group>
+                    <field name="attachment_ids" widget="many2many_binary"/>
+                    <field name="notes"/>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_customs_document_list" model="ir.ui.view">
+        <field name="name">customs.document.list</field>
+        <field name="model">customs.document</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="clearance_id"/>
+                <field name="document_type_id"/>
+                <field name="name"/>
+                <field name="document_number"/>
+                <field name="issue_date"/>
+                <field name="expiry_date" optional="show"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'verified'"
+                       decoration-warning="state == 'pending'"
+                       decoration-danger="state == 'rejected'"/>
+                <field name="attachment_count" string="Files"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_customs_document" model="ir.actions.act_window">
+        <field name="name">Documents</field>
+        <field name="res_model">customs.document</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Document Type -->
+    <record id="view_customs_document_type_list" model="ir.ui.view">
+        <field name="name">customs.document.type.list</field>
+        <field name="model">customs.document.type</field>
+        <field name="arch" type="xml">
+            <tree editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="code"/>
+                <field name="required"/>
+                <field name="active"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_customs_document_type" model="ir.actions.act_window">
+        <field name="name">Document Types</field>
+        <field name="res_model">customs.document.type</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+</odoo>

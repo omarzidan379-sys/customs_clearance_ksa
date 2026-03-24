@@ -1,0 +1,964 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     PORTAL REGISTRATION PAGE  —  /customs-portal/register
+     Full design matching the standalone customs_portal.html demo.
+     All JavaScript wrapped in CDATA. All HTML boolean attributes use
+     attr="attr" syntax. No template literals, no arrow functions,
+     no bare & < > in JS outside CDATA.
+═══════════════════════════════════════════════════════════════════════ -->
+<template id="portal_register_page" name="Customs Portal — Register Shipment">
+<t t-call="website.layout">
+<t t-set="title">Register Shipment — Customs Clearance Portal</t>
+<t t-set="website_published" t-value="True"/>
+
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&amp;family=Noto+Sans+Arabic:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+
+<style>
+:root{
+  --navy:#0d1f35;--navy2:#122640;--blue:#1e5fa8;--blue2:#2575c4;
+  --teal:#0e9d82;--teal2:#0bb896;--green:#1a6b35;--green2:#24a04d;
+  --red:#c0392b;--white:#ffffff;--off:#f4f7fb;--muted:#8a99ae;
+  --border:#dde4ee;--text:#1c2a3a;--subtext:#4a5e75;--input-bg:#f8fafd;
+  --radius:10px;--font-en:'Syne',sans-serif;--font-ar:'Noto Sans Arabic',sans-serif;
+  --font-mono:'JetBrains Mono',monospace;
+}
+.ksa-portal-root{font-family:var(--font-en);background:var(--navy);min-height:100vh;padding:0;overflow-x:hidden;position:relative;}
+.ksa-portal-root::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 60% at 10% 20%,rgba(30,95,168,.18) 0%,transparent 60%),radial-gradient(ellipse 60% 80% at 90% 80%,rgba(14,157,130,.12) 0%,transparent 60%),linear-gradient(160deg,#0d1f35 0%,#0a1929 100%);z-index:0;pointer-events:none;}
+.ksa-grid{position:fixed;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(rgba(30,95,168,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(30,95,168,.06) 1px,transparent 1px);background-size:40px 40px;}
+.ksa-wrap{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:0 24px;}
+
+/* Header */
+.ksa-header{padding:24px 0 18px;}
+.ksa-header-inner{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;}
+.ksa-logo{display:flex;align-items:center;gap:12px;}
+.ksa-logo-icon{width:44px;height:44px;background:linear-gradient(135deg,var(--blue),var(--teal));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;}
+.ksa-logo-text{color:#fff;}
+.ksa-logo-text strong{display:block;font-size:17px;font-weight:800;letter-spacing:-.3px;}
+.ksa-logo-text span{font-size:12px;opacity:.6;font-family:var(--font-ar);}
+.ksa-hbadge{background:rgba(14,157,130,.15);border:1px solid rgba(14,157,130,.3);color:#0bb896;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;letter-spacing:.5px;}
+
+/* Hero */
+.ksa-hero{padding:52px 0 40px;text-align:center;}
+.ksa-eyebrow{display:inline-flex;align-items:center;gap:8px;background:rgba(30,95,168,.12);border:1px solid rgba(30,95,168,.25);color:#7ab3f0;padding:6px 16px;border-radius:20px;font-size:12px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;margin-bottom:22px;}
+.ksa-eyebrow-dot{width:6px;height:6px;border-radius:50%;background:#7ab3f0;animation:kpulse 2s ease-in-out infinite;}
+@keyframes kpulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.4;transform:scale(.7);}}
+.ksa-h1{font-size:clamp(30px,5vw,54px);font-weight:800;color:#fff;line-height:1.08;letter-spacing:-1.5px;margin-bottom:10px;}
+.ksa-h1 .acc{background:linear-gradient(135deg,#4da8ff,#0bb896);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.ksa-hero-ar{font-family:var(--font-ar);font-size:clamp(16px,2.5vw,24px);color:rgba(255,255,255,.5);direction:rtl;margin-bottom:20px;font-weight:600;}
+.ksa-hero-sub{font-size:15px;color:var(--muted);max-width:500px;margin:0 auto 36px;line-height:1.7;}
+.ksa-stats{display:flex;align-items:center;justify-content:center;gap:36px;flex-wrap:wrap;}
+.ksa-stat-n{font-size:28px;font-weight:800;color:#fff;letter-spacing:-1px;text-align:center;}
+.ksa-stat-l{font-size:11px;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;margin-top:2px;text-align:center;}
+
+/* Info strip */
+.ksa-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:52px;}
+.ksa-icard{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:20px;text-align:center;}
+.ksa-icard .ic{font-size:26px;margin-bottom:10px;}
+.ksa-icard h4{color:#fff;font-size:14px;font-weight:700;margin-bottom:5px;}
+.ksa-icard p{color:var(--muted);font-size:12px;line-height:1.6;margin:0;}
+
+/* Tabs */
+.ksa-tabs-wrap{display:flex;justify-content:center;margin-bottom:28px;}
+.ksa-tabs{display:inline-flex;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:4px;}
+.ksa-tab{padding:10px 28px;border:none;background:none;color:rgba(255,255,255,.55);font-family:var(--font-en);font-size:14px;font-weight:600;border-radius:9px;cursor:pointer;transition:all .2s;}
+.ksa-tab.active{background:#fff;color:var(--navy);box-shadow:0 2px 8px rgba(0,0,0,.2);}
+.ksa-tab:hover:not(.active){color:#fff;}
+
+/* Form card */
+.ksa-card{background:#fff;border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,.3);overflow:hidden;margin-bottom:60px;}
+.ksa-card-top{background:linear-gradient(135deg,var(--navy2),#0a1929);padding:26px 32px;border-bottom:1px solid rgba(255,255,255,.08);}
+.ksa-card-top h2{color:#fff;font-size:19px;font-weight:800;margin-bottom:4px;}
+.ksa-card-top p{color:rgba(255,255,255,.4);font-size:13px;margin:0;}
+.ksa-step-dots{display:flex;gap:6px;margin-top:16px;}
+.ksa-dot{height:4px;border-radius:2px;background:rgba(255,255,255,.15);flex:1;transition:background .3s;}
+.ksa-dot.active{background:var(--teal2);}
+.ksa-dot.done{background:var(--blue2);}
+.ksa-form-body{padding:30px 32px;}
+
+/* Progress bar */
+.ksa-progress{display:flex;align-items:center;gap:8px;margin-bottom:26px;flex-wrap:wrap;}
+.ksa-ps{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--muted);}
+.ksa-ps .psn{width:24px;height:24px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:11px;transition:all .3s;flex-shrink:0;}
+.ksa-ps.active .psn{border-color:var(--blue);background:var(--blue);color:#fff;}
+.ksa-ps.done .psn{border-color:var(--teal);background:var(--teal);color:#fff;}
+.ksa-ps.active{color:var(--text);}
+.ksa-pl{flex:1;height:2px;background:var(--border);border-radius:1px;transition:background .3s;min-width:16px;}
+.ksa-pl.done{background:var(--teal);}
+
+/* Sections */
+.ksa-sec{display:none;}
+.ksa-sec.visible{display:block;animation:kfs .28s ease;}
+@keyframes kfs{from{opacity:0;transform:translateY(7px);}to{opacity:1;transform:translateY(0);}}
+.ksa-sec-title{display:flex;align-items:center;gap:10px;margin-bottom:20px;}
+.ksa-sec-num{width:28px;height:28px;border-radius:50%;background:var(--navy);color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.ksa-sec-title h3{font-size:16px;font-weight:700;color:var(--navy);margin:0;}
+.ksa-sec-title .ar{font-size:12px;color:var(--muted);margin-right:4px;}
+
+/* Grid helpers */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+.gfull{grid-column:1/-1;}
+@media(max-width:600px){.g2,.g4{grid-template-columns:1fr;}}
+@media(min-width:601px) and (max-width:800px){.g4{grid-template-columns:1fr 1fr;}}
+
+/* Fields */
+.ksa-field{display:flex;flex-direction:column;gap:5px;margin-bottom:2px;}
+.ksa-field label{font-size:11px;font-weight:600;color:var(--subtext);letter-spacing:.3px;text-transform:uppercase;}
+.ksa-field label .ar{text-transform:none;font-size:10px;color:var(--muted);}
+.ksa-field label .req{color:var(--red);}
+.ksa-field input,.ksa-field select,.ksa-field textarea{width:100%;background:var(--input-bg);border:1.5px solid var(--border);border-radius:var(--radius);padding:10px 13px;font-family:var(--font-en);font-size:14px;color:var(--text);outline:none;transition:border .2s,box-shadow .2s;}
+.ksa-field input:focus,.ksa-field select:focus,.ksa-field textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(30,95,168,.1);}
+.ksa-field input.err,.ksa-field textarea.err{border-color:var(--red);}
+.ksa-field textarea{resize:vertical;min-height:80px;}
+.ksa-hint{font-size:11px;color:var(--muted);}
+
+/* Radio card selectors */
+.ksa-type-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:22px;}
+.ksa-rc{position:relative;cursor:pointer;}
+.ksa-rc input{position:absolute;opacity:0;width:0;height:0;}
+.ksa-rc-lbl{display:flex;flex-direction:column;align-items:center;gap:7px;padding:16px 10px;border:2px solid var(--border);border-radius:12px;background:var(--input-bg);cursor:pointer;transition:all .2s;text-align:center;}
+.ksa-rc input:checked + .ksa-rc-lbl{border-color:var(--blue);background:rgba(30,95,168,.05);}
+.ksa-rc-lbl:hover{border-color:var(--blue2);}
+.rc-icon{font-size:24px;}
+.rc-name{font-size:13px;font-weight:700;color:var(--text);}
+.rc-ar{font-size:11px;color:var(--muted);font-family:var(--font-ar);}
+.ksa-ct-lbl{padding:11px 6px;border:2px solid var(--border);border-radius:10px;background:var(--input-bg);text-align:center;cursor:pointer;transition:all .2s;}
+.ksa-ct-lbl:hover{border-color:var(--teal2);}
+.ksa-rc.ct input:checked + .ksa-ct-lbl{border-color:var(--teal);background:rgba(14,157,130,.06);}
+.ksa-ct-lbl strong{display:block;font-size:13px;color:var(--text);font-weight:700;}
+.ksa-ct-lbl .ctar{font-size:11px;color:var(--muted);font-family:var(--font-ar);}
+
+/* Docs checklist */
+.ksa-doc-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+@media(max-width:560px){.ksa-doc-grid{grid-template-columns:1fr;}}
+.ksa-doc-chk{display:flex;align-items:center;gap:10px;padding:10px 13px;border:1.5px solid var(--border);border-radius:8px;background:var(--input-bg);cursor:pointer;transition:border-color .2s,background .2s,box-shadow .2s;}
+.ksa-doc-chk:hover{border-color:#a8d5b5;background:#f2fbf5;}
+.ksa-doc-chk.active{border-color:var(--green);background:#eaf7ee;box-shadow:0 0 0 3px rgba(26,107,53,.08);}
+.ksa-doc-chk.active .dt strong{color:var(--green);}
+.ksa-doc-chk input{width:15px;height:15px;accent-color:var(--green);cursor:pointer;flex-shrink:0;}
+.ksa-doc-chk .dt strong{display:block;font-size:13px;font-weight:600;color:var(--text);transition:color .2s;}
+.ksa-doc-chk .dt span{font-size:11px;color:var(--muted);font-family:var(--font-ar);}
+
+/* Summary */
+.ksa-summary{background:var(--off);border:1.5px solid var(--border);border-radius:12px;padding:18px;margin-top:18px;}
+.ksa-summary .sl{font-size:11px;font-weight:600;text-transform:uppercase;color:var(--subtext);letter-spacing:.3px;margin-bottom:10px;}
+.sum-row{display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding:5px 0;font-size:13px;}
+.sum-row:last-child{border:none;}
+.sum-key{color:var(--muted);font-weight:600;}
+.sum-val{text-align:right;max-width:65%;color:var(--text);}
+
+/* Nav buttons */
+.ksa-nav{display:flex;align-items:center;justify-content:space-between;margin-top:26px;padding-top:20px;border-top:1px solid var(--border);}
+.kbtn{padding:11px 26px;border-radius:var(--radius);font-family:var(--font-en);font-size:14px;font-weight:700;cursor:pointer;border:none;transition:all .2s;display:inline-flex;align-items:center;gap:7px;}
+.kbtn-ghost{background:transparent;border:1.5px solid var(--border);color:var(--subtext);}
+.kbtn-ghost:hover{border-color:var(--navy);color:var(--navy);}
+.kbtn-primary{background:linear-gradient(135deg,var(--blue),var(--blue2));color:#fff;box-shadow:0 4px 14px rgba(30,95,168,.3);}
+.kbtn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(30,95,168,.4);}
+.kbtn-success{background:linear-gradient(135deg,var(--green),var(--green2));color:#fff;box-shadow:0 4px 14px rgba(26,107,53,.3);}
+.kbtn-success:hover{transform:translateY(-1px);}
+.kbtn:disabled{opacity:.5;cursor:not-allowed;transform:none!important;}
+
+/* Success */
+.ksa-success{display:none;text-align:center;padding:56px 32px;}
+.ksa-success-icon{width:76px;height:76px;background:linear-gradient(135deg,var(--green),var(--green2));border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:34px;margin:0 auto 22px;box-shadow:0 8px 28px rgba(26,107,53,.3);}
+.ksa-success h2{font-size:24px;font-weight:800;color:var(--navy);margin-bottom:6px;}
+.ksa-success p{color:var(--subtext);margin-bottom:16px;line-height:1.65;}
+.ksa-ref-box{background:var(--off);border:1.5px solid var(--border);border-radius:12px;padding:18px;display:inline-block;min-width:260px;margin-bottom:18px;}
+.ksa-ref-lbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;}
+.ksa-ref-num{font-family:var(--font-mono);font-size:20px;font-weight:700;color:var(--navy);letter-spacing:1px;}
+.ksa-status-link{display:inline-flex;align-items:center;gap:6px;background:var(--navy);color:#fff;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;}
+.ksa-status-link:hover{background:var(--blue);color:#fff;}
+
+/* Status tab */
+.ksa-status-body{padding:32px;}
+.ksa-track-row{display:flex;gap:12px;max-width:500px;margin:0 auto 28px;}
+.ksa-track-row input{flex:1;background:var(--input-bg);border:1.5px solid var(--border);border-radius:var(--radius);padding:11px 13px;font-family:var(--font-en);font-size:14px;color:var(--text);outline:none;transition:border .2s;}
+.ksa-track-row input:focus{border-color:var(--blue);}
+.ksa-sresult{display:none;margin-top:10px;}
+.sbadge{display:inline-flex;align-items:center;gap:8px;padding:8px 18px;border-radius:20px;font-size:13px;font-weight:700;margin-bottom:18px;}
+.sbadge.draft{background:#e8f4fd;color:#1e5fa8;}
+.sbadge.review{background:#fef9e7;color:#7d5a00;}
+.sbadge.approved{background:#d5f5e3;color:#1a6b35;}
+.sbadge.rejected{background:#fdedec;color:#922b21;}
+.ksa-irow{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px;}
+.ksa-irow:last-child{border:none;}
+.ik{color:var(--subtext);font-weight:600;}
+.iv{color:var(--text);font-weight:500;text-align:right;}
+
+/* Sections hidden by default */
+.ksa-register-tab{display:block;}
+.ksa-status-tab{display:none;}
+
+/* Toast */
+.ksa-toast{position:fixed;bottom:20px;right:20px;background:var(--navy);color:#fff;padding:13px 18px;border-radius:10px;font-size:13px;box-shadow:0 8px 28px rgba(0,0,0,.25);transform:translateY(70px);opacity:0;transition:all .3s;z-index:9999;border-left:4px solid var(--teal);max-width:340px;}
+.ksa-toast.show{transform:translateY(0);opacity:1;}
+.ksa-toast.err{border-left-color:var(--red);}
+
+@media(max-width:600px){
+  .ksa-strip{grid-template-columns:1fr;}
+  .ksa-doc-grid{grid-template-columns:1fr;}
+  .ksa-form-body{padding:20px;}
+}
+</style>
+
+<div class="ksa-portal-root">
+  <div class="ksa-grid"></div>
+  <div class="ksa-wrap">
+
+    <!-- Header -->
+    <header class="ksa-header">
+      <div class="ksa-header-inner">
+        <div class="ksa-logo">
+          <div class="ksa-logo-icon">&#x1F6C3;</div>
+          <div class="ksa-logo-text">
+            <strong>Customs Clearance Portal</strong>
+            <span>&#x628;&#x648;&#x627;&#x628;&#x629; &#x627;&#x644;&#x62A;&#x62E;&#x644;&#x64A;&#x635; &#x627;&#x644;&#x62C;&#x645;&#x631;&#x643;&#x64A;</span>
+          </div>
+        </div>
+        <div class="ksa-hbadge">ZATCA Compliant &#x2713;</div>
+      </div>
+    </header>
+
+    <!-- Hero -->
+    <section class="ksa-hero">
+      <div class="ksa-eyebrow"><span class="ksa-eyebrow-dot"></span> Saudi Arabia Customs Portal</div>
+      <h1 class="ksa-h1">Register Your <span class="acc">Shipment</span><br/>With One Form</h1>
+      <p class="ksa-hero-ar">&#x633;&#x62C;&#x651;&#x644; &#x634;&#x62D;&#x646;&#x62A;&#x643; &#x628;&#x633;&#x647;&#x648;&#x644;&#x629; &#x648;&#x62A;&#x627;&#x628;&#x639; &#x62D;&#x627;&#x644;&#x629; &#x637;&#x644;&#x628;&#x643;</p>
+      <p class="ksa-hero-sub">Submit your import or export shipment details. Our customs team will review and respond within 1&#x2013;2 business days.</p>
+      <div class="ksa-stats">
+        <div><div class="ksa-stat-n">24h</div><div class="ksa-stat-l">Average Review</div></div>
+        <div><div class="ksa-stat-n">3</div><div class="ksa-stat-l">Simple Steps</div></div>
+        <div><div class="ksa-stat-n">100%</div><div class="ksa-stat-l">Digital Process</div></div>
+      </div>
+    </section>
+
+    <!-- Info strip -->
+    <div class="ksa-strip">
+      <div class="ksa-icard"><div class="ic">&#x1F4CB;</div><h4>Submit Request</h4><p>Fill in shipment details and available documents. Takes less than 5 minutes.</p></div>
+      <div class="ksa-icard"><div class="ic">&#x1F50D;</div><h4>Team Reviews</h4><p>Our customs team verifies all information and checks Saudi regulatory requirements.</p></div>
+      <div class="ksa-icard"><div class="ic">&#x2705;</div><h4>Get Approval</h4><p>Receive email confirmation. A clearance order is created and you are notified immediately.</p></div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="ksa-tabs-wrap">
+      <div class="ksa-tabs">
+        <button type="button" class="ksa-tab active" id="tab-reg" onclick="switchTab('register')">Register Shipment</button>
+        <a href="/customs-portal/search">
+          <button type="button" class="ksa-tab" id="tab-trk">Track Request</button>
+        </a>
+      </div>
+    </div>
+
+    <!-- ── REGISTRATION FORM ────────────────────────────────────────────── -->
+    <div class="ksa-card ksa-register-tab" id="reg-card">
+      <div class="ksa-card-top">
+        <h2>Shipment Registration Form</h2>
+        <p>Fields marked <span style="color:#f87c7c">*</span> are required</p>
+        <div class="ksa-step-dots">
+          <div class="ksa-dot active" id="dot-0"></div>
+          <div class="ksa-dot" id="dot-1"></div>
+          <div class="ksa-dot" id="dot-2"></div>
+          <div class="ksa-dot" id="dot-3"></div>
+        </div>
+      </div>
+
+      <div class="ksa-form-body" id="ksa-form-body">
+        <!-- Progress -->
+        <div class="ksa-progress">
+          <div class="ksa-ps active" id="ps-0"><div class="psn">1</div><span>You</span></div>
+          <div class="ksa-pl" id="pl-0"></div>
+          <div class="ksa-ps" id="ps-1"><div class="psn">2</div><span>Shipment</span></div>
+          <div class="ksa-pl" id="pl-1"></div>
+          <div class="ksa-ps" id="ps-2"><div class="psn">3</div><span>Goods</span></div>
+          <div class="ksa-pl" id="pl-2"></div>
+          <div class="ksa-ps" id="ps-3"><div class="psn">4</div><span>Docs</span></div>
+        </div>
+
+        <!-- Step 0: Who are you -->
+        <div class="ksa-sec visible" id="s0">
+          <div class="ksa-sec-title">
+            <div class="ksa-sec-num">1</div>
+            <h3>Your Information <span class="ar">&#x645;&#x639;&#x644;&#x648;&#x645;&#x627;&#x62A;&#x643;</span></h3>
+          </div>
+          <div class="ksa-type-grid">
+            <label class="ksa-rc">
+              <input type="radio" name="request_type" value="supplier" checked="checked"/>
+              <div class="ksa-rc-lbl"><div class="rc-icon">&#x1F3ED;</div><div class="rc-name">Supplier</div><div class="rc-ar">&#x645;&#x648;&#x631;&#x62F;</div></div>
+            </label>
+            <label class="ksa-rc">
+              <input type="radio" name="request_type" value="customer"/>
+              <div class="ksa-rc-lbl"><div class="rc-icon">&#x1F3E2;</div><div class="rc-name">Customer</div><div class="rc-ar">&#x639;&#x645;&#x64A;&#x644;</div></div>
+            </label>
+          </div>
+          <div class="g2">
+            <div class="ksa-field"><label>Full Name <span class="ar">&#x627;&#x644;&#x627;&#x633;&#x645; &#x627;&#x644;&#x643;&#x627;&#x645;&#x644;</span> <span class="req">*</span></label><input type="text" id="requester_name" placeholder="Ahmed Al-Rashidi"/></div>
+            <div class="ksa-field"><label>Email <span class="ar">&#x627;&#x644;&#x628;&#x631;&#x64A;&#x62F;</span> <span class="req">*</span></label><input type="email" id="requester_email" placeholder="ahmed@company.com"/></div>
+            <div class="ksa-field"><label>Company Name <span class="ar">&#x627;&#x633;&#x645; &#x627;&#x644;&#x634;&#x631;&#x643;&#x629;</span> <span class="req">*</span></label><input type="text" id="requester_company" placeholder="Al-Rashidi Trading Co."/></div>
+            <div class="ksa-field"><label>Phone <span class="ar">&#x631;&#x642;&#x645; &#x627;&#x644;&#x62C;&#x648;&#x627;&#x644;</span></label><input type="tel" id="requester_phone" placeholder="+966 5X XXX XXXX"/></div>
+            <div class="ksa-field"><label>CR Number <span class="ar">&#x627;&#x644;&#x633;&#x62C;&#x644; &#x627;&#x644;&#x62A;&#x62C;&#x627;&#x631;&#x64A;</span></label><input type="text" id="requester_cr_no" placeholder="1010XXXXXXX"/></div>
+            <div class="ksa-field"><label>VAT Number <span class="ar">&#x627;&#x644;&#x631;&#x642;&#x645; &#x627;&#x644;&#x636;&#x631;&#x64A;&#x628;&#x64A;</span></label><input type="text" id="requester_vat_no" placeholder="3XXXXXXXXXX"/></div>
+            <div class="ksa-field"><label>Country <span class="ar">&#x627;&#x644;&#x62F;&#x648;&#x644;&#x629;</span></label>
+              <select id="requester_country_code">
+                <option value="">&#x2014; Select Country &#x2014;</option>
+                <t t-foreach="countries" t-as="c">
+                  <option t-att-value="c.code" t-att-selected="'selected' if c.code == 'SA' else None"><t t-esc="c.name"/></option>
+                </t>
+              </select>
+            </div>
+            <div class="ksa-field"><label>City <span class="ar">&#x627;&#x644;&#x645;&#x62F;&#x64A;&#x646;&#x629;</span></label><input type="text" id="requester_city" placeholder="Riyadh"/></div>
+          </div>
+        </div>
+
+        <!-- Step 1: Shipment -->
+        <div class="ksa-sec" id="s1">
+          <div class="ksa-sec-title">
+            <div class="ksa-sec-num">2</div>
+            <h3>Shipment Details <span class="ar">&#x62A;&#x641;&#x627;&#x635;&#x64A;&#x644; &#x627;&#x644;&#x634;&#x62D;&#x646;&#x629;</span></h3>
+          </div>
+          <p style="font-size:11px;font-weight:600;color:var(--subtext);text-transform:uppercase;letter-spacing:.3px;margin-bottom:10px;">Clearance Type</p>
+          <div class="g4" style="margin-bottom:22px;">
+            <label class="ksa-rc ct"><input type="radio" name="clearance_type" value="import" checked="checked"/><div class="ksa-ct-lbl"><strong>Import</strong><div class="ctar">&#x627;&#x633;&#x62A;&#x64A;&#x631;&#x627;&#x62F;</div></div></label>
+            <label class="ksa-rc ct"><input type="radio" name="clearance_type" value="export"/><div class="ksa-ct-lbl"><strong>Export</strong><div class="ctar">&#x62A;&#x635;&#x62F;&#x64A;&#x631;</div></div></label>
+            <label class="ksa-rc ct"><input type="radio" name="clearance_type" value="transit"/><div class="ksa-ct-lbl"><strong>Transit</strong><div class="ctar">&#x62A;&#x631;&#x627;&#x646;&#x632;&#x64A;&#x62A;</div></div></label>
+            <label class="ksa-rc ct"><input type="radio" name="clearance_type" value="temporary"/><div class="ksa-ct-lbl"><strong>Temporary</strong><div class="ctar">&#x645;&#x624;&#x642;&#x62A;</div></div></label>
+          </div>
+          <div class="g2">
+            <div class="ksa-field"><label>Shipment Mode</label>
+              <select id="shipment_type">
+                <option value="sea">Sea Freight &#x1F6A2;</option>
+                <option value="air">Air Freight &#x2708;&#xFE0F;</option>
+                <option value="road">Road Freight &#x1F69B;</option>
+              </select>
+            </div>
+            <div class="ksa-field"><label>ETA <span class="ar">&#x62A;&#x627;&#x631;&#x64A;&#x62E; &#x627;&#x644;&#x648;&#x635;&#x648;&#x644;</span></label><input type="date" id="eta"/></div>
+            <div class="ksa-field"><label>Country of Origin</label>
+              <select id="country_origin_code">
+                <option value="">&#x2014; Select &#x2014;</option>
+                <t t-foreach="countries" t-as="c">
+                  <option t-att-value="c.code"><t t-esc="c.name"/></option>
+                </t>
+              </select>
+            </div>
+            <div class="ksa-field"><label>Country of Destination</label>
+              <select id="country_destination_code">
+                <t t-foreach="countries" t-as="c">
+                  <option t-att-value="c.code" t-att-selected="'selected' if c.code == 'SA' else None"><t t-esc="c.name"/></option>
+                </t>
+              </select>
+            </div>
+            <div class="ksa-field"><label>Port of Loading</label><input type="text" id="port_of_loading" placeholder="Shanghai / CNSHA"/></div>
+            <div class="ksa-field"><label>Port of Discharge</label><input type="text" id="port_of_discharge" placeholder="Jeddah Islamic Port"/></div>
+            <div class="ksa-field"><label>Vessel / Carrier</label><input type="text" id="vessel_name" placeholder="MSC DIANA"/></div>
+            <div class="ksa-field"><label>Bill of Lading No.</label><input type="text" id="bill_of_lading_no" placeholder="MSCUJD260XXXXX"/></div>
+            <div class="ksa-field"><label>Gross Weight (kg)</label><input type="number" id="gross_weight" placeholder="0.00" min="0" step="0.01"/></div>
+            <div class="ksa-field"><label>Volume (CBM)</label><input type="number" id="volume" placeholder="0.00" min="0" step="0.01"/></div>
+            <div class="ksa-field"><label>No. of Packages</label><input type="number" id="packages_count" placeholder="0" min="0"/></div>
+          </div>
+        </div>
+
+        <!-- Step 2: Goods -->
+        <div class="ksa-sec" id="s2">
+          <div class="ksa-sec-title">
+            <div class="ksa-sec-num">3</div>
+            <h3>Goods Description <span class="ar">&#x648;&#x635;&#x641; &#x627;&#x644;&#x628;&#x636;&#x627;&#x639;&#x629;</span></h3>
+          </div>
+          <div class="g2">
+            <div class="ksa-field gfull"><label>Goods Description <span class="req">*</span></label>
+              <textarea id="goods_description" rows="3" placeholder="Describe goods in detail: names, models, materials, intended use..."></textarea>
+            </div>
+            <div class="ksa-field gfull"><label>HS Codes <span class="ar">&#x627;&#x644;&#x623;&#x631;&#x645;&#x632;&#x629; &#x627;&#x644;&#x62C;&#x645;&#x631;&#x643;&#x64A;&#x629;</span></label>
+              <input type="text" id="hs_codes_list" placeholder="e.g. 8471.30, 8517.12 (comma-separated)"/>
+              <span class="ksa-hint">Separate codes with commas. Leave blank if unknown.</span>
+            </div>
+            <div class="ksa-field"><label>Estimated Value</label><input type="number" id="estimated_value" placeholder="0.00" min="0" step="0.01"/></div>
+            <div class="ksa-field"><label>Currency</label>
+              <select id="currency_note">
+                <option value="USD">USD &#x2014; US Dollar</option>
+                <option value="SAR">SAR &#x2014; Saudi Riyal</option>
+                <option value="EUR">EUR &#x2014; Euro</option>
+                <option value="GBP">GBP &#x2014; Pound</option>
+                <option value="AED">AED &#x2014; UAE Dirham</option>
+              </select>
+            </div>
+          </div>
+          <p style="font-size:11px;font-weight:600;color:var(--subtext);text-transform:uppercase;letter-spacing:.3px;margin:18px 0 10px;">Saudi References (if already obtained)</p>
+          <div class="g2">
+            <div class="ksa-field"><label>ACD Reference No.</label><input type="text" id="acd_reference_no" placeholder="ACD-2026-XXXXX"/></div>
+            <div class="ksa-field"><label>SABER SCoC No.</label><input type="text" id="saber_scoc_no" placeholder="SABER-SCOC-XXXXX"/></div>
+            <div class="ksa-field"><label>SFDA Approval No.</label><input type="text" id="sfda_approval_no" placeholder="SFDA-IMP-2026-XXX"/></div>
+            <div class="ksa-field"><label>FATOORAH Invoice No.</label><input type="text" id="fatoorah_invoice_no" placeholder="FAT-INV-2026-XXXXX"/></div>
+          </div>
+        </div>
+
+        <!-- Step 3: Documents -->
+        <div class="ksa-sec" id="s3">
+          <div class="ksa-sec-title">
+            <div class="ksa-sec-num">4</div>
+            <h3>Available Documents <span class="ar">&#x627;&#x644;&#x645;&#x633;&#x62A;&#x646;&#x62F;&#x627;&#x62A; &#x627;&#x644;&#x645;&#x62A;&#x648;&#x641;&#x631;&#x629;</span></h3>
+          </div>
+          <p style="font-size:13px;color:var(--subtext);margin-bottom:16px;">Tick all documents you have ready.</p>
+          <div class="ksa-doc-grid">
+            <label class="ksa-doc-chk"><input type="checkbox" id="has_bill_of_lading" onchange="toggleDoc(this)"/><div class="dt"><strong>Bill of Lading / AWB</strong><span>&#x628;&#x648;&#x644;&#x64A;&#x635;&#x629; &#x627;&#x644;&#x634;&#x62D;&#x646;</span></div></label>
+            <label class="ksa-doc-chk"><input type="checkbox" id="has_invoice" onchange="toggleDoc(this)"/><div class="dt"><strong>Commercial Invoice</strong><span>&#x627;&#x644;&#x641;&#x627;&#x62A;&#x648;&#x631;&#x629; &#x627;&#x644;&#x62A;&#x62C;&#x627;&#x631;&#x64A;&#x629;</span></div></label>
+            <label class="ksa-doc-chk"><input type="checkbox" id="has_packing_list" onchange="toggleDoc(this)"/><div class="dt"><strong>Packing List</strong><span>&#x642;&#x627;&#x626;&#x645;&#x629; &#x627;&#x644;&#x639;&#x628;&#x648;&#x629;</span></div></label>
+            <label class="ksa-doc-chk"><input type="checkbox" id="has_coo" onchange="toggleDoc(this)"/><div class="dt"><strong>Certificate of Origin</strong><span>&#x634;&#x647;&#x627;&#x62F;&#x629; &#x627;&#x644;&#x645;&#x646;&#x634;&#x623;</span></div></label>
+            <label class="ksa-doc-chk"><input type="checkbox" id="has_saber_scoc" onchange="toggleDoc(this)"/><div class="dt"><strong>SABER SCoC</strong><span>&#x634;&#x647;&#x627;&#x62F;&#x629; &#x645;&#x637;&#x627;&#x628;&#x642;&#x629; &#x633;&#x627;&#x628;&#x631;</span></div></label>
+            <label class="ksa-doc-chk"><input type="checkbox" id="has_sfda" onchange="toggleDoc(this)"/><div class="dt"><strong>SFDA Approval</strong><span>&#x645;&#x648;&#x627;&#x641;&#x642;&#x629; &#x647;&#x64A;&#x626;&#x629; &#x627;&#x644;&#x63A;&#x630;&#x627;&#x621; &#x648;&#x627;&#x644;&#x62F;&#x648;&#x627;&#x621;</span></div></label>
+            <label class="ksa-doc-chk"><input type="checkbox" id="has_citc" onchange="toggleDoc(this)"/><div class="dt"><strong>CITC Certificate</strong><span>&#x634;&#x647;&#x627;&#x62F;&#x629; &#x647;&#x64A;&#x626;&#x629; &#x627;&#x644;&#x627;&#x62A;&#x635;&#x627;&#x644;&#x627;&#x62A;</span></div></label>
+          </div>
+          <div class="ksa-field" style="margin-top:12px;">
+            <label>Additional Notes</label>
+            <textarea id="additional_docs" rows="2" placeholder="Any other documents or special requirements..."></textarea>
+          </div>
+          <div class="ksa-summary">
+            <div class="sl">Review Summary</div>
+            <div id="sum-content"></div>
+          </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="ksa-nav">
+          <button type="button" class="kbtn kbtn-ghost" id="btn-prev" onclick="prevS()" style="display:none;">&#x2190; Back</button>
+          <div style="flex:1;"></div>
+          <button type="button" class="kbtn kbtn-primary" id="btn-next" onclick="nextS()">Continue &#x2192;</button>
+          <button type="button" class="kbtn kbtn-success" id="btn-sub" onclick="submitF()" style="display:none;">Submit Request &#x2713;</button>
+        </div>
+      </div>
+
+      <!-- Success -->
+      <div class="ksa-success" id="ksa-success">
+        <div class="ksa-success-icon">&#x2713;</div>
+        <h2>Request Submitted!</h2>
+        <p style="font-family:var(--font-ar);color:var(--muted);font-size:15px;">&#x62A;&#x645; &#x62A;&#x642;&#x62F;&#x64A;&#x645; &#x637;&#x644;&#x628;&#x643; &#x628;&#x646;&#x62C;&#x627;&#x62D;</p>
+        <p>Our team will review your request within <strong>1&#x2013;2 business days</strong>.<br/>A confirmation email has been sent to you.</p>
+        <div class="ksa-ref-box">
+          <div class="ksa-ref-lbl">Reference Number</div>
+          <div class="ksa-ref-num" id="res-ref">&#x2014;</div>
+        </div>
+        <br/>
+        <a class="ksa-status-link" id="res-link" href="/customs-portal/register">&#x1F50D; Track Your Request</a>
+        <br/><br/>
+        <button type="button" class="kbtn kbtn-ghost" onclick="resetF()" style="margin-top:8px;">Submit Another</button>
+      </div>
+    </div>
+
+    <!-- ── STATUS TRACKER ──────────────────────────────────────────────── -->
+    <div class="ksa-card ksa-status-tab" id="trk-card">
+      <div class="ksa-card-top">
+        <h2>Track Your Request</h2>
+        <p>Enter your reference number or token to check status</p>
+      </div>
+      <div class="ksa-status-body">
+        <div class="ksa-track-row">
+          <input type="text" id="track-token" placeholder="PRT/2026/00001 or TKNXXXXXXXX"/>
+          <button type="button" class="kbtn kbtn-primary" onclick="checkStatus()">Track &#x2192;</button>
+        </div>
+        <div class="ksa-sresult" id="ksa-sresult">
+          <div id="sbadge-wrap"></div>
+          <div id="sdetails"></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /ksa-wrap -->
+</div><!-- /ksa-portal-root -->
+
+<div class="ksa-toast" id="ksa-toast"></div>
+
+<script type="text/javascript">
+//<![CDATA[
+var cur = 0;
+var N   = 4;
+
+function switchTab(tab) {
+    document.getElementById('tab-reg').classList.toggle('active', tab === 'register');
+    document.getElementById('tab-trk').classList.toggle('active', tab === 'status');
+    document.getElementById('reg-card').style.display = (tab === 'register') ? '' : 'none';
+    document.getElementById('trk-card').style.display = (tab === 'status')   ? '' : 'none';
+}
+
+function showS(n) {
+    var secs = document.querySelectorAll('.ksa-sec');
+    for (var i = 0; i < secs.length; i++) { secs[i].classList.remove('visible'); }
+    document.getElementById('s' + n).classList.add('visible');
+
+    for (var i = 0; i < N; i++) {
+        var dot = document.getElementById('dot-' + i);
+        var ps  = document.getElementById('ps-'  + i);
+        var pl  = document.getElementById('pl-'  + i);
+        dot.classList.remove('active', 'done');
+        if (ps) { ps.classList.remove('active', 'done'); }
+        if (i < n)  { dot.classList.add('done');   if (ps) ps.classList.add('done');   }
+        if (i === n) { dot.classList.add('active'); if (ps) ps.classList.add('active'); }
+        if (pl) { if (i < n) { pl.classList.add('done'); } else { pl.classList.remove('done'); } }
+    }
+
+    document.getElementById('btn-prev').style.display = (n > 0)       ? '' : 'none';
+    document.getElementById('btn-next').style.display = (n < N - 1)   ? '' : 'none';
+    document.getElementById('btn-sub').style.display  = (n === N - 1) ? '' : 'none';
+
+    if (n === N - 1) { buildSum(); }
+    cur = n;
+}
+
+function nextS() { if (validate(cur)) { showS(cur + 1); } }
+function prevS() { if (cur > 0)       { showS(cur - 1); } }
+
+function validate(n) {
+    var ok = true;
+    if (n === 0) {
+        var ids = ['requester_name', 'requester_email', 'requester_company'];
+        for (var i = 0; i < ids.length; i++) {
+            var el = document.getElementById(ids[i]);
+            if (!el.value.trim()) { el.classList.add('err'); ok = false; }
+            else                  { el.classList.remove('err'); }
+        }
+        if (!ok) { toastMsg('Please fill required fields.', true); }
+    }
+    if (n === 2) {
+        var el = document.getElementById('goods_description');
+        if (!el.value.trim()) {
+            el.classList.add('err');
+            ok = false;
+            toastMsg('Please describe your goods.', true);
+        } else { el.classList.remove('err'); }
+    }
+    return ok;
+}
+
+function buildSum() {
+    var ct = document.querySelector('input[name="clearance_type"]:checked');
+    var rt = document.querySelector('input[name="request_type"]:checked');
+    var rows = [
+        ['Requester', gv('requester_name') + ' \u2014 ' + gv('requester_company')],
+        ['Email',     gv('requester_email')],
+        ['Type',      rt ? rt.value : '\u2014'],
+        ['Clearance', ct ? ct.value : '\u2014'],
+        ['Mode',      gv('shipment_type')],
+        ['BL No.',    gv('bill_of_lading_no') || '\u2014'],
+        ['ETA',       gv('eta') || '\u2014'],
+        ['Value',     gv('estimated_value') ? (gv('estimated_value') + ' ' + gv('currency_note')) : '\u2014']
+    ];
+    var html = '';
+    for (var i = 0; i < rows.length; i++) {
+        var k = rows[i][0];
+        var v = rows[i][1] || '\u2014';
+        html += '<div class="sum-row"><span class="sum-key">' + k + '</span><span class="sum-val">' + v + '</span></div>';
+    }
+    document.getElementById('sum-content').innerHTML = html;
+}
+
+function submitF() {
+    if (!validate(cur)) { return; }
+    var btn = document.getElementById('btn-sub');
+    btn.disabled = true;
+    btn.textContent = 'Submitting...';
+
+    var ct = document.querySelector('input[name="clearance_type"]:checked');
+    var rt = document.querySelector('input[name="request_type"]:checked');
+
+    var data = {
+        request_type:             rt ? rt.value : 'supplier',
+        requester_name:           gv('requester_name'),
+        requester_email:          gv('requester_email'),
+        requester_phone:          gv('requester_phone'),
+        requester_company:        gv('requester_company'),
+        requester_cr_no:          gv('requester_cr_no'),
+        requester_vat_no:         gv('requester_vat_no'),
+        requester_country_code:   gv('requester_country_code'),
+        requester_city:           gv('requester_city'),
+        clearance_type:           ct ? ct.value : 'import',
+        shipment_type:            gv('shipment_type'),
+        country_origin_code:      gv('country_origin_code'),
+        country_destination_code: gv('country_destination_code'),
+        port_of_loading:          gv('port_of_loading'),
+        port_of_discharge:        gv('port_of_discharge'),
+        vessel_name:              gv('vessel_name'),
+        bill_of_lading_no:        gv('bill_of_lading_no'),
+        eta:                      gv('eta'),
+        gross_weight:             gv('gross_weight'),
+        volume:                   gv('volume'),
+        packages_count:           gv('packages_count'),
+        goods_description:        gv('goods_description'),
+        hs_codes_list:            gv('hs_codes_list'),
+        estimated_value:          gv('estimated_value'),
+        currency_note:            gv('currency_note'),
+        has_bill_of_lading:       cb('has_bill_of_lading'),
+        has_invoice:              cb('has_invoice'),
+        has_packing_list:         cb('has_packing_list'),
+        has_coo:                  cb('has_coo'),
+        has_saber_scoc:           cb('has_saber_scoc'),
+        has_sfda:                 cb('has_sfda'),
+        has_citc:                 cb('has_citc'),
+        additional_docs:          gv('additional_docs'),
+        acd_reference_no:         gv('acd_reference_no'),
+        saber_scoc_no:            gv('saber_scoc_no'),
+        sfda_approval_no:         gv('sfda_approval_no'),
+        fatoorah_invoice_no:      gv('fatoorah_invoice_no')
+    };
+
+    fetch('/customs-portal/submit', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+        body:    JSON.stringify({ jsonrpc: '2.0', method: 'call', params: data })
+    })
+    .then(function(resp) { return resp.json(); })
+    .then(function(result) {
+        if (result.success) {
+            document.getElementById('res-ref').textContent          = result.reference || '\u2014';
+            document.getElementById('res-link').href                = '/customs-portal/status/' + (result.token || '');
+            document.getElementById('ksa-form-body').style.display  = 'none';
+            document.getElementById('ksa-success').style.display    = 'block';
+        } else {
+            toastMsg('Error: ' + (result.error || 'Submission failed'), true);
+            btn.disabled = false;
+            btn.textContent = 'Submit Request';
+        }
+    })
+    .catch(function() {
+        toastMsg('Connection error. Please try again.', true);
+        btn.disabled = false;
+        btn.textContent = 'Submit Request';
+    });
+}
+
+function resetF() {
+    document.getElementById('ksa-success').style.display   = 'none';
+    document.getElementById('ksa-form-body').style.display = '';
+    var inputs = document.querySelectorAll('#ksa-form-body input[type=text], #ksa-form-body input[type=email], #ksa-form-body input[type=tel], #ksa-form-body input[type=number], #ksa-form-body input[type=date], #ksa-form-body textarea');
+    for (var i = 0; i < inputs.length; i++) { inputs[i].value = ''; }
+    var checkboxes = document.querySelectorAll('#ksa-form-body input[type=checkbox]');
+    for (var i = 0; i < checkboxes.length; i++) { checkboxes[i].checked = false; }
+    showS(0);
+}
+
+function checkStatus() {
+    var token = document.getElementById('track-token').value.trim();
+    if (!token) { toastMsg('Please enter a reference number.', true); return; }
+    var res   = document.getElementById('ksa-sresult');
+    var badge = document.getElementById('sbadge-wrap');
+    var det   = document.getElementById('sdetails');
+    res.style.display   = 'block';
+    badge.innerHTML     = '<div style="color:var(--muted);font-size:13px;padding:10px 0;">Checking&#x2026;</div>';
+    det.innerHTML       = '';
+    setTimeout(function() {
+        window.location.href = '/customs-portal/status/' + encodeURIComponent(token);
+    }, 400);
+}
+
+function gv(id) { var el = document.getElementById(id); return el ? el.value : ''; }
+function cb(id) { var el = document.getElementById(id); return el ? el.checked : false; }
+
+function toastMsg(msg, isErr) {
+    var el = document.getElementById('ksa-toast');
+    el.textContent = msg;
+    el.className   = 'ksa-toast show' + (isErr ? ' err' : '');
+    setTimeout(function() { el.classList.remove('show'); }, 3200);
+}
+
+function toggleDoc(checkbox) {
+    var label = checkbox.closest('.ksa-doc-chk') || checkbox.parentElement;
+    if (checkbox.checked) {
+        label.classList.add('active');
+    } else {
+        label.classList.remove('active');
+    }
+}
+showS(0);
+//]]>
+</script>
+
+</t>
+</template>
+
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     STATUS PAGE  —  /customs-portal/status/<token>
+═══════════════════════════════════════════════════════════════════════ -->
+<template id="portal_status_page" name="Customs Portal — Request Status">
+<t t-call="website.layout">
+<t t-set="title">Request Status &#x2014; Customs Clearance Portal</t>
+
+<style>
+.ksa-status-page{background:#0d1f35;min-height:100vh;padding:60px 0;font-family:'Syne',sans-serif;}
+.ksa-status-page::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 60% at 10% 20%,rgba(30,95,168,.18) 0%,transparent 60%),radial-gradient(ellipse 60% 80% at 90% 80%,rgba(14,157,130,.12) 0%,transparent 60%),linear-gradient(160deg,#0d1f35 0%,#0a1929 100%);z-index:0;pointer-events:none;}
+.ksa-sw{position:relative;z-index:1;max-width:660px;margin:0 auto;padding:0 24px;text-align:center;}
+.ksa-status-page h2{color:#fff;font-size:26px;font-weight:800;margin-bottom:8px;}
+.ksa-status-page p{color:#8a99ae;margin-bottom:18px;}
+.ksa-scard{background:#fff;border-radius:18px;padding:30px;box-shadow:0 16px 50px rgba(0,0,0,.3);text-align:left;margin-top:10px;}
+.ks-badge{display:inline-flex;align-items:center;gap:8px;padding:8px 18px;border-radius:20px;font-size:14px;font-weight:700;margin-bottom:20px;}
+.ks-badge.draft{background:#e8f4fd;color:#1e5fa8;}
+.ks-badge.review{background:#fef9e7;color:#7d5a00;}
+.ks-badge.approved{background:#d5f5e3;color:#1a6b35;}
+.ks-badge.rejected{background:#fdedec;color:#922b21;}
+.ks-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #dde4ee;font-size:13px;}
+.ks-row:last-child{border:none;}
+.ks-k{color:#4a5e75;font-weight:600;}
+.ks-v{color:#1c2a3a;font-weight:500;text-align:right;max-width:65%;}
+.ks-notes{background:#f4f7fb;border-radius:10px;padding:14px;margin-top:16px;font-size:13px;color:#1c2a3a;line-height:1.65;}
+.ks-notes strong{display:block;color:#4a5e75;font-size:11px;text-transform:uppercase;letter-spacing:.3px;margin-bottom:6px;}
+.ks-nf{color:#fff;padding:40px;}
+.ks-nf-icon{font-size:48px;margin-bottom:16px;}
+.ks-back{display:inline-flex;align-items:center;gap:6px;background:#1e5fa8;color:#fff;padding:11px 22px;border-radius:8px;font-size:14px;font-weight:600;text-decoration:none;margin-top:20px;}
+.ks-back:hover{background:#2575c4;color:#fff;}
+</style>
+
+<div class="ksa-status-page">
+  <div class="ksa-sw">
+    <t t-if="not found">
+      <div class="ks-nf">
+        <div class="ks-nf-icon">&#x1F50D;</div>
+        <h2>Request Not Found</h2>
+        <p>No request found for: <strong style="color:#fff;" t-esc="token"/><br/>Please check your reference and try again.</p>
+        <a class="ks-back" href="/customs-portal/register">&#x2190; Submit New Request</a>
+      </div>
+    </t>
+    <t t-else="">
+      <h2>Request Status</h2>
+      <p>Reference: <strong style="color:#fff;" t-esc="req.name"/></p>
+
+      <div class="ksa-scard">
+        <div t-attf-class="ks-badge #{req.state}">
+          <t t-if="req.state == 'draft'">&#x1F4CB; Submitted &#x2014; Awaiting Review</t>
+          <t t-elif="req.state == 'review'">&#x1F50D; Being Reviewed</t>
+          <t t-elif="req.state == 'approved'">&#x2705; Approved</t>
+          <t t-elif="req.state == 'rejected'">&#x274C; Needs Updates</t>
+        </div>
+
+        <div class="ks-row"><span class="ks-k">Reference</span><span class="ks-v" style="font-family:monospace;" t-esc="req.name"/></div>
+        <div class="ks-row"><span class="ks-k">Submitted</span><span class="ks-v" t-esc="req.create_date"/></div>
+        <div class="ks-row"><span class="ks-k">Company</span><span class="ks-v" t-esc="req.requester_company"/></div>
+        <div class="ks-row"><span class="ks-k">Type</span><span class="ks-v" t-esc="req.clearance_type"/></div>
+        <div class="ks-row"><span class="ks-k">Shipment Mode</span><span class="ks-v" t-esc="req.shipment_type"/></div>
+        <t t-if="req.eta">
+          <div class="ks-row"><span class="ks-k">ETA</span><span class="ks-v" t-esc="req.eta"/></div>
+        </t>
+        <t t-if="req.clearance_id">
+          <div class="ks-row"><span class="ks-k">Clearance Order</span><span class="ks-v" style="color:#1a6b35;font-weight:700;" t-esc="req.clearance_id.name"/></div>
+        </t>
+
+        <t t-if="req.state == 'approved' and req.review_notes">
+          <div class="ks-notes">
+            <strong>Notes from our team</strong>
+            <span t-esc="req.review_notes"/>
+          </div>
+        </t>
+        <t t-if="req.state == 'rejected' and req.rejection_reason">
+          <div class="ks-notes" style="background:#fdedec;">
+            <strong style="color:#922b21;">Action Required</strong>
+            <span t-esc="req.rejection_reason"/>
+          </div>
+        </t>
+      </div>
+
+      <a class="ks-back" href="/customs-portal/register">&#x2190; Submit New Request</a>
+    </t>
+  </div>
+</div>
+</t>
+</template>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+     SEARCH PAGE  —  /customs-portal/search
+     User searches by name/phone + optional date range.
+     Returns a list of all matching requests with live states.
+═══════════════════════════════════════════════════════════════════════ -->
+<template id="portal_search_page" name="Customs Portal — Search Requests">
+<t t-call="website.layout">
+<t t-set="title">Track My Requests &#x2014; Customs Clearance Portal</t>
+
+<style>
+.ksp{background:#0d1f35;min-height:100vh;padding:50px 0 80px;font-family:'Syne',sans-serif;}
+.ksp::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 60% at 10% 20%,rgba(30,95,168,.18) 0%,transparent 60%),radial-gradient(ellipse 60% 80% at 90% 80%,rgba(14,157,130,.12) 0%,transparent 60%),linear-gradient(160deg,#0d1f35 0%,#0a1929 100%);z-index:0;pointer-events:none;}
+.ksp-w{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:0 24px;}
+.ksp h2{color:#fff;font-size:28px;font-weight:800;margin-bottom:6px;letter-spacing:-1px;}
+.ksp .sub{color:#8a99ae;font-size:14px;margin-bottom:32px;}
+
+/* Search card */
+.ksp-scard{background:#fff;border-radius:18px;padding:28px 32px;box-shadow:0 16px 50px rgba(0,0,0,.25);margin-bottom:28px;}
+.ksp-scard h3{font-size:15px;font-weight:700;color:#1A3A5C;margin-bottom:18px;}
+.ksp-form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+.ksp-form-row.four{grid-template-columns:1fr 1fr 1fr 1fr;}
+@media(max-width:640px){.ksp-form-row,.ksp-form-row.four{grid-template-columns:1fr;}}
+.ksp-field{display:flex;flex-direction:column;gap:5px;}
+.ksp-field label{font-size:11px;font-weight:600;color:#4a5e75;letter-spacing:.3px;text-transform:uppercase;}
+.ksp-field label .ar{text-transform:none;font-size:10px;color:#8a99ae;}
+.ksp-field input{background:#f8fafd;border:1.5px solid #dde4ee;border-radius:10px;padding:10px 13px;font-family:'Syne',sans-serif;font-size:14px;color:#1c2a3a;outline:none;transition:border .2s;}
+.ksp-field input:focus{border-color:#1e5fa8;box-shadow:0 0 0 3px rgba(30,95,168,.1);}
+.ksp-btn-row{display:flex;gap:10px;margin-top:4px;}
+.ksp-btn{padding:11px 28px;border-radius:10px;font-family:'Syne',sans-serif;font-size:14px;font-weight:700;cursor:pointer;border:none;transition:all .2s;}
+.ksp-btn-primary{background:linear-gradient(135deg,#1e5fa8,#2575c4);color:#fff;box-shadow:0 4px 14px rgba(30,95,168,.3);}
+.ksp-btn-primary:hover{transform:translateY(-1px);}
+.ksp-btn-ghost{background:transparent;border:1.5px solid #dde4ee;color:#4a5e75;}
+.ksp-btn-ghost:hover{border-color:#1A3A5C;color:#1A3A5C;}
+
+/* Results */
+.ksp-results-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.ksp-results-header h3{color:#fff;font-size:15px;font-weight:700;margin:0;}
+.ksp-count{background:rgba(255,255,255,.1);color:#fff;font-size:12px;font-weight:600;padding:4px 12px;border-radius:20px;}
+.ksp-empty{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:40px;text-align:center;color:#8a99ae;}
+.ksp-empty .eico{font-size:36px;margin-bottom:12px;}
+.ksp-empty p{font-size:14px;margin:0;}
+
+/* Request cards */
+.ksp-req-card{background:#fff;border-radius:14px;padding:20px 24px;margin-bottom:12px;box-shadow:0 4px 20px rgba(0,0,0,.15);border-left:4px solid #dde4ee;transition:box-shadow .2s;}
+.ksp-req-card:hover{box-shadow:0 8px 28px rgba(0,0,0,.22);}
+.ksp-req-card.draft   {border-left-color:#1e5fa8;}
+.ksp-req-card.review  {border-left-color:#d4820a;}
+.ksp-req-card.approved{border-left-color:#1a6b35;}
+.ksp-req-card.rejected{border-left-color:#c0392b;}
+
+.ksp-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px;flex-wrap:wrap;}
+.ksp-ref{font-family:monospace;font-size:16px;font-weight:700;color:#1A3A5C;letter-spacing:.5px;}
+.ksp-date{font-size:12px;color:#8a99ae;margin-top:3px;}
+
+/* State badge */
+.ksp-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 14px;border-radius:20px;font-size:12px;font-weight:700;}
+.ksp-badge.draft   {background:#e8f4fd;color:#1e5fa8;}
+.ksp-badge.review  {background:#fef9e7;color:#7d5a00;}
+.ksp-badge.approved{background:#d5f5e3;color:#1a6b35;}
+.ksp-badge.rejected{background:#fdedec;color:#922b21;}
+
+.ksp-card-body{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;font-size:13px;}
+@media(max-width:560px){.ksp-card-body{grid-template-columns:1fr 1fr;}}
+.ksp-info-item .ki{color:#8a99ae;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.3px;margin-bottom:2px;}
+.ksp-info-item .kv{color:#1c2a3a;font-weight:500;}
+
+.ksp-card-foot{margin-top:14px;padding-top:12px;border-top:1px solid #dde4ee;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+.ksp-notes{font-size:12px;color:#4a5e75;flex:1;line-height:1.5;}
+.ksp-notes strong{color:#1a6b35;}
+.ksp-notes.rejected strong{color:#c0392b;}
+.ksp-track-btn{display:inline-flex;align-items:center;gap:5px;background:#f4f7fb;color:#1e5fa8;padding:6px 14px;border-radius:8px;font-size:12px;font-weight:600;text-decoration:none;border:1px solid #dde4ee;}
+.ksp-track-btn:hover{background:#e8f4fd;color:#1e5fa8;}
+
+.ksp-back{display:inline-flex;align-items:center;gap:6px;color:#8a99ae;font-size:13px;text-decoration:none;margin-bottom:20px;}
+.ksp-back:hover{color:#fff;}
+</style>
+
+<div class="ksp">
+  <div class="ksp-w">
+
+    <a class="ksp-back" href="/customs-portal/register">&#x2190; Back to Portal</a>
+    <h2>Track My Requests</h2>
+    <p class="sub">Search by your name or phone number to see all your submitted requests and their current status.</p>
+
+    <!-- Search Form -->
+    <div class="ksp-scard">
+      <h3>Search Your Requests / &#x627;&#x628;&#x62D;&#x62B; &#x639;&#x646; &#x637;&#x644;&#x628;&#x627;&#x62A;&#x643;</h3>
+      <form method="get" action="/customs-portal/search">
+        <div class="ksp-form-row">
+          <div class="ksp-field">
+            <label>Full Name <span class="ar">&#x627;&#x644;&#x627;&#x633;&#x645; &#x627;&#x644;&#x643;&#x627;&#x645;&#x644;</span></label>
+            <input type="text" name="name" t-att-value="name" placeholder="Ahmed Al-Rashidi"/>
+          </div>
+          <div class="ksp-field">
+            <label>Phone Number <span class="ar">&#x631;&#x642;&#x645; &#x627;&#x644;&#x62C;&#x648;&#x627;&#x644;</span></label>
+            <input type="text" name="phone" t-att-value="phone" placeholder="+966 5X XXX XXXX"/>
+          </div>
+        </div>
+        <div class="ksp-form-row">
+          <div class="ksp-field">
+            <label>Date From <span class="ar">&#x645;&#x646; &#x62A;&#x627;&#x631;&#x64A;&#x62E;</span></label>
+            <input type="date" name="date_from" t-att-value="date_from"/>
+          </div>
+          <div class="ksp-field">
+            <label>Date To <span class="ar">&#x625;&#x644;&#x649; &#x62A;&#x627;&#x631;&#x64A;&#x62E;</span></label>
+            <input type="date" name="date_to" t-att-value="date_to"/>
+          </div>
+        </div>
+        <div class="ksp-btn-row">
+          <button type="submit" class="ksp-btn ksp-btn-primary">&#x1F50D; Search</button>
+          <a href="/customs-portal/search" class="ksp-btn ksp-btn-ghost">Clear</a>
+        </div>
+      </form>
+    </div>
+
+    <!-- Results -->
+    <t t-if="searched">
+      <div class="ksp-results-header">
+        <h3>Results</h3>
+        <span class="ksp-count"><t t-esc="len(requests)"/> request(s) found</span>
+      </div>
+
+      <t t-if="not requests">
+        <div class="ksp-empty">
+          <div class="eico">&#x1F4ED;</div>
+          <p>No requests found. Please check the name or phone number and try again.</p>
+        </div>
+      </t>
+
+      <t t-foreach="requests" t-as="req">
+        <div t-attf-class="ksp-req-card #{req.state}">
+
+          <div class="ksp-card-top">
+            <div>
+              <div class="ksp-ref" t-esc="req.name"/>
+              <div class="ksp-date">Submitted: <t t-esc="req.create_date"/></div>
+            </div>
+            <div t-attf-class="ksp-badge #{req.state}">
+              <t t-if="req.state == 'draft'">&#x1F4CB; Submitted &#x2014; Awaiting Review</t>
+              <t t-elif="req.state == 'review'">&#x1F50D; Under Review</t>
+              <t t-elif="req.state == 'approved'">&#x2705; Approved</t>
+              <t t-elif="req.state == 'rejected'">&#x274C; Needs Updates</t>
+            </div>
+          </div>
+
+          <div class="ksp-card-body">
+            <div class="ksp-info-item">
+              <div class="ki">Company</div>
+              <div class="kv" t-esc="req.requester_company"/>
+            </div>
+            <div class="ksp-info-item">
+              <div class="ki">Type</div>
+              <div class="kv" t-esc="req.clearance_type"/>
+            </div>
+            <div class="ksp-info-item">
+              <div class="ki">Shipment</div>
+              <div class="kv" t-esc="req.shipment_type"/>
+            </div>
+            <div class="ksp-info-item">
+              <div class="ki">Origin</div>
+              <div class="kv" t-esc="req.country_origin_id.name or '—'"/>
+            </div>
+            <div class="ksp-info-item">
+              <div class="ki">ETA</div>
+              <div class="kv" t-esc="req.eta or '—'"/>
+            </div>
+            <div class="ksp-info-item">
+              <div class="ki">Clearance Order</div>
+              <div class="kv" t-esc="req.clearance_id.name if req.clearance_id else '—'"/>
+            </div>
+          </div>
+
+          <div class="ksp-card-foot">
+            <div>
+              <t t-if="req.state == 'approved' and req.review_notes">
+                <div t-attf-class="ksp-notes #{req.state}">
+                  <strong>&#x2139; Team note:</strong>
+                  <t t-esc="req.review_notes"/>
+                </div>
+              </t>
+              <t t-elif="req.state == 'rejected' and req.rejection_reason">
+                <div t-attf-class="ksp-notes rejected">
+                  <strong>&#x26A0; Action required:</strong>
+                  <t t-esc="req.rejection_reason"/>
+                </div>
+              </t>
+            </div>
+            <a t-attf-href="/customs-portal/status/#{req.portal_token}" class="ksp-track-btn">
+              View Detail &#x2192;
+            </a>
+          </div>
+
+        </div>
+      </t>
+    </t>
+
+  </div>
+</div>
+</t>
+</template>
+</odoo>

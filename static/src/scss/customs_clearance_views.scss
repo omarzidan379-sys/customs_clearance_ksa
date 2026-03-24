@@ -1,0 +1,387 @@
+// ═══════════════════════════════════════════════════════════════════════════
+// Customs Clearance Enhanced Views - Egyptian/Saudi/UAE Colors
+// ═══════════════════════════════════════════════════════════════════════════
+
+// ─── Color Palette ─────────────────────────────────────────────────────────
+// Egyptian Flag Colors
+$egypt-red: #CE1126;
+$egypt-white: #FFFFFF;
+$egypt-black: #000000;
+$egypt-gold: #C09300;
+
+// Saudi Flag Colors
+$saudi-green: #165B33;
+$saudi-white: #FFFFFF;
+$saudi-gold: #FFD700;
+
+// UAE Flag Colors
+$uae-red: #FF0000;
+$uae-green: #00732F;
+$uae-black: #000000;
+$uae-white: #FFFFFF;
+
+// Status Colors
+$status-draft: #95a5a6;
+$status-submitted: #3498db;
+$status-review: #9b59b6;
+$status-inspection: #f39c12;
+$status-payment: #e67e22;
+$status-released: #27ae60;
+$status-delivered: #16a085;
+$status-cancelled: #e74c3c;
+
+// ─── Form View Styling ─────────────────────────────────────────────────────
+.o_customs_clearance_form {
+    
+    // Status Bar Colors
+    .o_statusbar_status {
+        button {
+            &[data-value="draft"] { background-color: $status-draft !important; }
+            &[data-value="bill_entry"] { background-color: lighten($status-submitted, 10%) !important; }
+            &[data-value="classification"] { background-color: lighten($status-review, 15%) !important; }
+            &[data-value="valuation"] { background-color: lighten($status-review, 10%) !important; }
+            &[data-value="submitted"] { background-color: $status-submitted !important; }
+            &[data-value="customs_review"] { background-color: $status-review !important; }
+            &[data-value="inspection"] { background-color: $status-inspection !important; }
+            &[data-value="duty_calculation"] { background-color: lighten($status-payment, 10%) !important; }
+            &[data-value="duty_payment"] { background-color: $status-payment !important; }
+            &[data-value="released"] { background-color: $status-released !important; }
+            &[data-value="delivered"] { background-color: $status-delivered !important; }
+            &[data-value="cancelled"] { background-color: $status-cancelled !important; }
+            
+            &.o_arrow_button_current {
+                font-weight: bold;
+                box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+                transform: scale(1.05);
+            }
+        }
+    }
+    
+    // Sheet Styling
+    .customs_clearance_sheet {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        padding: 24px;
+        border-radius: 12px;
+    }
+    
+    // Title Styling
+    .oe_title {
+        .customs_ref_number {
+            color: $egypt-gold;
+            font-size: 2rem;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        h3 {
+            margin-top: 8px;
+            
+            .badge {
+                font-size: 0.9rem;
+                padding: 6px 12px;
+                border-radius: 20px;
+                margin-right: 8px;
+            }
+        }
+    }
+    
+    // Progress Bar Container
+    .customs_progress_container {
+        background: white;
+        padding: 16px;
+        border-radius: 10px;
+        margin: 20px 0;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        
+        .o_progressbar {
+            height: 30px;
+            border-radius: 15px;
+            overflow: hidden;
+            background: #ecf0f1;
+            
+            .o_progressbar_value {
+                background: linear-gradient(90deg, $saudi-green 0%, $egypt-gold 50%, $uae-green 100%);
+                height: 100%;
+                transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+                box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+                position: relative;
+                
+                &::after {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+                    animation: shimmer 2s infinite;
+                }
+            }
+        }
+        
+        .progress_info {
+            margin-top: 12px;
+            text-align: center;
+            
+            .days_badge {
+                display: inline-block;
+                background: $egypt-gold;
+                color: white;
+                padding: 6px 16px;
+                border-radius: 20px;
+                font-weight: bold;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+                
+                i {
+                    margin-right: 6px;
+                }
+            }
+        }
+    }
+    
+    // Group Styling
+    .customs_group_basic {
+        .o_group_col_6 {
+            background: linear-gradient(135deg, rgba($egypt-red, 0.1) 0%, rgba($egypt-gold, 0.1) 100%);
+            padding: 12px;
+            border-radius: 8px;
+        }
+    }
+    
+    .customs_group_info {
+        .o_group_col_6 {
+            background: linear-gradient(135deg, rgba($saudi-green, 0.1) 0%, rgba($saudi-gold, 0.1) 100%);
+            padding: 12px;
+            border-radius: 8px;
+        }
+    }
+    
+    .customs_group_declaration {
+        .o_group_col_6 {
+            background: linear-gradient(135deg, rgba($uae-green, 0.1) 0%, rgba($uae-red, 0.1) 100%);
+            padding: 12px;
+            border-radius: 8px;
+        }
+    }
+    
+    .customs_group_shipment {
+        .o_group_col_6 {
+            background: linear-gradient(135deg, rgba($status-submitted, 0.1) 0%, rgba($status-review, 0.1) 100%);
+            padding: 12px;
+            border-radius: 8px;
+        }
+    }
+    
+    // Notebook Tabs
+    .o_notebook {
+        .nav-tabs {
+            border-bottom: 3px solid $egypt-gold;
+            
+            .nav-link {
+                color: #34495e;
+                font-weight: 600;
+                border: none;
+                border-bottom: 3px solid transparent;
+                transition: all 0.3s ease;
+                
+                &:hover {
+                    border-bottom-color: lighten($egypt-gold, 20%);
+                    transform: translateY(-2px);
+                }
+                
+                &.active {
+                    color: $egypt-gold;
+                    border-bottom-color: $egypt-gold;
+                    background: linear-gradient(180deg, rgba($egypt-gold, 0.1) 0%, transparent 100%);
+                }
+            }
+        }
+        
+        .tab-content {
+            padding: 20px;
+            background: white;
+            border-radius: 0 0 8px 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+    }
+    
+    // Financial Summary
+    .customs_cif_value,
+    .customs_total_cost,
+    .customs_total_duties {
+        .o_field_monetary {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: $egypt-gold;
+        }
+    }
+    
+    // Smart Buttons
+    .oe_button_box {
+        .oe_stat_button {
+            background: white;
+            border: 2px solid #ecf0f1;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            
+            &:hover {
+                border-color: $egypt-gold;
+                transform: translateY(-3px);
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            }
+            
+            .o_stat_info {
+                color: $egypt-gold;
+            }
+        }
+    }
+}
+
+// ─── Tree View Styling ─────────────────────────────────────────────────────
+.customs_clearance_tree {
+    
+    // Row Colors based on state
+    tbody tr {
+        transition: all 0.3s ease;
+        
+        &:hover {
+            transform: scale(1.01);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        // Draft
+        &.text-muted {
+            background-color: rgba($status-draft, 0.05) !important;
+        }
+        
+        // In Progress
+        &.text-info {
+            background-color: rgba($status-submitted, 0.05) !important;
+        }
+        
+        // Warning
+        &.text-warning {
+            background-color: rgba($status-inspection, 0.05) !important;
+        }
+        
+        // Success
+        &.text-success {
+            background-color: rgba($status-delivered, 0.05) !important;
+        }
+        
+        // Danger
+        &.text-danger {
+            background-color: rgba($status-cancelled, 0.05) !important;
+        }
+    }
+    
+    // Progress Bar in Tree
+    .o_progressbar {
+        height: 20px;
+        border-radius: 10px;
+        
+        .o_progressbar_value {
+            background: linear-gradient(90deg, $saudi-green 0%, $egypt-gold 100%);
+            border-radius: 10px;
+        }
+    }
+    
+    // Badge Styling
+    .badge {
+        font-size: 0.75rem;
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-weight: 600;
+    }
+}
+
+// ─── Animations ────────────────────────────────────────────────────────────
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+// Apply animations
+.o_customs_clearance_form {
+    animation: fadeInUp 0.5s ease;
+    
+    .oe_title {
+        animation: slideInRight 0.6s ease;
+    }
+    
+    .customs_progress_container {
+        animation: fadeInUp 0.7s ease;
+    }
+    
+    .o_notebook {
+        animation: fadeInUp 0.8s ease;
+    }
+}
+
+.customs_clearance_tree tbody tr {
+    animation: fadeInUp 0.3s ease;
+    
+    @for $i from 1 through 10 {
+        &:nth-child(#{$i}) {
+            animation-delay: #{$i * 0.05}s;
+        }
+    }
+}
+
+// ─── Responsive Design ─────────────────────────────────────────────────────
+@media (max-width: 768px) {
+    .o_customs_clearance_form {
+        .customs_clearance_sheet {
+            padding: 12px;
+        }
+        
+        .oe_title .customs_ref_number {
+            font-size: 1.5rem;
+        }
+        
+        .customs_progress_container {
+            padding: 12px;
+        }
+    }
+}
+
+// ─── Print Styles ──────────────────────────────────────────────────────────
+@media print {
+    .o_customs_clearance_form {
+        .oe_button_box,
+        .o_statusbar_buttons {
+            display: none !important;
+        }
+        
+        .customs_clearance_sheet {
+            background: white !important;
+        }
+    }
+}

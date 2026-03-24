@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- PORT FORM -->
+    <record id="view_customs_port_form" model="ir.ui.view">
+        <field name="name">customs.port.form</field>
+        <field name="model">customs.port</field>
+        <field name="arch" type="xml">
+            <form string="Port / Customs Office">
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="name_ar"/>
+                            <field name="code"/>
+                            <field name="port_type"/>
+                        </group>
+                        <group>
+                            <field name="country_id"/>
+                            <field name="city"/>
+                        </group>
+                    </group>
+                    <field name="notes"/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_customs_port_list" model="ir.ui.view">
+        <field name="name">customs.port.list</field>
+        <field name="model">customs.port</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="name_ar" optional="show"/>
+                <field name="code"/>
+                <field name="port_type" widget="badge"/>
+                <field name="country_id"/>
+                <field name="city"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_customs_port" model="ir.actions.act_window">
+        <field name="name">Ports &amp; Customs Offices</field>
+        <field name="res_model">customs.port</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+</odoo>

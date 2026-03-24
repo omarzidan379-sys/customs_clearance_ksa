@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_customs_compliance_wizard" model="ir.ui.view">
+    <field name="name">customs.compliance.wizard.form</field>
+    <field name="model">customs.compliance.wizard</field>
+    <field name="arch" type="xml">
+      <form string="Saudi Compliance Checklist / قائمة الامتثال السعودية">
+        <sheet>
+          <div class="oe_title">
+            <h2>Saudi Customs Compliance Checklist</h2>
+            <h3>قائمة التحقق من الامتثال الجمركي السعودي</h3>
+          </div>
+          <group>
+            <field name="clearance_id" readonly="1"/>
+            <field name="compliance_score" widget="progressbar"/>
+          </group>
+          <group string="Compliance Summary">
+            <field name="compliance_summary" nolabel="1" colspan="2"/>
+          </group>
+          <notebook>
+            <page string="Stage 1 — ACD &amp; FASAH">
+              <group>
+                <field name="acd_submitted"/>
+                <field name="acd_reference_no"/>
+                <field name="fasah_account_active"/>
+                <field name="fasah_declaration_no"/>
+              </group>
+            </page>
+            <page string="Stage 2 — Documents">
+              <group>
+                <field name="has_commercial_invoice"/>
+                <field name="fatoorah_invoice_no"/>
+                <field name="has_bill_of_lading"/>
+                <field name="has_packing_list"/>
+                <field name="has_coo"/>
+              </group>
+            </page>
+            <page string="SABER">
+              <group>
+                <field name="needs_saber"/>
+                <field name="saber_pcoc_obtained" invisible="not needs_saber"/>
+                <field name="saber_scoc_obtained" invisible="not needs_saber"/>
+                <field name="saber_scoc_no"       invisible="not needs_saber"/>
+                <field name="saber_scoc_expiry"   invisible="not needs_saber"/>
+              </group>
+            </page>
+            <page string="Regulatory Bodies">
+              <group>
+                <group string="SFDA">
+                  <field name="needs_sfda"/>
+                  <field name="sfda_approval_no" invisible="not needs_sfda"/>
+                  <field name="sfda_approved"    invisible="not needs_sfda"/>
+                </group>
+                <group string="CITC">
+                  <field name="needs_citc"/>
+                  <field name="citc_certificate_no" invisible="not needs_citc"/>
+                  <field name="citc_approved"        invisible="not needs_citc"/>
+                </group>
+              </group>
+              <group>
+                <group string="SASO">
+                  <field name="needs_saso"/>
+                  <field name="saso_certificate_no" invisible="not needs_saso"/>
+                  <field name="saso_approved"        invisible="not needs_saso"/>
+                </group>
+                <group string="MoI Permit">
+                  <field name="needs_moi"/>
+                  <field name="moi_permit_no" invisible="not needs_moi"/>
+                  <field name="moi_approved"  invisible="not needs_moi"/>
+                </group>
+              </group>
+            </page>
+            <page string="Payment &amp; Release">
+              <group>
+                <field name="duties_calculated"/>
+                <field name="sadad_payment_ref"/>
+                <field name="payment_confirmed"/>
+                <field name="release_permit_no"/>
+                <field name="masar_tracking_no"/>
+              </group>
+            </page>
+          </notebook>
+        </sheet>
+        <footer>
+          <button name="action_apply_to_clearance" string="Apply to Clearance Order"
+                  type="object" class="btn-primary"/>
+          <button string="Close" class="btn-secondary" special="cancel"/>
+        </footer>
+      </form>
+    </field>
+  </record>
+</odoo>

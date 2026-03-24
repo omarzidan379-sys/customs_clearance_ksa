@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_customs_clearance_dashboard" model="ir.ui.view">
+    <field name="name">customs.clearance.dashboard</field>
+    <field name="model">customs.clearance</field>
+    <field name="arch" type="xml">
+      <graph string="Clearance Analytics" type="bar">
+        <field name="state" type="row"/>
+        <field name="total_cost" type="measure"/>
+      </graph>
+    </field>
+  </record>
+  <record id="view_customs_clearance_pivot" model="ir.ui.view">
+    <field name="name">customs.clearance.pivot</field>
+    <field name="model">customs.clearance</field>
+    <field name="arch" type="xml">
+      <pivot string="Clearance Analysis">
+        <field name="clearance_type" type="row"/>
+        <field name="inspection_lane" type="col"/>
+        <field name="total_cost" type="measure"/>
+        <field name="total_duty_amount" type="measure"/>
+      </pivot>
+    </field>
+  </record>
+  <record id="action_customs_dashboard" model="ir.actions.act_window">
+    <field name="name">KSA Clearance Dashboard</field>
+    <field name="res_model">customs.clearance</field>
+    <field name="view_mode">graph,pivot,tree</field>
+    <field name="context">{'search_default_this_month':1}</field>
+  </record>
+  <record id="action_controller_dashboard" model="ir.actions.client">
+    <field name="name">Customs Dashboard</field>
+    <field name="tag">customs_clearance_ksa.dashboard</field>
+  </record>
+
+</odoo>

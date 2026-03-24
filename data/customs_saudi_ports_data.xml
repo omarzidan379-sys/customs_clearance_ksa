@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <data noupdate="1">
+    <record id="port_jeddah" model="customs.port">
+      <field name="name">Jeddah Islamic Port / ميناء جدة الإسلامي</field>
+      <field name="name_ar">ميناء جدة الإسلامي</field>
+      <field name="code">SAJED</field>
+      <field name="port_type">seaport</field>
+      <field name="country_id" ref="base.sa"/>
+      <field name="city">Jeddah</field>
+    </record>
+    <record id="port_dammam" model="customs.port">
+      <field name="name">King Abdulaziz Port — Dammam / ميناء الملك عبدالعزيز بالدمام</field>
+      <field name="name_ar">ميناء الملك عبدالعزيز بالدمام</field>
+      <field name="code">SADMM</field>
+      <field name="port_type">seaport</field>
+      <field name="country_id" ref="base.sa"/>
+      <field name="city">Dammam</field>
+    </record>
+    <record id="port_jubail" model="customs.port">
+      <field name="name">King Fahad Industrial Port — Jubail / ميناء الملك فهد الصناعي بالجبيل</field>
+      <field name="name_ar">ميناء الملك فهد الصناعي بالجبيل</field>
+      <field name="code">SAJUB</field>
+      <field name="port_type">seaport</field>
+      <field name="country_id" ref="base.sa"/>
+      <field name="city">Jubail</field>
+    </record>
+    <record id="port_yanbu" model="customs.port">
+      <field name="name">Yanbu Commercial Port / ميناء ينبع التجاري</field>
+      <field name="name_ar">ميناء ينبع التجاري</field>
+      <field name="code">SAYNB</field>
+      <field name="port_type">seaport</field>
+      <field name="country_id" ref="base.sa"/>
+      <field name="city">Yanbu</field>
+    </record>
+    <record id="airport_riyadh" model="customs.port">
+      <field name="name">King Khalid Int'l Airport — Riyadh / مطار الملك خالد الدولي</field>
+      <field name="name_ar">مطار الملك خالد الدولي بالرياض</field>
+      <field name="code">SARUH</field>
+      <field name="port_type">airport</field>
+      <field name="country_id" ref="base.sa"/>
+      <field name="city">Riyadh</field>
+    </record>
+    <record id="airport_jeddah" model="customs.port">
+      <field name="name">King Abdulaziz Int'l Airport — Jeddah / مطار الملك عبدالعزيز الدولي</field>
+      <field name="name_ar">مطار الملك عبدالعزيز الدولي بجدة</field>
+      <field name="code">SAJEDR</field>
+      <field name="port_type">airport</field>
+      <field name="country_id" ref="base.sa"/>
+      <field name="city">Jeddah</field>
+    </record>
+    <record id="airport_dammam" model="customs.port">
+      <field name="name">King Fahad Int'l Airport — Dammam / مطار الملك فهد الدولي</field>
+      <field name="name_ar">مطار الملك فهد الدولي بالدمام</field>
+      <field name="code">SADMMR</field>
+      <field name="port_type">airport</field>
+      <field name="country_id" ref="base.sa"/>
+      <field name="city">Dammam</field>
+    </record>
+    <record id="border_haradh" model="customs.port">
+      <field name="name">Haradh Land Border / منفذ حرض البري</field>
+      <field name="name_ar">منفذ حرض البري</field>
+      <field name="code">SAHAR</field>
+      <field name="port_type">land_border</field>
+      <field name="country_id" ref="base.sa"/>
+      <field name="city">Eastern Province</field>
+    </record>
+    <record id="border_albatha" model="customs.port">
+      <field name="name">Al-Batha Land Border / منفذ البطحاء البري</field>
+      <field name="name_ar">منفذ البطحاء البري</field>
+      <field name="code">SAABH</field>
+      <field name="port_type">land_border</field>
+      <field name="country_id" ref="base.sa"/>
+      <field name="city">Northern Border</field>
+    </record>
+    <record id="dryport_riyadh" model="customs.port">
+      <field name="name">Riyadh Dry Port / الميناء الجاف بالرياض</field>
+      <field name="name_ar">الميناء الجاف بالرياض</field>
+      <field name="code">SARYP</field>
+      <field name="port_type">dry_port</field>
+      <field name="country_id" ref="base.sa"/>
+      <field name="city">Riyadh</field>
+    </record>
+    <!-- Customs Offices -->
+    <record id="customs_jeddah" model="customs.port">
+      <field name="name">Jeddah Customs — ZATCA / جمارك جدة</field>
+      <field name="name_ar">جمارك جدة</field>
+      <field name="code">CZATJED</field>
+      <field name="port_type">customs_office</field>
+      <field name="country_id" ref="base.sa"/>
+      <field name="city">Jeddah</field>
+    </record>
+    <record id="customs_riyadh" model="customs.port">
+      <field name="name">Riyadh Customs — ZATCA / جمارك الرياض</field>
+      <field name="name_ar">جمارك الرياض</field>
+      <field name="code">CZATRUH</field>
+      <field name="port_type">customs_office</field>
+      <field name="country_id" ref="base.sa"/>
+      <field name="city">Riyadh</field>
+    </record>
+    <record id="customs_dammam" model="customs.port">
+      <field name="name">Dammam Customs — ZATCA / جمارك الدمام</field>
+      <field name="name_ar">جمارك الدمام</field>
+      <field name="code">CZATDMM</field>
+      <field name="port_type">customs_office</field>
+      <field name="country_id" ref="base.sa"/>
+      <field name="city">Dammam</field>
+    </record>
+  </data>
+</odoo>

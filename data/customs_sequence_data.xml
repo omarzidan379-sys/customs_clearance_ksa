@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <record id="seq_customs_clearance_import" model="ir.sequence">
+            <field name="name">Customs Clearance - Import</field>
+            <field name="code">customs.clearance.import</field>
+            <field name="prefix">IMP/%(year)s/</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_customs_clearance_export" model="ir.sequence">
+            <field name="name">Customs Clearance - Export</field>
+            <field name="code">customs.clearance.export</field>
+            <field name="prefix">EXP/%(year)s/</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_customs_clearance_transit" model="ir.sequence">
+            <field name="name">Customs Clearance - Transit</field>
+            <field name="code">customs.clearance.transit</field>
+            <field name="prefix">TRN/%(year)s/</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_customs_clearance_temporary" model="ir.sequence">
+            <field name="name">Customs Clearance - Temporary</field>
+            <field name="code">customs.clearance.temporary</field>
+            <field name="prefix">TMP/%(year)s/</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+    </data>
+</odoo>

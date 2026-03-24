@@ -1,0 +1,335 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+  <!-- ═══ FORM VIEW ════════════════════════════════════════════════════════ -->
+  <record id="view_customs_portal_request_form" model="ir.ui.view">
+    <field name="name">customs.portal.request.form</field>
+    <field name="model">customs.portal.request</field>
+    <field name="arch" type="xml">
+      <form string="Portal Shipment Request">
+        <header>
+          <button name="action_start_review" string="Start Review" type="object"
+                  class="btn-primary" invisible="state != 'draft'"/>
+          <button name="action_approve" string="Approve &amp; Create Order" type="object"
+                  class="btn-success" invisible="state != 'review'"/>
+          <button name="action_reject" string="Reject" type="object"
+                  class="btn-danger" invisible="state not in ('draft','review')"/>
+          <button name="action_reset_draft" string="Reset" type="object"
+                  invisible="state != 'rejected'"/>
+          <button name="action_view_clearance" string="View Clearance Order" type="object"
+                  class="btn-secondary" invisible="not clearance_id"/>
+          <field name="state" widget="statusbar"
+                 statusbar_visible="draft,review,approved"/>
+        </header>
+        <sheet>
+<!--          <div class="oe_button_box" name="button_box">-->
+<!--            <button type="object" class="oe_stat_button" icon="fa-paperclip"-->
+<!--                    name="%(base_setup.action_general_configuration)d">-->
+<!--              <field name="attachment_count" widget="statinfo" string="Files"/>-->
+<!--            </button>-->
+<!--          </div>-->
+          <widget name="web_ribbon" title="Approved ✓" bg_color="bg-success"
+                  invisible="state != 'approved'"/>
+          <widget name="web_ribbon" title="Rejected" bg_color="bg-danger"
+                  invisible="state != 'rejected'"/>
+
+          <div class="oe_title">
+            <label for="name"/>
+            <h1><field name="name" readonly="1"/></h1>
+            <field name="priority" widget="priority"/>
+          </div>
+
+          <group>
+            <group string="Requester Information">
+              <field name="request_type" widget="badge"/>
+              <field name="requester_name"/>
+              <field name="requester_email"/>
+              <field name="requester_phone"/>
+              <field name="requester_company"/>
+              <field name="requester_cr_no"/>
+              <field name="requester_vat_no"/>
+              <field name="requester_country"/>
+              <field name="requester_city"/>
+              <field name="partner_id"/>
+            </group>
+            <group string="Shipment Details">
+              <field name="clearance_type" widget="badge"/>
+              <field name="shipment_type"/>
+              <field name="country_origin_id"/>
+              <field name="country_destination_id"/>
+              <field name="port_of_loading"/>
+              <field name="port_of_discharge"/>
+              <field name="vessel_name"/>
+              <field name="bill_of_lading_no"/>
+              <field name="eta"/>
+              <field name="gross_weight"/>
+              <field name="volume"/>
+              <field name="packages_count"/>
+            </group>
+          </group>
+
+          <notebook>
+            <page string="Goods &amp; HS Codes" name="goods">
+              <group>
+                <field name="goods_description" colspan="2"/>
+                <field name="hs_codes_list" colspan="2"/>
+                <field name="estimated_value"/>
+                <field name="currency_note"/>
+              </group>
+            </page>
+
+            <page string="Documents Submitted" name="documents">
+              <group string="Documents Available">
+                <field name="has_bill_of_lading" widget="boolean_toggle"/>
+                <field name="has_invoice" widget="boolean_toggle"/>
+                <field name="has_packing_list" widget="boolean_toggle"/>
+                <field name="has_coo" widget="boolean_toggle"/>
+                <field name="has_saber_scoc" widget="boolean_toggle"/>
+                <field name="has_sfda" widget="boolean_toggle"/>
+                <field name="has_citc" widget="boolean_toggle"/>
+              </group>
+              <group string="Saudi References (if known)">
+                <field name="acd_reference_no"/>
+                <field name="saber_scoc_no"/>
+                <field name="sfda_approval_no"/>
+                <field name="fatoorah_invoice_no"/>
+              </group>
+              <group>
+                <field name="additional_docs" colspan="2"/>
+              </group>
+              <field name="attachment_ids" widget="many2many_binary"/>
+            </page>
+
+            <page string="Review &amp; Decision" name="review">
+              <group>
+                <field name="reviewed_by" readonly="1"/>
+                <field name="review_date" readonly="1"/>
+              </group>
+              <group string="Review Notes (required before approving)">
+                <field name="review_notes" colspan="2"
+                       placeholder="Add your review notes here. These will be included in the clearance order internal notes and sent to the requester..."/>
+              </group>
+              <group string="Rejection Reason (required before rejecting)">
+                <field name="rejection_reason" colspan="2"
+                       placeholder="Explain clearly why this request is being rejected and what the requester needs to do to resubmit..."/>
+              </group>
+              <group string="Created Clearance Order" invisible="not clearance_id">
+                <field name="clearance_id" readonly="1"/>
+              </group>
+            </page>
+
+            <page string="Submission Info" name="meta">
+              <group>
+                <field name="portal_token" readonly="1"/>
+                <field name="submission_ip" readonly="1"/>
+              </group>
+            </page>
+          </notebook>
+        </sheet>
+        <chatter/>
+      </form>
+    </field>
+  </record>
+
+  <!-- ═══ LIST VIEW ════════════════════════════════════════════════════════ -->
+  <record id="view_customs_portal_request_list" model="ir.ui.view">
+    <field name="name">customs.portal.request.list</field>
+    <field name="model">customs.portal.request</field>
+    <field name="arch" type="xml">
+      <tree string="Portal Shipment Requests"
+            decoration-success="state == 'approved'"
+            decoration-danger="state == 'rejected'"
+            decoration-warning="state == 'review'"
+            decoration-info="state == 'draft'">
+        <field name="name"/>
+        <field name="create_date" string="Submitted"/>
+        <field name="request_type" widget="badge"/>
+        <field name="requester_company"/>
+        <field name="requester_email"/>
+        <field name="clearance_type" widget="badge"/>
+        <field name="shipment_type"/>
+        <field name="country_origin_id"/>
+        <field name="eta"/>
+        <field name="estimated_value" string="Est. Value (USD)"/>
+        <field name="reviewed_by" optional="show"/>
+        <field name="state" widget="badge"
+               decoration-success="state == 'approved'"
+               decoration-danger="state == 'rejected'"
+               decoration-warning="state == 'review'"
+               decoration-info="state == 'draft'"/>
+        <field name="priority" widget="priority" optional="show"/>
+        <field name="clearance_id" optional="show"/>
+      </tree>
+    </field>
+  </record>
+
+  <!-- ═══ KANBAN VIEW ══════════════════════════════════════════════════════ -->
+  <record id="view_customs_portal_request_kanban" model="ir.ui.view">
+    <field name="name">customs.portal.request.kanban</field>
+    <field name="model">customs.portal.request</field>
+    <field name="arch" type="xml">
+      <kanban default_group_by="state" quick_create="false">
+        <field name="name"/><field name="requester_company"/>
+        <field name="clearance_type"/><field name="state"/>
+        <field name="create_date"/><field name="priority"/>
+        <field name="estimated_value"/>
+        <templates>
+          <t t-name="kanban-box">
+            <div class="oe_kanban_details">
+              <strong><field name="name"/></strong>
+              <div><field name="requester_company"/></div>
+              <div><field name="clearance_type"/> — <field name="shipment_type"/></div>
+              <div class="text-muted" style="font-size:11px;">
+                <field name="create_date" widget="date"/>
+              </div>
+              <div class="oe_kanban_bottom_right">
+                <field name="priority" widget="priority"/>
+              </div>
+            </div>
+          </t>
+        </templates>
+      </kanban>
+    </field>
+  </record>
+
+  <!-- ═══ SEARCH VIEW ══════════════════════════════════════════════════════ -->
+<!--  <record id="view_customs_portal_request_search" model="ir.ui.view">-->
+<!--    <field name="name">customs.portal.request.search</field>-->
+<!--    <field name="model">customs.portal.request</field>-->
+<!--    <field name="arch" type="xml">-->
+<!--      <search>-->
+<!--        <field name="name"/>-->
+<!--        <field name="requester_company"/>-->
+<!--        <field name="requester_email"/>-->
+<!--        <field name="bill_of_lading_no"/>-->
+<!--        <separator/>-->
+<!--        <filter string="New Requests" name="new"    domain="[('state','=','draft')]"/>-->
+<!--        <filter string="Under Review" name="review" domain="[('state','=','review')]"/>-->
+<!--        <filter string="Approved"     name="approved" domain="[('state','=','approved')]"/>-->
+<!--        <filter string="Rejected"     name="rejected" domain="[('state','=','rejected')]"/>-->
+<!--        <separator/>-->
+<!--        <filter string="Suppliers"    name="suppliers" domain="[('request_type','=','supplier')]"/>-->
+<!--        <filter string="Customers"    name="customers" domain="[('request_type','=','customer')]"/>-->
+<!--        <filter string="Import"       name="import"   domain="[('clearance_type','=','import')]"/>-->
+<!--        <filter string="Export"       name="export"   domain="[('clearance_type','=','export')]"/>-->
+<!--        <separator/>-->
+<!--        <filter string="Today"        name="today"-->
+<!--                domain="[('create_date','&gt;=',(context_today()).strftime('%Y-%m-%d'))]"/>-->
+<!--        <group string="Group By">-->
+<!--          <filter string="Status"    context="{'group_by':'state'}"/>-->
+<!--          <filter string="Type"      context="{'group_by':'request_type'}"/>-->
+<!--          <filter string="Clearance" context="{'group_by':'clearance_type'}"/>-->
+<!--          <filter string="Reviewer"  context="{'group_by':'reviewed_by'}"/>-->
+<!--          <filter string="Date"      context="{'group_by':'create_date:week'}"/>-->
+<!--        </group>-->
+<!--      </search>-->
+<!--    </field>-->
+<!--  </record>-->
+
+  <!-- ═══ ACTION ═══════════════════════════════════════════════════════════ -->
+  <record id="action_customs_portal_requests" model="ir.actions.act_window">
+    <field name="name">Portal Shipment Requests</field>
+    <field name="res_model">customs.portal.request</field>
+    <field name="view_mode">tree,kanban,form</field>
+<!--    <field name="search_view_id" ref="view_customs_portal_request_search"/>-->
+<!--    <field name="context">{'search_default_new': 1}</field>-->
+    <field name="help" type="html">
+      <p class="o_view_nocontent_smiling_face">No portal requests yet</p>
+      <p>Requests submitted by suppliers and customers through the portal will appear here for review.</p>
+    </field>
+  </record>
+
+  <record id="action_portal_requests_pending" model="ir.actions.act_window">
+    <field name="name">Pending Review</field>
+    <field name="res_model">customs.portal.request</field>
+    <field name="view_mode">tree,kanban,form</field>
+    <field name="domain">[('state','in',['draft','review'])]</field>
+    <field name="context">{'search_default_new': 1}</field>
+  </record>
+
+  <!-- ═══ EMAIL TEMPLATES ══════════════════════════════════════════════════ -->
+  <record id="email_template_portal_request_received" model="mail.template">
+    <field name="name">Portal Request — Received Confirmation</field>
+    <field name="model_id" ref="model_customs_portal_request"/>
+    <field name="subject">Your Shipment Registration Received — {{ object.name }}</field>
+    <field name="email_to">{{ object.requester_email }}</field>
+    <field name="body_html"><![CDATA[
+      <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;">
+        <div style="background:#1A3A5C;padding:24px;text-align:center;">
+          <h2 style="color:white;margin:0;">Customs Clearance Portal</h2>
+          <p style="color:#D6EAF8;margin:8px 0 0;">نظام التخليص الجمركي</p>
+        </div>
+        <div style="padding:24px;background:#f9f9f9;">
+          <p>Dear <strong>{{ object.requester_name }}</strong>,</p>
+          <p>Thank you for submitting your shipment registration request. We have received it successfully.</p>
+          <div style="background:white;border:1px solid #ddd;border-radius:8px;padding:16px;margin:16px 0;">
+            <p><strong>Reference:</strong> {{ object.name }}</p>
+            <p><strong>Type:</strong> {{ object.clearance_type }}</p>
+            <p><strong>Company:</strong> {{ object.requester_company }}</p>
+            <p><strong>Submitted:</strong> {{ object.create_date }}</p>
+            <p style="margin:16px 0 0;"><strong>Track your request:</strong><br/>
+               <a href="{{ ctx.get('base_url','') }}/customs-portal/status/{{ object.portal_token }}"
+                  style="color:#1F6FAB;">Click here to check status</a>
+            </p>
+          </div>
+          <p>Our customs team will review your request and respond within 1–2 business days.</p>
+          <p style="color:#888;font-size:12px;">Please keep your reference number: <strong>{{ object.name }}</strong></p>
+        </div>
+      </div>
+    ]]></field>
+  </record>
+
+  <record id="email_template_portal_request_approved" model="mail.template">
+    <field name="name">Portal Request — Approved</field>
+    <field name="model_id" ref="model_customs_portal_request"/>
+    <field name="subject">Shipment Request Approved — {{ object.name }}</field>
+    <field name="email_to">{{ object.requester_email }}</field>
+    <field name="body_html"><![CDATA[
+      <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;">
+        <div style="background:#1A6B35;padding:24px;text-align:center;">
+          <h2 style="color:white;margin:0;">✓ Request Approved</h2>
+          <p style="color:#D5F5E3;margin:8px 0 0;">تم قبول الطلب</p>
+        </div>
+        <div style="padding:24px;background:#f9f9f9;">
+          <p>Dear <strong>{{ object.requester_name }}</strong>,</p>
+          <p>Your shipment registration request <strong>{{ object.name }}</strong> has been <strong style="color:#1A6B35;">approved</strong>.</p>
+          <p>A customs clearance order has been created: <strong>{{ object.clearance_id.name }}</strong></p>
+          {% if object.review_notes %}
+          <div style="background:#D5F5E3;border-left:4px solid #1A6B35;padding:12px;margin:16px 0;">
+            <strong>Notes from our team:</strong><br/>{{ object.review_notes }}
+          </div>
+          {% endif %}
+          <p>Our team will contact you shortly to proceed with the clearance process.</p>
+        </div>
+      </div>
+    ]]></field>
+  </record>
+
+  <record id="email_template_portal_request_rejected" model="mail.template">
+    <field name="name">Portal Request — Rejected</field>
+    <field name="model_id" ref="model_customs_portal_request"/>
+    <field name="subject">Shipment Request Requires Updates — {{ object.name }}</field>
+    <field name="email_to">{{ object.requester_email }}</field>
+    <field name="body_html"><![CDATA[
+      <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;">
+        <div style="background:#922B21;padding:24px;text-align:center;">
+          <h2 style="color:white;margin:0;">Request Needs Attention</h2>
+          <p style="color:#FDEDEC;margin:8px 0 0;">يحتاج الطلب إلى مراجعة</p>
+        </div>
+        <div style="padding:24px;background:#f9f9f9;">
+          <p>Dear <strong>{{ object.requester_name }}</strong>,</p>
+          <p>After reviewing your shipment registration <strong>{{ object.name }}</strong>, our team requires the following updates before we can proceed:</p>
+          <div style="background:#FDEDEC;border-left:4px solid #922B21;padding:12px;margin:16px 0;">
+            <strong>Reason:</strong><br/>{{ object.rejection_reason }}
+          </div>
+          <p>Please resubmit your request with the required information through the portal.</p>
+          <p><a href="{{ ctx.get('base_url','') }}/customs-portal/register"
+                style="background:#1F6FAB;color:white;padding:10px 20px;border-radius:4px;text-decoration:none;">
+             Submit New Request
+          </a></p>
+        </div>
+      </div>
+    ]]></field>
+  </record>
+
+</odoo>

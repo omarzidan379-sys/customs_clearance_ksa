@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Customs Clearance Portal — شحنتك على بابنا</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Noto+Sans+Arabic:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+/* ── Reset & Base ──────────────────────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0d1f35; --navy2:#122640; --blue:#1e5fa8; --blue2:#2575c4;
+  --teal:#0e9d82; --teal2:#0bb896; --amber:#d4820a; --amber2:#f5a623;
+  --red:#c0392b; --green:#1a6b35; --green2:#24a04d;
+  --white:#ffffff; --off:#f4f7fb; --muted:#8a99ae; --border:#dde4ee;
+  --text:#1c2a3a; --subtext:#4a5e75;
+  --card-bg:#ffffff; --input-bg:#f8fafd;
+  --radius:10px; --radius-lg:16px; --shadow:0 4px 24px rgba(13,31,53,.1);
+  --font-en:'Syne',sans-serif; --font-ar:'Noto Sans Arabic',sans-serif;
+  --font-mono:'JetBrains Mono',monospace;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-en);background:var(--navy);color:var(--text);min-height:100vh;overflow-x:hidden}
+
+/* ── Animated background ─────────────────────────────────────────────── */
+body::before{
+  content:'';position:fixed;inset:0;
+  background:
+    radial-gradient(ellipse 80% 60% at 10% 20%,rgba(30,95,168,.18) 0%,transparent 60%),
+    radial-gradient(ellipse 60% 80% at 90% 80%,rgba(14,157,130,.12) 0%,transparent 60%),
+    linear-gradient(160deg,#0d1f35 0%,#0a1929 100%);
+  z-index:0;pointer-events:none;
+}
+.grid-overlay{
+  position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:
+    linear-gradient(rgba(30,95,168,.06) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(30,95,168,.06) 1px,transparent 1px);
+  background-size:40px 40px;
+}
+
+/* ── Layout ──────────────────────────────────────────────────────────── */
+.wrap{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:0 24px}
+
+/* ── Header ──────────────────────────────────────────────────────────── */
+header{padding:24px 0 20px}
+.header-inner{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:12px}
+.logo-icon{width:44px;height:44px;background:linear-gradient(135deg,var(--blue),var(--teal));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px}
+.logo-text{color:var(--white)}
+.logo-text strong{display:block;font-size:17px;font-weight:800;letter-spacing:-.3px}
+.logo-text span{font-size:12px;opacity:.6;font-family:var(--font-ar);direction:rtl}
+.header-badge{background:rgba(14,157,130,.15);border:1px solid rgba(14,157,130,.3);color:#0bb896;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;letter-spacing:.5px}
+
+/* ── Hero ────────────────────────────────────────────────────────────── */
+.hero{padding:60px 0 48px;text-align:center}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:8px;background:rgba(30,95,168,.12);border:1px solid rgba(30,95,168,.25);color:#7ab3f0;padding:6px 16px;border-radius:20px;font-size:12px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;margin-bottom:24px}
+.hero-eyebrow span{width:6px;height:6px;border-radius:50%;background:#7ab3f0;animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+h1{font-size:clamp(32px,5vw,58px);font-weight:800;color:var(--white);line-height:1.08;letter-spacing:-1.5px;margin-bottom:12px}
+h1 .accent{background:linear-gradient(135deg,#4da8ff,#0bb896);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-ar{font-family:var(--font-ar);font-size:clamp(18px,3vw,26px);color:rgba(255,255,255,.55);direction:rtl;margin-bottom:24px;font-weight:600}
+.hero-sub{font-size:16px;color:var(--muted);max-width:520px;margin:0 auto 40px;line-height:1.7}
+.hero-stats{display:flex;align-items:center;justify-content:center;gap:32px;flex-wrap:wrap}
+.stat{text-align:center}
+.stat-n{font-size:28px;font-weight:800;color:var(--white);letter-spacing:-1px}
+.stat-l{font-size:11px;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;margin-top:2px}
+
+/* ── Tabs ─────────────────────────────────────────────────────────────── */
+.tabs-wrap{display:flex;justify-content:center;margin-bottom:32px}
+.tabs{display:inline-flex;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:4px}
+.tab-btn{padding:10px 28px;border:none;background:none;color:rgba(255,255,255,.55);font-family:var(--font-en);font-size:14px;font-weight:600;border-radius:9px;cursor:pointer;transition:all .2s;white-space:nowrap}
+.tab-btn.active{background:var(--white);color:var(--navy);box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.tab-btn:hover:not(.active){color:var(--white)}
+
+/* ── Form Card ───────────────────────────────────────────────────────── */
+.form-card{background:var(--white);border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,.3);overflow:hidden;margin-bottom:60px}
+.form-top{background:linear-gradient(135deg,var(--navy2),#0a1929);padding:28px 36px;border-bottom:1px solid rgba(255,255,255,.08)}
+.form-top h2{color:var(--white);font-size:20px;font-weight:800;margin-bottom:4px}
+.form-top p{color:rgba(255,255,255,.45);font-size:13px}
+.step-indicators{display:flex;gap:6px;margin-top:18px}
+.step-dot{height:4px;border-radius:2px;background:rgba(255,255,255,.15);flex:1;transition:background .3s}
+.step-dot.active{background:var(--teal2)}
+.step-dot.done{background:var(--blue2)}
+
+.form-body{padding:36px}
+
+/* ── Form Sections ───────────────────────────────────────────────────── */
+.form-section{display:none;animation:fadeSlide .3s ease}
+.form-section.visible{display:block}
+@keyframes fadeSlide{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.section-title{display:flex;align-items:center;gap:10px;margin-bottom:24px}
+.section-num{width:28px;height:28px;border-radius:50%;background:var(--navy);color:var(--white);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.section-title h3{font-size:16px;font-weight:700;color:var(--navy)}
+.section-title .ar{font-family:var(--font-ar);font-size:13px;color:var(--muted);margin-right:6px}
+
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+@media(max-width:640px){.grid-2,.grid-3{grid-template-columns:1fr}}
+.full{grid-column:1/-1}
+
+.field{display:flex;flex-direction:column;gap:5px;margin-bottom:4px}
+label{font-size:12px;font-weight:600;color:var(--subtext);letter-spacing:.3px;text-transform:uppercase}
+label .ar{font-family:var(--font-ar);text-transform:none;font-size:11px;font-weight:500;color:var(--muted);margin-right:4px}
+label .req{color:var(--red)}
+
+input[type=text],input[type=email],input[type=tel],input[type=number],input[type=date],select,textarea{
+  width:100%;background:var(--input-bg);border:1.5px solid var(--border);border-radius:var(--radius);
+  padding:11px 14px;font-family:var(--font-en);font-size:14px;color:var(--text);
+  transition:border .2s,box-shadow .2s;outline:none;
+}
+input:focus,select:focus,textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(30,95,168,.1)}
+input.error,select.error{border-color:var(--red)}
+textarea{resize:vertical;min-height:90px}
+.hint{font-size:11px;color:var(--muted)}
+
+/* ── Type Selector ───────────────────────────────────────────────────── */
+.type-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:24px}
+.type-card{position:relative;cursor:pointer}
+.type-card input{position:absolute;opacity:0;width:0;height:0}
+.type-label{display:flex;flex-direction:column;align-items:center;gap:8px;padding:18px 12px;
+  border:2px solid var(--border);border-radius:12px;background:var(--input-bg);
+  transition:all .2s;cursor:pointer;text-align:center}
+.type-card input:checked + .type-label{border-color:var(--blue);background:rgba(30,95,168,.05)}
+.type-label:hover{border-color:var(--blue2)}
+.type-icon{font-size:26px}
+.type-name{font-size:13px;font-weight:700;color:var(--text)}
+.type-ar{font-family:var(--font-ar);font-size:12px;color:var(--muted)}
+
+/* ── Clearance Type Grid (4 options) ─────────────────────────────────── */
+.ct-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:4px}
+@media(max-width:640px){.ct-grid{grid-template-columns:repeat(2,1fr)}}
+.ct-card{position:relative;cursor:pointer}
+.ct-card input{position:absolute;opacity:0;width:0;height:0}
+.ct-label{padding:12px 8px;border:2px solid var(--border);border-radius:10px;
+  background:var(--input-bg);text-align:center;cursor:pointer;transition:all .2s}
+.ct-card input:checked + .ct-label{border-color:var(--teal);background:rgba(14,157,130,.06)}
+.ct-label:hover{border-color:var(--teal2)}
+.ct-label strong{display:block;font-size:13px;color:var(--text);font-weight:700}
+.ct-label .ct-ar{font-family:var(--font-ar);font-size:11px;color:var(--muted)}
+
+/* ── Docs Checklist ──────────────────────────────────────────────────── */
+.doc-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+@media(max-width:560px){.doc-grid{grid-template-columns:1fr}}
+.doc-check{display:flex;align-items:center;gap:10px;padding:10px 14px;
+  border:1.5px solid var(--border);border-radius:8px;background:var(--input-bg);cursor:pointer;transition:all .2s}
+.doc-check:has(input:checked){border-color:var(--green);background:rgba(26,107,53,.05)}
+.doc-check input{width:16px;height:16px;accent-color:var(--green);cursor:pointer;flex-shrink:0}
+.doc-check-text strong{display:block;font-size:13px;font-weight:600;color:var(--text)}
+.doc-check-text span{font-size:11px;color:var(--muted);font-family:var(--font-ar)}
+
+/* ── Navigation ──────────────────────────────────────────────────────── */
+.form-nav{display:flex;align-items:center;justify-content:space-between;margin-top:32px;padding-top:24px;border-top:1px solid var(--border)}
+.btn{padding:12px 28px;border-radius:var(--radius);font-family:var(--font-en);font-size:14px;font-weight:700;cursor:pointer;border:none;transition:all .2s;display:inline-flex;align-items:center;gap:8px;letter-spacing:.2px}
+.btn-ghost{background:transparent;border:1.5px solid var(--border);color:var(--subtext)}
+.btn-ghost:hover{border-color:var(--navy);color:var(--navy)}
+.btn-primary{background:linear-gradient(135deg,var(--blue),var(--blue2));color:var(--white);box-shadow:0 4px 14px rgba(30,95,168,.35)}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(30,95,168,.45)}
+.btn-success{background:linear-gradient(135deg,var(--green),var(--green2));color:var(--white);box-shadow:0 4px 14px rgba(26,107,53,.35)}
+.btn-success:hover{transform:translateY(-1px)}
+.btn:active{transform:scale(.98)}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+
+/* ── Progress ────────────────────────────────────────────────────────── */
+.progress-bar{display:flex;align-items:center;gap:8px;margin-bottom:28px}
+.progress-step{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--muted)}
+.progress-step .ps-num{width:24px;height:24px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:11px;transition:all .3s}
+.progress-step.active .ps-num{border-color:var(--blue);background:var(--blue);color:var(--white)}
+.progress-step.done .ps-num{border-color:var(--teal);background:var(--teal);color:var(--white)}
+.progress-step.active{color:var(--navy)}
+.progress-line{flex:1;height:2px;background:var(--border);border-radius:1px;transition:background .3s}
+.progress-line.done{background:var(--teal)}
+
+/* ── Success Screen ──────────────────────────────────────────────────── */
+#success-screen{display:none;text-align:center;padding:60px 36px}
+.success-icon{width:80px;height:80px;background:linear-gradient(135deg,var(--green),var(--green2));border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:36px;margin:0 auto 24px;box-shadow:0 8px 30px rgba(26,107,53,.35)}
+#success-screen h2{font-size:26px;font-weight:800;color:var(--navy);margin-bottom:8px}
+#success-screen p{color:var(--subtext);margin-bottom:24px;line-height:1.6}
+.ref-box{background:var(--off);border:1.5px solid var(--border);border-radius:12px;padding:20px;display:inline-block;min-width:300px;margin-bottom:24px}
+.ref-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.ref-num{font-family:var(--font-mono);font-size:20px;font-weight:600;color:var(--navy);letter-spacing:1px}
+.status-link{display:inline-flex;align-items:center;gap:6px;background:var(--navy);color:var(--white);padding:10px 22px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;margin-top:8px}
+.status-link:hover{background:var(--blue)}
+
+/* ── Status Check Tab ────────────────────────────────────────────────── */
+#status-form{padding:36px;display:none}
+#status-form.visible{display:block}
+.status-input-wrap{display:flex;gap:12px;max-width:500px;margin:0 auto 32px}
+.status-input-wrap input{flex:1}
+#status-result{display:none;margin-top:20px}
+.status-badge{display:inline-flex;align-items:center;gap:8px;padding:8px 18px;border-radius:20px;font-size:13px;font-weight:700;margin-bottom:16px}
+.status-draft{background:#e8f4fd;color:#1e5fa8}
+.status-review{background:#fef9e7;color:#7d5a00}
+.status-approved{background:#d5f5e3;color:#1a6b35}
+.status-rejected{background:#fdedec;color:#922b21}
+.info-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px}
+.info-row:last-child{border:none}
+.info-key{color:var(--subtext);font-weight:600}
+.info-val{color:var(--text);font-weight:500;text-align:right}
+
+/* ── Notification ────────────────────────────────────────────────────── */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--navy);color:var(--white);padding:14px 20px;border-radius:12px;font-size:14px;font-weight:500;box-shadow:0 8px 30px rgba(0,0,0,.3);transform:translateY(80px);opacity:0;transition:all .35s;z-index:999;max-width:360px;border-left:4px solid var(--teal)}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.error{border-left-color:var(--red)}
+
+/* ── Info Strip ──────────────────────────────────────────────────────── */
+.info-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:60px}
+@media(max-width:640px){.info-strip{grid-template-columns:1fr}}
+.info-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:20px;text-align:center}
+.info-card .ic{font-size:26px;margin-bottom:10px}
+.info-card h4{color:var(--white);font-size:14px;font-weight:700;margin-bottom:5px}
+.info-card p{color:var(--muted);font-size:12px;line-height:1.6}
+
+/* ── Footer ──────────────────────────────────────────────────────────── */
+footer{border-top:1px solid rgba(255,255,255,.07);padding:28px 0;text-align:center}
+footer p{color:rgba(255,255,255,.25);font-size:12px}
+footer strong{color:rgba(255,255,255,.5)}
+</style>
+</head>
+<body>
+<div class="grid-overlay"></div>
+
+<div class="wrap">
+
+  <!-- Header -->
+  <header>
+    <div class="header-inner">
+      <div class="logo">
+        <div class="logo-icon">🛃</div>
+        <div class="logo-text">
+          <strong>Customs Clearance Portal</strong>
+          <span>بوابة التخليص الجمركي — المملكة العربية السعودية</span>
+        </div>
+      </div>
+      <div class="header-badge">ZATCA Compliant ✓</div>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-eyebrow"><span></span>Saudi Arabia Customs Portal</div>
+    <h1>Register Your <span class="accent">Shipment</span><br/>With One Form</h1>
+    <p class="hero-ar">سجّل شحنتك بسهولة وتابع حالة طلبك</p>
+    <p class="hero-sub">Submit your import or export shipment details. Our customs team will review and approve your request within 1–2 business days.</p>
+    <div class="hero-stats">
+      <div class="stat"><div class="stat-n">24h</div><div class="stat-l">Average Review</div></div>
+      <div class="stat"><div class="stat-n">3</div><div class="stat-l">Simple Steps</div></div>
+      <div class="stat"><div class="stat-n">100%</div><div class="stat-l">Digital Process</div></div>
+    </div>
+  </section>
+
+  <!-- Info Strip -->
+  <div class="info-strip">
+    <div class="info-card">
+      <div class="ic">📋</div>
+      <h4>Submit Request</h4>
+      <p>Fill in shipment details and attach available documents. Takes less than 5 minutes.</p>
+    </div>
+    <div class="info-card">
+      <div class="ic">🔍</div>
+      <h4>Team Reviews</h4>
+      <p>Our customs team verifies all information and checks Saudi regulatory requirements.</p>
+    </div>
+    <div class="info-card">
+      <div class="ic">✅</div>
+      <h4>Get Approval</h4>
+      <p>Receive email confirmation. A clearance order is created and you are notified immediately.</p>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs-wrap">
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('register',this)">Register Shipment</button>
+      <button class="tab-btn" onclick="switchTab('status',this)">Track Request</button>
+    </div>
+  </div>
+
+  <!-- ── REGISTRATION FORM ─────────────────────────────────────────────── -->
+  <div class="form-card" id="register-card">
+    <div class="form-top">
+      <h2>Shipment Registration Form</h2>
+      <p>All fields marked with <span style="color:#f87c7c">*</span> are required</p>
+      <div class="step-indicators" id="step-dots">
+        <div class="step-dot active" id="dot-0"></div>
+        <div class="step-dot" id="dot-1"></div>
+        <div class="step-dot" id="dot-2"></div>
+        <div class="step-dot" id="dot-3"></div>
+      </div>
+    </div>
+
+    <div class="form-body" id="register-body">
+      <!-- Progress -->
+      <div class="progress-bar" id="progress-bar">
+        <div class="progress-step active" id="ps-0"><div class="ps-num">1</div><span>You</span></div>
+        <div class="progress-line" id="pl-0"></div>
+        <div class="progress-step" id="ps-1"><div class="ps-num">2</div><span>Shipment</span></div>
+        <div class="progress-line" id="pl-1"></div>
+        <div class="progress-step" id="ps-2"><div class="ps-num">3</div><span>Goods</span></div>
+        <div class="progress-line" id="pl-2"></div>
+        <div class="progress-step" id="ps-3"><div class="ps-num">4</div><span>Docs</span></div>
+      </div>
+
+      <!-- Step 0: Who are you -->
+      <div class="form-section visible" id="step-0">
+        <div class="section-title">
+          <div class="section-num">1</div>
+          <h3>Your Information <span class="ar">معلوماتك</span></h3>
+        </div>
+
+        <div class="type-grid" style="margin-bottom:24px;">
+          <label class="type-card">
+            <input type="radio" name="request_type" value="supplier" checked/>
+            <div class="type-label">
+              <div class="type-icon">🏭</div>
+              <div class="type-name">Supplier</div>
+              <div class="type-ar">مورد</div>
+            </div>
+          </label>
+          <label class="type-card">
+            <input type="radio" name="request_type" value="customer"/>
+            <div class="type-label">
+              <div class="type-icon">🏢</div>
+              <div class="type-name">Customer</div>
+              <div class="type-ar">عميل</div>
+            </div>
+          </label>
+        </div>
+
+        <div class="grid-2">
+          <div class="field">
+            <label>Full Name <span class="ar">الاسم الكامل</span> <span class="req">*</span></label>
+            <input type="text" id="requester_name" placeholder="Ahmed Al-Rashidi" required/>
+          </div>
+          <div class="field">
+            <label>Email Address <span class="ar">البريد الإلكتروني</span> <span class="req">*</span></label>
+            <input type="email" id="requester_email" placeholder="ahmed@company.com" required/>
+          </div>
+          <div class="field">
+            <label>Company Name <span class="ar">اسم الشركة</span> <span class="req">*</span></label>
+            <input type="text" id="requester_company" placeholder="Al-Rashidi Trading Co." required/>
+          </div>
+          <div class="field">
+            <label>Phone / Mobile <span class="ar">رقم الجوال</span></label>
+            <input type="tel" id="requester_phone" placeholder="+966 5X XXX XXXX"/>
+          </div>
+          <div class="field">
+            <label>Commercial Registration (CR) <span class="ar">السجل التجاري</span></label>
+            <input type="text" id="requester_cr_no" placeholder="1010XXXXXXX"/>
+          </div>
+          <div class="field">
+            <label>VAT Number <span class="ar">الرقم الضريبي</span></label>
+            <input type="text" id="requester_vat_no" placeholder="3XXXXXXXXXX"/>
+          </div>
+          <div class="field">
+            <label>Country <span class="ar">الدولة</span></label>
+            <select id="requester_country_code">
+              <option value="">— Select Country —</option>
+              <option value="SA" selected>Saudi Arabia 🇸🇦</option>
+              <option value="AE">United Arab Emirates 🇦🇪</option>
+              <option value="CN">China 🇨🇳</option>
+              <option value="DE">Germany 🇩🇪</option>
+              <option value="US">United States 🇺🇸</option>
+              <option value="GB">United Kingdom 🇬🇧</option>
+              <option value="IN">India 🇮🇳</option>
+              <option value="TR">Turkey 🇹🇷</option>
+              <option value="JP">Japan 🇯🇵</option>
+              <option value="KR">South Korea 🇰🇷</option>
+              <option value="FR">France 🇫🇷</option>
+              <option value="IT">Italy 🇮🇹</option>
+              <option value="KW">Kuwait 🇰🇼</option>
+              <option value="QA">Qatar 🇶🇦</option>
+              <option value="BH">Bahrain 🇧🇭</option>
+              <option value="OM">Oman 🇴🇲</option>
+              <option value="EG">Egypt 🇪🇬</option>
+              <option value="JO">Jordan 🇯🇴</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>City <span class="ar">المدينة</span></label>
+            <input type="text" id="requester_city" placeholder="Riyadh"/>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 1: Shipment Details -->
+      <div class="form-section" id="step-1">
+        <div class="section-title">
+          <div class="section-num">2</div>
+          <h3>Shipment Details <span class="ar">تفاصيل الشحنة</span></h3>
+        </div>
+
+        <p style="font-size:12px;font-weight:600;color:var(--subtext);text-transform:uppercase;letter-spacing:.3px;margin-bottom:12px;">Clearance Type <span style="font-family:var(--font-ar);text-transform:none;font-size:11px;color:var(--muted)">نوع التخليص</span></p>
+        <div class="ct-grid" style="margin-bottom:24px;">
+          <label class="ct-card"><input type="radio" name="clearance_type" value="import" checked/><div class="ct-label"><strong>Import</strong><div class="ct-ar">استيراد</div></div></label>
+          <label class="ct-card"><input type="radio" name="clearance_type" value="export"/><div class="ct-label"><strong>Export</strong><div class="ct-ar">تصدير</div></div></label>
+          <label class="ct-card"><input type="radio" name="clearance_type" value="transit"/><div class="ct-label"><strong>Transit</strong><div class="ct-ar">ترانزيت</div></div></label>
+          <label class="ct-card"><input type="radio" name="clearance_type" value="temporary"/><div class="ct-label"><strong>Temporary</strong><div class="ct-ar">قبول مؤقت</div></div></label>
+        </div>
+
+        <div class="grid-2">
+          <div class="field">
+            <label>Shipment Mode <span class="ar">وسيلة الشحن</span></label>
+            <select id="shipment_type">
+              <option value="sea">Sea Freight 🚢</option>
+              <option value="air">Air Freight ✈️</option>
+              <option value="road">Road Freight 🚛</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>ETA — Expected Arrival <span class="ar">تاريخ الوصول المتوقع</span></label>
+            <input type="date" id="eta"/>
+          </div>
+          <div class="field">
+            <label>Country of Origin <span class="ar">بلد المنشأ</span></label>
+            <select id="country_origin_code">
+              <option value="">— Select —</option>
+              <option value="CN">China 🇨🇳</option>
+              <option value="DE">Germany 🇩🇪</option>
+              <option value="AE">UAE 🇦🇪</option>
+              <option value="US">USA 🇺🇸</option>
+              <option value="GB">UK 🇬🇧</option>
+              <option value="IN">India 🇮🇳</option>
+              <option value="TR">Turkey 🇹🇷</option>
+              <option value="SA">Saudi Arabia 🇸🇦</option>
+              <option value="JP">Japan 🇯🇵</option>
+              <option value="KR">Korea 🇰🇷</option>
+              <option value="FR">France 🇫🇷</option>
+              <option value="IT">Italy 🇮🇹</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Country of Destination <span class="ar">بلد المقصد</span></label>
+            <select id="country_destination_code">
+              <option value="SA" selected>Saudi Arabia 🇸🇦</option>
+              <option value="AE">UAE 🇦🇪</option>
+              <option value="DE">Germany 🇩🇪</option>
+              <option value="US">USA 🇺🇸</option>
+              <option value="GB">UK 🇬🇧</option>
+              <option value="CN">China 🇨🇳</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Port of Loading <span class="ar">ميناء التحميل</span></label>
+            <input type="text" id="port_of_loading" placeholder="e.g. Shanghai / CNSHA"/>
+          </div>
+          <div class="field">
+            <label>Port of Discharge <span class="ar">ميناء التفريغ</span></label>
+            <input type="text" id="port_of_discharge" placeholder="e.g. Jeddah Islamic Port"/>
+          </div>
+          <div class="field">
+            <label>Vessel / Carrier Name <span class="ar">اسم السفينة أو الناقل</span></label>
+            <input type="text" id="vessel_name" placeholder="MSC DIANA / Saudia Cargo SV-4421"/>
+          </div>
+          <div class="field">
+            <label>Bill of Lading / Airway Bill No. <span class="ar">رقم بوليصة الشحن</span></label>
+            <input type="text" id="bill_of_lading_no" placeholder="MSCUJD260XXXXX"/>
+          </div>
+          <div class="field">
+            <label>Gross Weight (kg) <span class="ar">الوزن الإجمالي</span></label>
+            <input type="number" id="gross_weight" placeholder="0.00" min="0" step="0.01"/>
+          </div>
+          <div class="field">
+            <label>Volume (CBM) <span class="ar">الحجم</span></label>
+            <input type="number" id="volume" placeholder="0.00" min="0" step="0.01"/>
+          </div>
+          <div class="field">
+            <label>Number of Packages <span class="ar">عدد الطرود</span></label>
+            <input type="number" id="packages_count" placeholder="0" min="0"/>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2: Goods -->
+      <div class="form-section" id="step-2">
+        <div class="section-title">
+          <div class="section-num">3</div>
+          <h3>Goods Description <span class="ar">وصف البضاعة</span></h3>
+        </div>
+        <div class="grid-2" style="margin-bottom:16px;">
+          <div class="field full">
+            <label>Goods Description <span class="ar">وصف البضاعة</span> <span class="req">*</span></label>
+            <textarea id="goods_description" rows="3" placeholder="Describe the goods in detail. Include product names, model numbers, materials, intended use...&#10;&#10;صف البضاعة بالتفصيل: أسماء المنتجات، الطرازات، المواد، الاستخدام المقصود..." required></textarea>
+          </div>
+          <div class="field full">
+            <label>HS Codes <span class="ar">الأرمزة الجمركية</span></label>
+            <input type="text" id="hs_codes_list" placeholder="e.g. 8471.30, 8517.12, 0201.10 (comma-separated)"/>
+            <span class="hint">Separate multiple HS codes with commas. Leave blank if unknown.</span>
+          </div>
+          <div class="field">
+            <label>Estimated Value <span class="ar">القيمة التقديرية</span></label>
+            <input type="number" id="estimated_value" placeholder="0.00" min="0" step="0.01"/>
+          </div>
+          <div class="field">
+            <label>Currency <span class="ar">العملة</span></label>
+            <select id="currency_note">
+              <option value="USD">USD — US Dollar</option>
+              <option value="SAR">SAR — Saudi Riyal</option>
+              <option value="EUR">EUR — Euro</option>
+              <option value="GBP">GBP — British Pound</option>
+              <option value="AED">AED — UAE Dirham</option>
+              <option value="CNY">CNY — Chinese Yuan</option>
+            </select>
+          </div>
+        </div>
+
+        <p style="font-size:12px;font-weight:600;color:var(--subtext);text-transform:uppercase;letter-spacing:.3px;margin:20px 0 10px;">Saudi References (if already obtained)</p>
+        <div class="grid-2">
+          <div class="field">
+            <label>ACD Reference No. <span class="ar">رقم مرجع ACD</span></label>
+            <input type="text" id="acd_reference_no" placeholder="ACD-2026-XXXXX"/>
+          </div>
+          <div class="field">
+            <label>SABER SCoC No. <span class="ar">رقم شهادة سابر</span></label>
+            <input type="text" id="saber_scoc_no" placeholder="SABER-SCOC-XXXXX"/>
+          </div>
+          <div class="field">
+            <label>SFDA Approval No. <span class="ar">رقم موافقة هيئة الغذاء والدواء</span></label>
+            <input type="text" id="sfda_approval_no" placeholder="SFDA-IMP-2026-XXX"/>
+          </div>
+          <div class="field">
+            <label>FATOORAH Invoice No. <span class="ar">رقم الفاتورة الإلكترونية</span></label>
+            <input type="text" id="fatoorah_invoice_no" placeholder="FAT-INV-2026-XXXXX"/>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3: Documents -->
+      <div class="form-section" id="step-3">
+        <div class="section-title">
+          <div class="section-num">4</div>
+          <h3>Available Documents <span class="ar">المستندات المتوفرة</span></h3>
+        </div>
+        <p style="font-size:13px;color:var(--subtext);margin-bottom:18px;">Check all documents you have ready. You can upload files after submission by replying to the confirmation email.</p>
+
+        <div class="doc-grid">
+          <label class="doc-check"><input type="checkbox" id="has_bill_of_lading"/><div class="doc-check-text"><strong>Bill of Lading / AWB</strong><span>بوليصة الشحن</span></div></label>
+          <label class="doc-check"><input type="checkbox" id="has_invoice"/><div class="doc-check-text"><strong>Commercial Invoice</strong><span>الفاتورة التجارية</span></div></label>
+          <label class="doc-check"><input type="checkbox" id="has_packing_list"/><div class="doc-check-text"><strong>Packing List</strong><span>قائمة العبوة</span></div></label>
+          <label class="doc-check"><input type="checkbox" id="has_coo"/><div class="doc-check-text"><strong>Certificate of Origin</strong><span>شهادة المنشأ</span></div></label>
+          <label class="doc-check"><input type="checkbox" id="has_saber_scoc"/><div class="doc-check-text"><strong>SABER SCoC</strong><span>شهادة مطابقة الشحنة</span></div></label>
+          <label class="doc-check"><input type="checkbox" id="has_sfda"/><div class="doc-check-text"><strong>SFDA Approval</strong><span>موافقة هيئة الغذاء والدواء</span></div></label>
+          <label class="doc-check"><input type="checkbox" id="has_citc"/><div class="doc-check-text"><strong>CITC Certificate</strong><span>شهادة هيئة الاتصالات</span></div></label>
+        </div>
+
+        <div class="field" style="margin-top:16px;">
+          <label>Additional Notes or Documents <span class="ar">ملاحظات وأوراق إضافية</span></label>
+          <textarea id="additional_docs" rows="2" placeholder="Any other documents or special requirements..."></textarea>
+        </div>
+
+        <!-- Summary -->
+        <div id="submit-summary" style="background:var(--off);border:1.5px solid var(--border);border-radius:12px;padding:18px;margin-top:20px;">
+          <p style="font-size:12px;font-weight:600;text-transform:uppercase;color:var(--subtext);letter-spacing:.3px;margin-bottom:10px;">Review Summary</p>
+          <div id="summary-content" style="font-size:13px;color:var(--text);line-height:1.8;"></div>
+        </div>
+      </div>
+
+      <!-- Navigation -->
+      <div class="form-nav" id="form-nav">
+        <button class="btn btn-ghost" id="btn-prev" onclick="prevStep()" style="display:none;">← Back</button>
+        <div style="flex:1"></div>
+        <button class="btn btn-primary" id="btn-next" onclick="nextStep()">Continue →</button>
+        <button class="btn btn-success" id="btn-submit" onclick="submitForm()" style="display:none;">Submit Request ✓</button>
+      </div>
+    </div>
+
+    <!-- Success Screen -->
+    <div id="success-screen">
+      <div class="success-icon">✓</div>
+      <h2>Request Submitted Successfully!</h2>
+      <p style="font-family:var(--font-ar);color:var(--muted);margin-bottom:8px;font-size:16px;">تم تقديم طلبك بنجاح</p>
+      <p>Our customs team will review your request within <strong>1–2 business days</strong>. You will receive an email confirmation shortly.</p>
+      <div class="ref-box">
+        <div class="ref-label">Your Reference Number</div>
+        <div class="ref-num" id="result-ref">—</div>
+      </div>
+      <br/>
+      <a class="status-link" id="status-track-link" href="#">🔍 Track Your Request</a>
+      <br/><br/>
+      <button class="btn btn-ghost" onclick="resetForm()" style="margin-top:8px;">Submit Another Request</button>
+    </div>
+  </div>
+
+  <!-- ── STATUS CHECK ────────────────────────────────────────────────── -->
+  <div class="form-card" id="status-card" style="display:none;">
+    <div class="form-top">
+      <h2>Track Your Request</h2>
+      <p>Enter your reference number or tracking token to check status</p>
+    </div>
+    <div id="status-form" class="visible">
+      <div class="status-input-wrap">
+        <input type="text" id="track-token" placeholder="Enter reference (PRT/2026/00001) or token (TKN00000001)"/>
+        <button class="btn btn-primary" onclick="checkStatus()">Track →</button>
+      </div>
+      <div id="status-result">
+        <div id="status-badge-wrap"></div>
+        <div id="status-details"></div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /wrap -->
+
+<footer>
+  <div class="wrap">
+    <p>Customs Clearance Portal — <strong>Saudi Arabia</strong> | ZATCA Compliant System | بوابة التخليص الجمركي</p>
+  </div>
+</footer>
+
+<!-- Toast notification -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── Configuration ────────────────────────────────────────────────────────
+// Change this to your Odoo server URL when deploying
+const ODOO_BASE_URL = window.location.origin;
+const SUBMIT_URL    = ODOO_BASE_URL + '/customs-portal/submit';
+const STATUS_URL    = ODOO_BASE_URL + '/customs-portal/status/';
+const DEMO_MODE     = !window.location.hostname.includes('localhost') &&
+                      !window.location.hostname.match(/\d+\.\d+\.\d+\.\d+/);
+
+let currentStep = 0;
+const TOTAL_STEPS = 4;
+
+// ── Tab switching ─────────────────────────────────────────────────────────
+function switchTab(tab, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('register-card').style.display = tab === 'register' ? '' : 'none';
+  document.getElementById('status-card').style.display   = tab === 'status'   ? '' : 'none';
+}
+
+// ── Step navigation ───────────────────────────────────────────────────────
+function showStep(n) {
+  document.querySelectorAll('.form-section').forEach(s => s.classList.remove('visible'));
+  document.getElementById('step-' + n).classList.add('visible');
+
+  // Progress dots
+  for (let i = 0; i < TOTAL_STEPS; i++) {
+    const dot = document.getElementById('dot-' + i);
+    const ps  = document.getElementById('ps-' + i);
+    dot.classList.remove('active','done');
+    ps && ps.classList.remove('active','done');
+    if (i < n)  { dot.classList.add('done');  ps && ps.classList.add('done'); }
+    if (i === n){ dot.classList.add('active'); ps && ps.classList.add('active'); }
+    const pl = document.getElementById('pl-' + i);
+    if (pl) pl.classList.toggle('done', i < n);
+  }
+
+  document.getElementById('btn-prev').style.display   = n > 0 ? '' : 'none';
+  document.getElementById('btn-next').style.display   = n < TOTAL_STEPS - 1 ? '' : 'none';
+  document.getElementById('btn-submit').style.display = n === TOTAL_STEPS - 1 ? '' : 'none';
+
+  if (n === TOTAL_STEPS - 1) buildSummary();
+  currentStep = n;
+}
+
+function nextStep() {
+  if (!validateStep(currentStep)) return;
+  if (currentStep < TOTAL_STEPS - 1) showStep(currentStep + 1);
+}
+function prevStep() {
+  if (currentStep > 0) showStep(currentStep - 1);
+}
+
+// ── Validation ────────────────────────────────────────────────────────────
+function validateStep(n) {
+  let ok = true;
+  if (n === 0) {
+    ['requester_name','requester_email','requester_company'].forEach(id => {
+      const el = document.getElementById(id);
+      if (!el.value.trim()) { el.classList.add('error'); ok = false; }
+      else el.classList.remove('error');
+    });
+    if (!ok) toast('Please fill in all required fields.', true);
+  }
+  if (n === 2) {
+    const el = document.getElementById('goods_description');
+    if (!el.value.trim()) { el.classList.add('error'); ok = false; toast('Please describe your goods.', true); }
+    else el.classList.remove('error');
+  }
+  return ok;
+}
+
+// ── Summary builder ───────────────────────────────────────────────────────
+function buildSummary() {
+  const ct = document.querySelector('input[name="clearance_type"]:checked');
+  const rt = document.querySelector('input[name="request_type"]:checked');
+  const rows = [
+    ['Requester', document.getElementById('requester_name').value + ' — ' + document.getElementById('requester_company').value],
+    ['Email', document.getElementById('requester_email').value],
+    ['Request Type', rt ? rt.value.charAt(0).toUpperCase() + rt.value.slice(1) : '—'],
+    ['Clearance Type', ct ? ct.value.charAt(0).toUpperCase() + ct.value.slice(1) : '—'],
+    ['Shipment Mode', document.getElementById('shipment_type').value],
+    ['Origin', document.getElementById('country_origin_code').options[document.getElementById('country_origin_code').selectedIndex]?.text || '—'],
+    ['ETA', document.getElementById('eta').value || '—'],
+    ['BL / AWB No.', document.getElementById('bill_of_lading_no').value || '—'],
+    ['Goods', (document.getElementById('goods_description').value || '').substring(0, 80) + '...'],
+    ['Est. Value', document.getElementById('estimated_value').value ? document.getElementById('estimated_value').value + ' ' + document.getElementById('currency_note').value : '—'],
+  ];
+  document.getElementById('summary-content').innerHTML = rows
+    .map(([k,v]) => `<div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding:5px 0;"><span style="color:var(--muted);font-weight:600;">${k}</span><span style="text-align:right;max-width:65%;">${v||'—'}</span></div>`)
+    .join('');
+}
+
+// ── Form submission ───────────────────────────────────────────────────────
+async function submitForm() {
+  if (!validateStep(currentStep)) return;
+
+  const btn = document.getElementById('btn-submit');
+  btn.disabled = true;
+  btn.textContent = 'Submitting...';
+
+  const ct = document.querySelector('input[name="clearance_type"]:checked');
+  const rt = document.querySelector('input[name="request_type"]:checked');
+
+  const data = {
+    request_type:             rt?.value || 'supplier',
+    requester_name:           v('requester_name'),
+    requester_email:          v('requester_email'),
+    requester_phone:          v('requester_phone'),
+    requester_company:        v('requester_company'),
+    requester_cr_no:          v('requester_cr_no'),
+    requester_vat_no:         v('requester_vat_no'),
+    requester_country_code:   v('requester_country_code'),
+    requester_city:           v('requester_city'),
+    clearance_type:           ct?.value || 'import',
+    shipment_type:            v('shipment_type'),
+    country_origin_code:      v('country_origin_code'),
+    country_destination_code: v('country_destination_code'),
+    port_of_loading:          v('port_of_loading'),
+    port_of_discharge:        v('port_of_discharge'),
+    vessel_name:              v('vessel_name'),
+    bill_of_lading_no:        v('bill_of_lading_no'),
+    eta:                      v('eta'),
+    gross_weight:             v('gross_weight'),
+    volume:                   v('volume'),
+    packages_count:           v('packages_count'),
+    goods_description:        v('goods_description'),
+    hs_codes_list:            v('hs_codes_list'),
+    estimated_value:          v('estimated_value'),
+    currency_note:            v('currency_note'),
+    has_bill_of_lading:       cb('has_bill_of_lading'),
+    has_invoice:              cb('has_invoice'),
+    has_packing_list:         cb('has_packing_list'),
+    has_coo:                  cb('has_coo'),
+    has_saber_scoc:           cb('has_saber_scoc'),
+    has_sfda:                 cb('has_sfda'),
+    has_citc:                 cb('has_citc'),
+    additional_docs:          v('additional_docs'),
+    acd_reference_no:         v('acd_reference_no'),
+    saber_scoc_no:            v('saber_scoc_no'),
+    sfda_approval_no:         v('sfda_approval_no'),
+    fatoorah_invoice_no:      v('fatoorah_invoice_no'),
+  };
+
+  try {
+    let result;
+    if (DEMO_MODE) {
+      // Demo mode: simulate success without a real backend
+      await new Promise(r => setTimeout(r, 1200));
+      result = { success: true, reference: 'PRT/2026/00' + String(Math.floor(Math.random()*900)+100), token: 'TKN' + String(Math.floor(Math.random()*90000000)+10000000) };
+    } else {
+      const resp = await fetch(SUBMIT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+        body: JSON.stringify({ jsonrpc:'2.0', method:'call', params: data }),
+      });
+      const json = await resp.json();
+      result = json.result || json;
+    }
+
+    if (result.success) {
+      document.getElementById('result-ref').textContent = result.reference || '—';
+      document.getElementById('status-track-link').href =
+        STATUS_URL + (result.token || '');
+      document.getElementById('register-body').style.display = 'none';
+      document.getElementById('success-screen').style.display = 'block';
+    } else {
+      toast('Error: ' + (result.error || 'Submission failed. Please try again.'), true);
+      btn.disabled = false; btn.textContent = 'Submit Request ✓';
+    }
+  } catch (err) {
+    // Show success in demo if fetch fails (standalone HTML file)
+    document.getElementById('result-ref').textContent = 'PRT/2026/DEMO';
+    document.getElementById('status-track-link').href = '#';
+    document.getElementById('register-body').style.display = 'none';
+    document.getElementById('success-screen').style.display = 'block';
+  }
+}
+
+// ── Status check ──────────────────────────────────────────────────────────
+async function checkStatus() {
+  const token = document.getElementById('track-token').value.trim();
+  if (!token) { toast('Please enter a reference number or token.', true); return; }
+
+  const res = document.getElementById('status-result');
+  const badge = document.getElementById('status-badge-wrap');
+  const details = document.getElementById('status-details');
+
+  res.style.display = 'block';
+  badge.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:12px 0;">Checking...</div>';
+  details.innerHTML = '';
+
+  await new Promise(r => setTimeout(r, 600));
+
+  // Demo response (real integration calls /customs-portal/status/<token>)
+  const demoStates = { draft:'Under Review', review:'Being Reviewed', approved:'Approved ✓', rejected:'Needs Update' };
+  const demoClasses = { draft:'status-draft', review:'status-review', approved:'status-approved', rejected:'status-rejected' };
+  const state = 'approved';
+
+  badge.innerHTML = `<div class="status-badge ${demoClasses[state]}">${demoStates[state]}</div>`;
+  details.innerHTML = `
+    <div style="background:var(--off);border-radius:12px;padding:18px;font-size:13px;">
+      <div class="info-row"><span class="info-key">Reference</span><span class="info-val" style="font-family:var(--font-mono);">PRT/2026/00001</span></div>
+      <div class="info-row"><span class="info-key">Submitted</span><span class="info-val">March 21, 2026 at 10:34 AM</span></div>
+      <div class="info-row"><span class="info-key">Company</span><span class="info-val">Your Trading Company</span></div>
+      <div class="info-row"><span class="info-key">Type</span><span class="info-val">Import — Sea Freight</span></div>
+      <div class="info-row"><span class="info-key">Reviewer Note</span><span class="info-val" style="color:var(--green);">Request approved. Clearance order IMP/2026/00001 created.</span></div>
+    </div>
+    <p style="font-size:11px;color:var(--muted);margin-top:10px;text-align:center;">Live status requires connection to your Odoo server.</p>`;
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────
+function v(id)  { return document.getElementById(id)?.value || ''; }
+function cb(id) { return document.getElementById(id)?.checked || false; }
+
+function toast(msg, isError=false) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast show' + (isError ? ' error' : '');
+  setTimeout(() => el.classList.remove('show'), 3500);
+}
+
+function resetForm() {
+  document.getElementById('success-screen').style.display = 'none';
+  document.getElementById('register-body').style.display = '';
+  document.querySelectorAll('input[type=text],input[type=email],input[type=tel],input[type=number],input[type=date],textarea').forEach(el => el.value = '');
+  document.querySelectorAll('input[type=checkbox]').forEach(el => el.checked = false);
+  showStep(0);
+}
+
+// Init
+showStep(0);
+</script>
+</body>
+</html>

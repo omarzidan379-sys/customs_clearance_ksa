@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+
+      <record id="customs_shipment_view_form" model="ir.ui.view">
+          <field name="name">customs.shipment.form</field>
+          <field name="model">customs.shipment</field>
+          <field name="arch" type="xml">
+              <form string="Shipment">
+                  <header>
+                      <button name="action_view_clearances" string="View Clearances" type="object"
+                              class="btn-secondary"/>
+                      <field name="state" widget="statusbar"
+                             statusbar_visible="draft,in_transit,arrived,cleared,delivered"/>
+                  </header>
+                  <sheet>
+                      <div class="oe_button_box" name="button_box">
+                          <button name="action_view_clearances" type="object"
+                                  class="oe_stat_button" icon="fa-file">
+                              <field name="clearance_count" widget="statinfo" string="Clearances"/>
+                          </button>
+                          <button type="action"
+                                  class="oe_stat_button"
+                                  icon="fa-cube"
+                                  name="%(customs_clearance_ksa.action_customs_clearance)d">
+                              <field name="container_count" widget="statinfo" string="Containers"/>
+                          </button>
+                      </div>
+                      <div class="oe_title">
+                          <h1><field name="name"/></h1>
+                      </div>
+                      <group>
+                          <group string="Shipment Details">
+                              <field name="shipment_type"/>
+                              <field name="vessel_name"/>
+                              <field name="voyage_number"/>
+                              <field name="bill_of_lading_no"/>
+                              <field name="master_bl_no" optional="show"/>
+                              <field name="house_bl_no" optional="show"/>
+                          </group>
+                          <group string="Ports &amp; Dates">
+                              <field name="port_origin_id"/>
+                              <field name="port_destination_id"/>
+                              <field name="departure_date"/>
+                              <field name="eta"/>
+                              <field name="actual_arrival_date"/>
+                          </group>
+                      </group>
+                      <group>
+                          <group string="Parties">
+                              <field name="shipper_id"/>
+                              <field name="consignee_id"/>
+                              <field name="notify_party_id"/>
+                          </group>
+                          <group string="Cargo Details">
+                              <field name="gross_weight"/>
+                              <field name="net_weight"/>
+                              <field name="volume"/>
+                              <field name="packages_count"/>
+                          </group>
+                      </group>
+                      <notebook>
+                          <page string="Containers">
+                              <field name="container_ids">
+                                  <tree editable="bottom">
+                                      <field name="container_number"/>
+                                      <field name="container_type"/>
+                                      <field name="seal_number"/>
+                                      <field name="gross_weight"/>
+                                      <field name="volume"/>
+                                      <field name="notes"/>
+                                  </tree>
+                              </field>
+                          </page>
+                          <page string="Notes">
+                              <field name="notes"/>
+                          </page>
+                      </notebook>
+                  </sheet>
+              </form>
+          </field>
+      </record>
+
+
+
+
+    <record id="view_customs_shipment_list" model="ir.ui.view">
+        <field name="name">customs.shipment.list</field>
+        <field name="model">customs.shipment</field>
+        <field name="arch" type="xml">
+            <tree string="Shipments">
+                <field name="name"/>
+                <field name="shipment_type" widget="badge"/>
+                <field name="vessel_name"/>
+                <field name="bill_of_lading_no"/>
+                <field name="port_origin_id"/>
+                <field name="port_destination_id"/>
+                <field name="departure_date"/>
+                <field name="eta"/>
+                <field name="actual_arrival_date" optional="show"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'delivered'"
+                       decoration-info="state == 'in_transit'"
+                       decoration-warning="state == 'arrived'"/>
+                <field name="clearance_count" string="Clearances"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_customs_shipment" model="ir.actions.act_window">
+        <field name="name">Shipments</field>
+        <field name="res_model">customs.shipment</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+</odoo>
