@@ -10,6 +10,9 @@
         <header>
           <button name="action_start_review" string="Start Review" type="object"
                   class="btn-primary" invisible="state != 'draft'"/>
+          <button name="action_send_offer" string="Send Service Offer" type="object"
+                  class="btn-warning"
+                  invisible="state not in ('review','approved') or offer_state == 'accepted'"/>
           <button name="action_approve" string="Approve &amp; Create Order" type="object"
                   class="btn-success" invisible="state != 'review'"/>
           <button name="action_reject" string="Reject" type="object"
@@ -115,6 +118,22 @@
               </group>
               <group string="Created Clearance Order" invisible="not clearance_id">
                 <field name="clearance_id" readonly="1"/>
+              </group>
+            </page>
+
+            <page string="Service Offer" name="offer">
+              <group string="Estimated Fees (to include in offer email)">
+                <field name="estimated_service_fee"/>
+                <field name="estimated_duty_amount"/>
+              </group>
+              <group string="Offer Status">
+                <field name="offer_state" widget="badge"
+                       decoration-success="offer_state == 'accepted'"
+                       decoration-danger="offer_state == 'rejected'"
+                       decoration-warning="offer_state == 'sent'"/>
+                <field name="offer_sent_date" readonly="1"/>
+                <field name="offer_replied_date" readonly="1"/>
+                <field name="offer_token" readonly="1"/>
               </group>
             </page>
 

@@ -30,6 +30,7 @@ class CustomsClearance(models.Model):
         ('duty_payment',   'Duty Payment / سداد الرسوم'),
         ('released',       'Released / إذن الإفراج'),
         ('delivered',      'Delivered / مُسلَّم'),
+        ('refused',        'Refused by Customs / مرفوض من الجمارك'),
         ('cancelled',      'Cancelled / ملغي'),
     ], string='Status', default='draft', tracking=True, copy=False)
 
@@ -111,6 +112,17 @@ class CustomsClearance(models.Model):
     saber_scoc_no      = fields.Char(string='SABER SCoC No. / رقم شهادة مطابقة الشحنة', tracking=True)
     saber_scoc_expiry  = fields.Date(string='SCoC Expiry Date / تاريخ انتهاء SCoC', tracking=True)
     saber_scoc_verified= fields.Boolean(string='SCoC Verified in FASAH / محقق في فسح', tracking=True)
+    saber_scoc_expired = fields.Boolean(
+        string='SCoC Expired',
+        compute='_compute_saber_scoc_expired',
+        store=True,
+        help='True when the SABER SCoC expiry date is in the past.',
+    )
+    saber_scoc_expiry_warning = fields.Char(
+        string='SCoC Warning',
+        compute='_compute_saber_scoc_expired',
+        store=False,
+    )
 
     # ── Regulatory Compliance Flags ───────────────────────────────────────────
     requires_sfda       = fields.Boolean(string='Requires SFDA Approval')
@@ -174,7 +186,63 @@ class CustomsClearance(models.Model):
     zatca_remarks  = fields.Text(string='ZATCA Remarks / ملاحظات ZATCA')
     color          = fields.Integer(string='Color')
 
+    # ── Refusal ───────────────────────────────────────────────────────────────
+    refusal_reason = fields.Text(string='Refusal Reason / سبب الرفض', tracking=True, copy=False)
+    refusal_date   = fields.Date(string='Refusal Date / تاريخ الرفض', readonly=True, copy=False)
+
+    # ── Inspection Result (recorded by inspector) ─────────────────────────────
+    inspector_name     = fields.Char(string='Inspector Name / اسم المفتش', tracking=True)
+    inspection_date    = fields.Date(string='Inspection Date / تاريخ الفحص', tracking=True)
+    inspection_result  = fields.Selection([
+        ('pass',        'Passed / اجتياز'),
+        ('fail',        'Failed / رسوب'),
+        ('conditional', 'Conditional Release / إفراج مشروط'),
+    ], string='Inspection Result / نتيجة الفحص', tracking=True)
+    inspection_notes   = fields.Text(string='Inspector Notes / ملاحظات المفتش', tracking=True)
+
+    # ── Post-Release: Archive & Claims ────────────────────────────────────────
+    archive_date           = fields.Date(string='Archived On / تاريخ الأرشفة', readonly=True, copy=False)
+    archive_reference      = fields.Char(string='Archive Reference / مرجع الأرشيف', copy=False, tracking=True)
+    archive_retention_date = fields.Date(string='Retain Until / الاحتفاظ حتى', readonly=True, copy=False,
+                                         help='Documents must be retained for 5 years per Saudi customs law.')
+    has_pending_claims     = fields.Boolean(string='Pending Claims / مطالبات معلقة', tracking=True)
+    claims_notes           = fields.Text(string='Claims / Follow-up Notes / ملاحظات المطالبات')
+
+    # ── 1. HS Code Double Review ───────────────────────────────────────────────
+    hs_code_reviewed    = fields.Boolean(string='HS Codes Reviewed / تمت مراجعة الرموز الجمركية', tracking=True,
+                                          help='Checked by a certified classifier before ACD submission.')
+    hs_code_reviewer_id = fields.Many2one('res.users', string='Reviewed By / راجعه',
+                                           tracking=True, domain=[('share', '=', False)])
+
+    # ── 2. Customs Response Deadline ──────────────────────────────────────────
+    customs_response_deadline = fields.Date(string='Customs Response Deadline / موعد رد الجمارك', tracking=True,
+                                             help='Date by which customs must respond. Set when declaration enters review.')
+    response_overdue = fields.Boolean(string='Response Overdue / متأخر', compute='_compute_response_overdue',
+                                       store=False, help='True when past the response deadline and still under review.')
+
+    # ── 3. Payment Confirmation ───────────────────────────────────────────────
+    payment_confirmed   = fields.Boolean(string='Payment Confirmed / السداد مؤكد', tracking=True,
+                                          help='Tick after verifying duties receipt from SADAD/bank.')
+    payment_receipt_ref = fields.Char(string='Payment Receipt Ref / مرجع الإيصال', tracking=True, copy=False,
+                                       help='SADAD or bank receipt reference number.')
+
+    # ── Related: broker delegation (for form warning) ─────────────────────────
+    broker_delegation_expired = fields.Boolean(string='Broker Delegation Expired',
+                                                related='broker_id.zatca_delegation_expired', store=False)
+
     # ── Computes ──────────────────────────────────────────────────────────────
+
+    @api.depends('customs_response_deadline', 'state')
+    def _compute_response_overdue(self):
+        today = date.today()
+        overdue_states = ('submitted', 'customs_review', 'inspection')
+        for r in self:
+            r.response_overdue = bool(
+                r.customs_response_deadline
+                and r.customs_response_deadline < today
+                and r.state in overdue_states
+            )
+
     @api.depends('goods_value', 'freight_amount', 'insurance_amount')
     def _compute_cif_value(self):
         for r in self:
@@ -235,19 +303,75 @@ class CustomsClearance(models.Model):
         self.ensure_one()
         if not self.acd_reference_no:
             raise UserError(_('Enter the ACD Reference Number. The Advance Cargo Declaration must be submitted to ZATCA at least 24 hours before cargo departure.'))
+        # HS Code review check — warn if not reviewed (non-blocking, just logs)
+        if not self.hs_code_reviewed:
+            self.message_post(body=_('⚠️ ACD submitted without HS Code double-review. Recommend having a certified classifier verify all HS codes before FASAH submission.'))
         self.write({'state': 'acd_submitted', 'acd_submission_date': fields.Date.today()})
 
     def action_submit_fasah(self):
+        """Submit to FASAH — runs full pre-submission checklist."""
         self.ensure_one()
-        if not self.goods_line_ids:
-            raise UserError(_('Add at least one goods line before submitting.'))
-        if self.requires_saber and not self.saber_scoc_no:
-            raise UserError(_('SABER SCoC certificate number is required for this shipment.'))
+        issues = self._check_submission_readiness()
+        if issues:
+            raise UserError(
+                _('Cannot submit to FASAH — fix the following issues first:\n\n') +
+                '\n'.join('• ' + i for i in issues)
+            )
         self.write({'state': 'submitted'})
+        self.message_post(body=_('Declaration submitted to FASAH. Awaiting customs decision.'))
+
+    def _check_submission_readiness(self):
+        """Return a list of blocking issues. Empty list = all clear."""
+        issues = []
+
+        # Goods lines required
+        if not self.goods_line_ids:
+            issues.append(_('Add at least one goods line.'))
+
+        # HS Code double-review
+        if not self.hs_code_reviewed:
+            issues.append(_('HS Codes must be reviewed by a certified classifier (tick "HS Codes Reviewed").'))
+
+        # SABER
+        if self.requires_saber:
+            if not self.saber_scoc_no:
+                issues.append(_('SABER SCoC certificate number is required.'))
+            elif self.saber_scoc_expired:
+                issues.append(_('SABER SCoC certificate expired on %s — obtain a new one.') % self.saber_scoc_expiry)
+
+        # SFDA
+        if self.requires_sfda and not self.sfda_approved:
+            issues.append(_('SFDA approval is required and not yet confirmed.'))
+
+        # CITC
+        if self.requires_citc and not self.citc_approved:
+            issues.append(_('CITC certificate is required and not yet confirmed.'))
+
+        # SASO
+        if self.requires_saso and not self.saso_approved:
+            issues.append(_('SASO certificate is required and not yet confirmed.'))
+
+        # MoI
+        if self.requires_moi and not self.moi_approved:
+            issues.append(_('MoI permit is required and not yet confirmed.'))
+
+        # Broker ZATCA delegation
+        if self.broker_id and self.broker_delegation_expired:
+            issues.append(_(
+                'Broker "%s" ZATCA delegation has expired. Update the delegation in the ZATCA portal before submitting.'
+            ) % self.broker_id.name)
+
+        return issues
 
     def action_customs_review(self):
         self.ensure_one()
-        self.write({'state': 'customs_review'})
+        from datetime import timedelta
+        # Auto-set response deadline to 3 working days if not already set
+        deadline = self.customs_response_deadline or (date.today() + timedelta(days=3))
+        self.write({'state': 'customs_review', 'customs_response_deadline': deadline})
+        self.message_post(body=_(
+            'Under customs review. Response expected by: %s. Assign a dedicated broker for follow-up.'
+        ) % deadline)
 
     def action_green_lane(self):
         self.ensure_one()
@@ -274,14 +398,46 @@ class CustomsClearance(models.Model):
 
     def action_release(self):
         self.ensure_one()
-        if not self.release_permit_no:
-            raise UserError(_('Enter the Electronic Release Permit No. (إذن الإفراج) issued by FASAH.'))
-        self.write({'state': 'released', 'actual_clearance_date': fields.Date.today(),
-                    'release_date': fields.Date.today(), 'payment_status': 'paid'})
+        # Block if payment not confirmed
+        if not self.payment_confirmed:
+            raise UserError(_(
+                'Payment must be confirmed before issuing the release permit.\n\n'
+                'Please tick "Payment Confirmed" and enter the receipt reference after verifying the SADAD/bank payment.'
+            ))
+        # Auto-generate release permit from sequence if FASAH hasn't issued one yet
+        permit_no = self.release_permit_no
+        if not permit_no:
+            permit_no = self.env['ir.sequence'].next_by_code('customs.release.permit') or _('REL-AUTO')
+        self.write({
+            'state': 'released',
+            'release_permit_no': permit_no,
+            'actual_clearance_date': fields.Date.today(),
+            'release_date': fields.Date.today(),
+            'payment_status': 'paid',
+        })
+        self.message_post(body=_('Release permit issued: %s') % permit_no)
 
     def action_deliver(self):
         self.ensure_one()
-        self.write({'state': 'delivered'})
+        from datetime import timedelta
+        today = fields.Date.today()
+        self.write({
+            'state': 'delivered',
+            'archive_date': today,
+            'archive_retention_date': today + timedelta(days=5 * 365),
+        })
+        self.message_post(body=_(
+            'Delivered. Documents archived — retention required until %s (5 years per Saudi customs law).'
+        ) % self.archive_retention_date)
+
+    def action_refuse(self):
+        self.ensure_one()
+        if self.state not in ('submitted', 'customs_review', 'inspection'):
+            raise UserError(_('Can only refuse a declaration during review or inspection stages.'))
+        if not self.refusal_reason:
+            raise UserError(_('Please enter the refusal reason before marking as refused.'))
+        self.write({'state': 'refused', 'refusal_date': fields.Date.today()})
+        self.message_post(body=_('Declaration refused by customs. Reason: %s') % self.refusal_reason)
 
     def action_cancel(self):
         self.ensure_one()
@@ -291,7 +447,7 @@ class CustomsClearance(models.Model):
 
     def action_draft(self):
         self.ensure_one()
-        self.write({'state': 'draft'})
+        self.write({'state': 'draft', 'refusal_reason': False, 'refusal_date': False})
 
     def action_view_documents(self):
         self.ensure_one()
@@ -331,11 +487,16 @@ class CustomsClearance(models.Model):
             if r.expected_clearance_date and r.date and r.expected_clearance_date < r.date:
                 raise ValidationError(_('Expected Clearance Date cannot be before the order date.'))
 
-    @api.constrains('saber_scoc_expiry')
-    def _check_saber_expiry(self):
+    @api.depends('saber_scoc_expiry')
+    def _compute_saber_scoc_expired(self):
+        today = date.today()
         for r in self:
-            if r.saber_scoc_expiry and r.saber_scoc_expiry < date.today():
-                raise ValidationError(_('SABER SCoC certificate expired on %s. Obtain a new certificate from SABER.') % r.saber_scoc_expiry)
+            if r.saber_scoc_expiry and r.saber_scoc_expiry < today:
+                r.saber_scoc_expired = True
+                r.saber_scoc_expiry_warning = _('SABER SCoC expired on %s — obtain a new certificate before FASAH submission.') % r.saber_scoc_expiry
+            else:
+                r.saber_scoc_expired = False
+                r.saber_scoc_expiry_warning = False
 
     @api.onchange('is_aeo')
     def _onchange_is_aeo(self):

@@ -14,6 +14,8 @@
           </div>
           <widget name="web_ribbon" title="License Expired!" bg_color="bg-danger"
                   invisible="not license_expired"/>
+          <widget name="web_ribbon" title="Delegation Expired!" bg_color="bg-warning"
+                  invisible="not zatca_delegation_expired"/>
           <div class="oe_title"><h1><field name="name"/></h1></div>
           <group>
             <group string="Broker Details">
@@ -26,10 +28,16 @@
             <group string="Saudi ZATCA Details">
               <field name="zatca_broker_code"/>
               <field name="fasah_username"/>
+              <field name="zatca_delegation_expiry"/>
+              <field name="zatca_delegation_expired" widget="boolean_toggle" readonly="1"/>
               <field name="is_aeo_broker"/>
               <field name="aeo_cert_no" invisible="not is_aeo_broker"/>
             </group>
           </group>
+          <div class="alert alert-warning" role="alert"
+               invisible="not zatca_delegation_expired">
+            ⚠️ ZATCA portal delegation has expired — this broker cannot submit declarations in FASAH. Renew the delegation immediately.
+          </div>
           <group>
             <group string="Service Fees">
               <field name="service_fee_type"/>
@@ -49,12 +57,14 @@
     <field name="name">customs.broker.list.ksa</field>
     <field name="model">customs.broker</field>
     <field name="arch" type="xml">
-      <tree decoration-danger="license_expired">
+      <tree decoration-danger="license_expired or zatca_delegation_expired">
         <field name="name"/>
         <field name="partner_id"/>
         <field name="license_number"/>
         <field name="license_expiry_date"/>
         <field name="license_expired" widget="boolean_toggle"/>
+        <field name="zatca_delegation_expiry" optional="show"/>
+        <field name="zatca_delegation_expired" widget="boolean_toggle" optional="show"/>
         <field name="zatca_broker_code" optional="show"/>
         <field name="is_aeo_broker" optional="show"/>
         <field name="specialization" widget="badge"/>

@@ -1,0 +1,13 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_customs_vip_user,customs.vip.customer user,model_customs_vip_customer,customs_clearance.group_customs_user,1,0,0,0
+access_customs_vip_manager,customs.vip.customer manager,model_customs_vip_customer,customs_clearance.group_customs_manager,1,1,1,1
+access_customs_bond_user,customs.bond user,model_customs_bond,customs_clearance.group_customs_user,1,1,1,0
+access_customs_bond_manager,customs.bond manager,model_customs_bond,customs_clearance.group_customs_manager,1,1,1,1
+access_customs_penalty_user,customs.penalty user,model_customs_penalty,customs_clearance.group_customs_user,1,1,0,0
+access_customs_penalty_manager,customs.penalty manager,model_customs_penalty,customs_clearance.group_customs_manager,1,1,1,1
+access_customs_service_invoice_user,customs.service.invoice user,model_customs_service_invoice,customs_clearance.group_customs_user,1,1,1,0
+access_customs_service_invoice_manager,customs.service.invoice manager,model_customs_service_invoice,customs_clearance.group_customs_manager,1,1,1,1
+access_customs_service_invoice_line_user,customs.service.invoice.line user,model_customs_service_invoice_line,customs_clearance.group_customs_user,1,1,1,0
+access_customs_service_invoice_line_manager,customs.service.invoice.line manager,model_customs_service_invoice_line,customs_clearance.group_customs_manager,1,1,1,1
+access_customs_shipment_cost_user,customs.shipment.cost user,model_customs_shipment_cost,customs_clearance.group_customs_user,1,1,1,0
+access_customs_shipment_cost_manager,customs.shipment.cost manager,model_customs_shipment_cost,customs_clearance.group_customs_manager,1,1,1,1

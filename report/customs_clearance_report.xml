@@ -5,8 +5,8 @@
         <field name="name">Customs Clearance Report</field>
         <field name="model">customs.clearance</field>
         <field name="report_type">qweb-pdf</field>
-        <field name="report_name">customs_clearance_ksa.report_customs_clearance_document</field>
-        <field name="report_file">customs_clearance_ksa.report_customs_clearance_document</field>
+        <field name="report_name">customs_clearance.report_customs_clearance_document</field>
+        <field name="report_file">customs_clearance.report_customs_clearance_document</field>
         <field name="binding_model_id" ref="model_customs_clearance"/>
         <field name="binding_type">report</field>
         <field name="paperformat_id" ref="base.paperformat_euro"/>

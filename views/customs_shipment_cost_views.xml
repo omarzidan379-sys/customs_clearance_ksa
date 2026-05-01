@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+  <!-- ══ SHIPMENT COST — FORM ══════════════════════════════════════════════ -->
+  <record id="view_customs_shipment_cost_form" model="ir.ui.view">
+    <field name="name">customs.shipment.cost.form</field>
+    <field name="model">customs.shipment.cost</field>
+    <field name="arch" type="xml">
+      <form string="Shipment Cost — تكلفة الشحنة">
+        <header>
+          <button name="action_confirm"           string="Confirm"              type="object"
+                  class="btn-primary" invisible="state != 'draft'"/>
+          <button name="action_create_vendor_bill" string="Create Vendor Bill ▶" type="object"
+                  class="btn-warning" icon="fa-file-invoice"
+                  invisible="state != 'confirmed'"/>
+          <button name="action_mark_paid"         string="Mark Paid"            type="object"
+                  class="btn-success" invisible="state not in ('confirmed','billed')"/>
+          <button name="action_reset_draft"       string="Reset to Draft"       type="object"
+                  invisible="state != 'confirmed'"/>
+          <field name="state" widget="statusbar" statusbar_visible="draft,confirmed,billed,paid"/>
+        </header>
+        <sheet>
+          <!-- Vendor Bill smart button -->
+          <div class="oe_button_box" name="button_box">
+            <button type="object" name="action_create_vendor_bill"
+                    class="oe_stat_button" icon="fa-file-invoice-dollar"
+                    invisible="not vendor_bill_id">
+              <span class="o_stat_text">Vendor Bill</span>
+            </button>
+          </div>
+
+          <div class="oe_title">
+            <label for="name"/>
+            <h1><field name="name"/></h1>
+          </div>
+
+          <group>
+            <group string="Cost Details / تفاصيل التكلفة">
+              <field name="clearance_id"/>
+              <field name="cost_type"/>
+              <field name="vendor_id"/>
+              <field name="currency_id" invisible="1"/>
+            </group>
+            <group string="Amount / المبلغ">
+              <field name="amount" widget="monetary"/>
+              <field name="vat_exempt"/>
+              <field name="vat_rate" invisible="vat_exempt"/>
+              <field name="vat_amount" readonly="1" invisible="vat_exempt" widget="monetary"/>
+              <field name="total_amount" readonly="1" widget="monetary"
+                     decoration-bf="1" style="font-size:1.1em;color:#0b1b35"/>
+            </group>
+          </group>
+
+          <group>
+            <group string="Payment / الدفع">
+              <field name="bill_date"/>
+              <field name="payment_date"/>
+              <field name="payment_reference"/>
+              <field name="vendor_bill_id" readonly="1"/>
+            </group>
+            <group string="Notes">
+              <field name="notes" nolabel="1" placeholder="Internal notes…"/>
+            </group>
+          </group>
+        </sheet>
+        <div class="oe_chatter">
+          <field name="message_follower_ids"/>
+          <field name="activity_ids"/>
+          <field name="message_ids"/>
+        </div>
+      </form>
+    </field>
+  </record>
+
+  <!-- ══ SHIPMENT COST — LIST ═════════════════════════════════════════════ -->
+  <record id="view_customs_shipment_cost_list" model="ir.ui.view">
+    <field name="name">customs.shipment.cost.list</field>
+    <field name="model">customs.shipment.cost</field>
+    <field name="arch" type="xml">
+      <tree string="Shipment Costs"
+            decoration-success="state == 'paid'"
+            decoration-warning="state == 'billed'"
+            decoration-muted="state == 'draft'">
+        <field name="clearance_id"/>
+        <field name="name"/>
+        <field name="cost_type"/>
+        <field name="vendor_id"/>
+        <field name="amount" widget="monetary" sum="Total Cost"/>
+        <field name="vat_amount" widget="monetary" sum="Total VAT"/>
+        <field name="total_amount" widget="monetary" sum="Grand Total"/>
+        <field name="bill_date" optional="show"/>
+        <field name="payment_date" optional="show"/>
+        <field name="vendor_bill_id" optional="show"/>
+        <field name="state" widget="badge"
+               decoration-success="state == 'paid'"
+               decoration-warning="state == 'billed'"
+               decoration-info="state == 'confirmed'"
+               decoration-muted="state == 'draft'"/>
+        <field name="currency_id" invisible="1"/>
+      </tree>
+    </field>
+  </record>
+
+  <!-- ══ SHIPMENT COST — SEARCH ═══════════════════════════════════════════ -->
+  <record id="view_customs_shipment_cost_search" model="ir.ui.view">
+    <field name="name">customs.shipment.cost.search</field>
+    <field name="model">customs.shipment.cost</field>
+    <field name="arch" type="xml">
+      <search string="Shipment Costs">
+        <field name="name"/>
+        <field name="clearance_id"/>
+        <field name="vendor_id"/>
+        <filter name="draft"     string="Draft"     domain="[('state','=','draft')]"/>
+        <filter name="confirmed" string="Confirmed" domain="[('state','=','confirmed')]"/>
+        <filter name="billed"    string="Billed"    domain="[('state','=','billed')]"/>
+        <filter name="paid"      string="Paid"      domain="[('state','=','paid')]"/>
+        <filter name="unpaid"    string="Unpaid"    domain="[('state','in',['draft','confirmed','billed'])]"/>
+        <separator/>
+        <filter name="customs_duty"  string="Customs Duty"   domain="[('cost_type','=','customs_duty')]"/>
+        <filter name="shipping"      string="Shipping"       domain="[('cost_type','=','shipping')]"/>
+        <filter name="port_charges"  string="Port Charges"   domain="[('cost_type','=','port_charges')]"/>
+        <filter name="demurrage"     string="Demurrage"      domain="[('cost_type','=','demurrage')]"/>
+        <group expand="0" string="Group By">
+          <filter name="by_clearance"  string="Clearance Order" context="{'group_by': 'clearance_id'}"/>
+          <filter name="by_cost_type"  string="Cost Type"       context="{'group_by': 'cost_type'}"/>
+          <filter name="by_vendor"     string="Vendor"          context="{'group_by': 'vendor_id'}"/>
+          <filter name="by_state"      string="Status"          context="{'group_by': 'state'}"/>
+        </group>
+      </search>
+    </field>
+  </record>
+
+  <!-- ══ SHIPMENT COST — PIVOT ═════════════════════════════════════════════ -->
+  <record id="view_customs_shipment_cost_pivot" model="ir.ui.view">
+    <field name="name">customs.shipment.cost.pivot</field>
+    <field name="model">customs.shipment.cost</field>
+    <field name="arch" type="xml">
+      <pivot string="Cost Analysis">
+        <field name="clearance_id" type="row"/>
+        <field name="cost_type"    type="col"/>
+        <field name="total_amount" type="measure"/>
+        <field name="amount"       type="measure"/>
+        <field name="vat_amount"   type="measure"/>
+      </pivot>
+    </field>
+  </record>
+
+  <!-- ══ SHIPMENT COST — GRAPH ════════════════════════════════════════════ -->
+  <record id="view_customs_shipment_cost_graph" model="ir.ui.view">
+    <field name="name">customs.shipment.cost.graph</field>
+    <field name="model">customs.shipment.cost</field>
+    <field name="arch" type="xml">
+      <graph string="Cost Breakdown" type="bar">
+        <field name="cost_type"    type="row"/>
+        <field name="total_amount" type="measure"/>
+      </graph>
+    </field>
+  </record>
+
+  <!-- ══ ACTION ════════════════════════════════════════════════════════════ -->
+  <record id="action_customs_shipment_cost" model="ir.actions.act_window">
+    <field name="name">Shipment Costs — تكاليف الشحنة</field>
+    <field name="res_model">customs.shipment.cost</field>
+    <field name="view_mode">list,form,pivot,graph</field>
+    <field name="search_view_id" ref="view_customs_shipment_cost_search"/>
+    <field name="help" type="html">
+      <p class="o_view_nocontent_smiling_face">No shipment costs recorded yet</p>
+      <p>Add vendor costs (customs duties, shipping fees, port charges, etc.)
+         to track the full cost of each clearance and calculate profit per shipment.</p>
+    </field>
+  </record>
+
+  <!-- Unpaid costs quick action -->
+  <record id="action_shipment_costs_unpaid" model="ir.actions.act_window">
+    <field name="name">Unpaid Costs — تكاليف غير مدفوعة</field>
+    <field name="res_model">customs.shipment.cost</field>
+    <field name="view_mode">list,form</field>
+    <field name="domain">[('state', 'in', ['draft','confirmed','billed'])]</field>
+    <field name="search_view_id" ref="view_customs_shipment_cost_search"/>
+  </record>
+
+</odoo>

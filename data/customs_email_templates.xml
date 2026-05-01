@@ -1,0 +1,435 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+  <!-- ── Clearance state-change notification (sent to portal client) ── -->
+  <record id="email_template_clearance_update" model="mail.template">
+    <field name="name">Customs Clearance — Status Update to Client</field>
+    <field name="model_id" ref="customs_clearance.model_customs_clearance"/>
+    <field name="subject">Shipment Update — {{ object.name }}</field>
+    <field name="email_to">{{ object.partner_id.email }}</field>
+    <field name="body_html"><![CDATA[
+<div style="font-family:Inter,-apple-system,sans-serif;max-width:600px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;border:1px solid #e2e8f0">
+  <!-- Header -->
+  <div style="background:linear-gradient(135deg,#0a0f1e,#0ea5e9);padding:32px 28px;text-align:center">
+    <h2 style="color:#fff;margin:0;font-size:22px;font-weight:700">
+      Customs Clearance KSA
+    </h2>
+    <p style="color:rgba(255,255,255,0.7);margin:6px 0 0;font-size:13px">
+      ZATCA · FASAH · SABER Compliant
+    </p>
+  </div>
+
+  <!-- Body -->
+  <div style="padding:28px">
+    <p style="color:#0f172a;font-size:15px">Dear {{ object.partner_id.name }},</p>
+    <p style="color:#334155">
+      Your customs clearance order has been <strong>updated</strong>.
+      Please review the details below.
+    </p>
+
+    <div style="background:#f0f9ff;border-left:4px solid #0ea5e9;border-radius:8px;padding:16px 20px;margin:20px 0">
+      <table style="width:100%;border-collapse:collapse">
+        <tr>
+          <td style="padding:6px 0;color:#64748b;font-size:13px;font-weight:600;width:40%">Reference</td>
+          <td style="padding:6px 0;color:#0f172a;font-size:13px;font-weight:700">{{ object.name }}</td>
+        </tr>
+        <tr>
+          <td style="padding:6px 0;color:#64748b;font-size:13px;font-weight:600">Status</td>
+          <td style="padding:6px 0">
+            <span style="display:inline-block;padding:3px 10px;border-radius:100px;background:#dbeafe;color:#1d4ed8;font-size:12px;font-weight:700">
+              {{ object.state }}
+            </span>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:6px 0;color:#64748b;font-size:13px;font-weight:600">Port</td>
+          <td style="padding:6px 0;color:#0f172a;font-size:13px">
+            {{ object.port_id.name if object.port_id else '—' }}
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:6px 0;color:#64748b;font-size:13px;font-weight:600">Clearance Type</td>
+          <td style="padding:6px 0;color:#0f172a;font-size:13px">{{ object.clearance_type }}</td>
+        </tr>
+        % if object.expected_clearance_date:
+        <tr>
+          <td style="padding:6px 0;color:#64748b;font-size:13px;font-weight:600">Expected Release</td>
+          <td style="padding:6px 0;color:#0f172a;font-size:13px">{{ object.expected_clearance_date }}</td>
+        </tr>
+        % endif
+      </table>
+    </div>
+
+    <div style="text-align:center;margin:24px 0">
+      <a href="/customs-portal/track/{{ object.portal_request_token }}"
+         style="display:inline-block;padding:13px 32px;background:linear-gradient(135deg,#0369a1,#0ea5e9);color:#fff;font-weight:700;font-size:14px;border-radius:10px;text-decoration:none">
+        Track Your Shipment Live
+      </a>
+    </div>
+
+    <p style="color:#64748b;font-size:12px;margin-top:20px">
+      If you have questions, contact your assigned broker or reply to this email.
+    </p>
+  </div>
+
+  <!-- Footer -->
+  <div style="background:#f8fafc;padding:16px 28px;text-align:center;border-top:1px solid #e2e8f0">
+    <p style="color:#94a3b8;font-size:11px;margin:0">
+      Customs Clearance KSA — Powered by Odoo 17 | ZATCA Compliant
+    </p>
+  </div>
+</div>
+    ]]></field>
+    <field name="auto_delete" eval="True"/>
+  </record>
+
+  <!-- ── Portal Request: Submission Confirmation ── -->
+  <record id="email_template_portal_request_received" model="mail.template">
+    <field name="name">Portal Request — Submission Confirmation</field>
+    <field name="model_id" ref="customs_clearance.model_customs_portal_request"/>
+    <field name="subject">Request Received — {{ object.name }} | Customs Clearance KSA</field>
+    <field name="email_to">{{ object.requester_email }}</field>
+    <field name="body_html"><![CDATA[
+<div style="font-family:Inter,-apple-system,sans-serif;max-width:620px;margin:0 auto;background:#ffffff;border-radius:12px;overflow:hidden;border:1px solid #e2e8f0">
+  <div style="background:linear-gradient(135deg,#006C35 0%,#00a050 100%);padding:32px 28px;text-align:center">
+    <h2 style="color:#ffffff;margin:0;font-size:22px;font-weight:700">Customs Clearance KSA</h2>
+    <p style="color:rgba(255,255,255,0.75);margin:6px 0 0;font-size:13px">التخليص الجمركي — المملكة العربية السعودية</p>
+  </div>
+  <div style="padding:32px 28px">
+    <p style="color:#0f172a;font-size:15px;margin-bottom:4px">Dear <strong>{{ object.requester_name }}</strong>,</p>
+    <p style="color:#334155;margin-top:0;line-height:1.7">
+      Thank you for submitting your customs clearance request. We have received it and our team will review it within <strong>24–48 business hours</strong>.
+    </p>
+    <div style="background:#f0fdf4;border-left:4px solid #006C35;border-radius:8px;padding:18px 20px;margin:20px 0">
+      <table style="width:100%;border-collapse:collapse">
+        <tr><td style="padding:5px 0;color:#4a5e75;font-size:13px;width:45%">Reference Number</td>
+            <td style="padding:5px 0;color:#0f172a;font-size:14px;font-weight:800;font-family:monospace">{{ object.name }}</td></tr>
+        <tr><td style="padding:5px 0;color:#4a5e75;font-size:13px">Company</td>
+            <td style="padding:5px 0;color:#0f172a;font-size:13px">{{ object.requester_company }}</td></tr>
+        <tr><td style="padding:5px 0;color:#4a5e75;font-size:13px">Clearance Type</td>
+            <td style="padding:5px 0;color:#0f172a;font-size:13px">{{ object.clearance_type }}</td></tr>
+        <tr><td style="padding:5px 0;color:#4a5e75;font-size:13px">Shipment Mode</td>
+            <td style="padding:5px 0;color:#0f172a;font-size:13px">{{ object.shipment_type or '—' }}</td></tr>
+        % if object.bill_of_lading_no:
+        <tr><td style="padding:5px 0;color:#4a5e75;font-size:13px">Bill of Lading</td>
+            <td style="padding:5px 0;color:#0f172a;font-size:13px">{{ object.bill_of_lading_no }}</td></tr>
+        % endif
+      </table>
+    </div>
+    <p style="color:#334155;font-size:13px;line-height:1.7">
+      Keep your tracking token safe — you can use it anytime to check your request status:
+    </p>
+    <div style="background:#f8fafc;border-radius:8px;padding:14px 18px;text-align:center;margin:16px 0;font-size:18px;font-weight:800;letter-spacing:2px;color:#006C35;font-family:monospace;border:1.5px dashed #006C35">
+      {{ object.portal_token }}
+    </div>
+    <div style="text-align:center;margin:24px 0">
+      <a href="{{ object._get_tracking_url() }}"
+         style="display:inline-block;padding:13px 32px;background:linear-gradient(135deg,#006C35,#00a050);color:#ffffff;font-weight:700;font-size:14px;border-radius:10px;text-decoration:none">
+        Track Your Request Status
+      </a>
+    </div>
+    <p style="color:#94a3b8;font-size:12px;margin-top:20px;text-align:center">
+      If you have questions, reply to this email or contact your assigned customs agent.
+    </p>
+  </div>
+  <div style="background:#f8fafc;padding:16px 28px;text-align:center;border-top:1px solid #e2e8f0">
+    <p style="color:#94a3b8;font-size:11px;margin:0">Customs Clearance KSA — ZATCA · FASAH · SABER Compliant | Powered by Odoo 17</p>
+  </div>
+</div>
+    ]]></field>
+    <field name="auto_delete" eval="True"/>
+  </record>
+
+  <!-- ── Portal Request: Approved ── -->
+  <record id="email_template_portal_request_approved" model="mail.template">
+    <field name="name">Portal Request — Approved Notification</field>
+    <field name="model_id" ref="customs_clearance.model_customs_portal_request"/>
+    <field name="subject">✅ Your Request {{ object.name }} Has Been Approved — الطلب موافق عليه</field>
+    <field name="email_to">{{ object.requester_email }}</field>
+    <field name="body_html"><![CDATA[
+<div style="font-family:Inter,-apple-system,sans-serif;max-width:620px;margin:0 auto;background:#ffffff;border-radius:12px;overflow:hidden;border:1px solid #e2e8f0">
+  <div style="background:linear-gradient(135deg,#006C35 0%,#00a050 100%);padding:32px 28px;text-align:center">
+    <div style="font-size:40px;margin-bottom:8px">✅</div>
+    <h2 style="color:#ffffff;margin:0;font-size:22px;font-weight:700">Request Approved!</h2>
+    <p style="color:rgba(255,255,255,0.8);margin:6px 0 0;font-size:14px">تمت الموافقة على طلبك — Customs Clearance KSA</p>
+  </div>
+  <div style="padding:32px 28px">
+    <p style="color:#0f172a;font-size:15px;margin-bottom:4px">Dear <strong>{{ object.requester_name }}</strong>,</p>
+    <p style="color:#334155;margin-top:0;line-height:1.7">
+      Great news! Your customs clearance request <strong>{{ object.name }}</strong> has been <strong style="color:#006C35">approved</strong> by our team.
+      A customs clearance order has been created and is now being processed.
+    </p>
+
+    % if object.review_notes:
+    <div style="background:#f0fdf4;border-left:4px solid #006C35;border-radius:8px;padding:16px 18px;margin:18px 0">
+      <p style="margin:0 0 6px;font-size:11px;font-weight:700;color:#006C35;text-transform:uppercase;letter-spacing:.5px">Notes from our team</p>
+      <p style="margin:0;font-size:13px;color:#1c2a3a;line-height:1.65">{{ object.review_notes }}</p>
+    </div>
+    % endif
+
+    % if object.clearance_id:
+    <div style="background:#f8fafc;border-radius:8px;padding:14px 18px;margin:16px 0">
+      <p style="margin:0 0 4px;font-size:11px;font-weight:700;color:#4a5e75;text-transform:uppercase;letter-spacing:.5px">Clearance Order Created</p>
+      <p style="margin:0;font-size:16px;font-weight:800;color:#006C35;font-family:monospace">{{ object.clearance_id.name }}</p>
+    </div>
+    % endif
+
+    <!-- Next Steps -->
+    <div style="background:#f8fafc;border-radius:10px;padding:20px;margin:20px 0">
+      <p style="margin:0 0 14px;font-size:12px;font-weight:700;color:#0d1f35;text-transform:uppercase;letter-spacing:.5px">What Happens Next — الخطوات التالية</p>
+
+      <table style="width:100%;border-collapse:collapse">
+        <tr style="border-bottom:1px solid #e8eef5">
+          <td style="padding:10px 0;vertical-align:top;width:36px">
+            <div style="width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#006C35,#00a050);color:#fff;font-size:12px;font-weight:700;text-align:center;line-height:26px">1</div>
+          </td>
+          <td style="padding:10px 0 10px 10px;vertical-align:top">
+            <strong style="display:block;font-size:13px;color:#0d1f35;margin-bottom:2px">Accept the Service Offer</strong>
+            <span style="font-size:12px;color:#64748b;line-height:1.5">You will receive a separate offer email with fee details. Review and click Accept to confirm — or view it on your tracking page.</span>
+          </td>
+        </tr>
+        <tr style="border-bottom:1px solid #e8eef5">
+          <td style="padding:10px 0;vertical-align:top">
+            <div style="width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#1e5fa8,#2575c4);color:#fff;font-size:12px;font-weight:700;text-align:center;line-height:26px">2</div>
+          </td>
+          <td style="padding:10px 0 10px 10px;vertical-align:top">
+            <strong style="display:block;font-size:13px;color:#0d1f35;margin-bottom:2px">Document Collection</strong>
+            <span style="font-size:12px;color:#64748b;line-height:1.5">Our agent will contact you to collect: Bill of Lading, Commercial Invoice, Packing List, Certificate of Origin, and any SFDA / SABER / CITC certificates.</span>
+          </td>
+        </tr>
+        <tr style="border-bottom:1px solid #e8eef5">
+          <td style="padding:10px 0;vertical-align:top">
+            <div style="width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#1e5fa8,#2575c4);color:#fff;font-size:12px;font-weight:700;text-align:center;line-height:26px">3</div>
+          </td>
+          <td style="padding:10px 0 10px 10px;vertical-align:top">
+            <strong style="display:block;font-size:13px;color:#0d1f35;margin-bottom:2px">ACD Submission to ZATCA / FASAH</strong>
+            <span style="font-size:12px;color:#64748b;line-height:1.5">We submit the customs declaration electronically to ZATCA via the FASAH platform. You will be notified of progress.</span>
+          </td>
+        </tr>
+        <tr style="border-bottom:1px solid #e8eef5">
+          <td style="padding:10px 0;vertical-align:top">
+            <div style="width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#1e5fa8,#2575c4);color:#fff;font-size:12px;font-weight:700;text-align:center;line-height:26px">4</div>
+          </td>
+          <td style="padding:10px 0 10px 10px;vertical-align:top">
+            <strong style="display:block;font-size:13px;color:#0d1f35;margin-bottom:2px">Duty Assessment &amp; Payment</strong>
+            <span style="font-size:12px;color:#64748b;line-height:1.5">Customs duties will be assessed by the authority. You will receive a ZATCA-compliant invoice with a SADAD payment number for easy payment.</span>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:10px 0;vertical-align:top">
+            <div style="width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#006C35,#00a050);color:#fff;font-size:12px;font-weight:700;text-align:center;line-height:26px">5</div>
+          </td>
+          <td style="padding:10px 0 10px 10px;vertical-align:top">
+            <strong style="display:block;font-size:13px;color:#0d1f35;margin-bottom:2px">Release &amp; Delivery</strong>
+            <span style="font-size:12px;color:#64748b;line-height:1.5">After duty payment and final customs clearance, your goods are released. We will coordinate port pickup or delivery to your warehouse.</span>
+          </td>
+        </tr>
+      </table>
+    </div>
+
+    <div style="text-align:center;margin:24px 0">
+      <a href="{{ object._get_tracking_url() }}"
+         style="display:inline-block;padding:14px 36px;background:linear-gradient(135deg,#006C35,#00a050);color:#ffffff;font-weight:700;font-size:14px;border-radius:10px;text-decoration:none">
+        View My Request &amp; Offer →
+      </a>
+    </div>
+    <p style="color:#94a3b8;font-size:12px;margin-top:16px;text-align:center">
+      Your tracking token: <strong style="color:#006C35;font-family:monospace">{{ object.portal_token }}</strong>
+    </p>
+  </div>
+  <div style="background:#f8fafc;padding:16px 28px;text-align:center;border-top:1px solid #e2e8f0">
+    <p style="color:#94a3b8;font-size:11px;margin:0">Customs Clearance KSA — ZATCA · FASAH · SABER Compliant | Powered by Odoo 17</p>
+  </div>
+</div>
+    ]]></field>
+    <field name="auto_delete" eval="True"/>
+  </record>
+
+  <!-- ── Portal Request: Rejected ── -->
+  <record id="email_template_portal_request_rejected" model="mail.template">
+    <field name="name">Portal Request — Rejection / Updates Required</field>
+    <field name="model_id" ref="customs_clearance.model_customs_portal_request"/>
+    <field name="subject">⚠️ Action Required — Request {{ object.name }} Needs Updates</field>
+    <field name="email_to">{{ object.requester_email }}</field>
+    <field name="body_html"><![CDATA[
+<div style="font-family:Inter,-apple-system,sans-serif;max-width:620px;margin:0 auto;background:#ffffff;border-radius:12px;overflow:hidden;border:1px solid #e2e8f0">
+  <div style="background:linear-gradient(135deg,#7b1f1f 0%,#c0392b 100%);padding:32px 28px;text-align:center">
+    <div style="font-size:40px;margin-bottom:8px">⚠️</div>
+    <h2 style="color:#ffffff;margin:0;font-size:22px;font-weight:700">Action Required</h2>
+    <p style="color:rgba(255,255,255,0.8);margin:6px 0 0;font-size:14px">مطلوب إجراء — Your request needs updates</p>
+  </div>
+  <div style="padding:32px 28px">
+    <p style="color:#0f172a;font-size:15px;margin-bottom:4px">Dear <strong>{{ object.requester_name }}</strong>,</p>
+    <p style="color:#334155;margin-top:0;line-height:1.7">
+      Unfortunately your request <strong>{{ object.name }}</strong> could not be processed as submitted.
+      Please review the details below and resubmit with the required corrections.
+    </p>
+
+    % if object.rejection_reason:
+    <div style="background:#fdedec;border-left:4px solid #c0392b;border-radius:8px;padding:16px 18px;margin:18px 0">
+      <p style="margin:0 0 8px;font-size:11px;font-weight:700;color:#c0392b;text-transform:uppercase;letter-spacing:.5px">Reason / سبب الرفض</p>
+      <p style="margin:0;font-size:13px;color:#7b241c;line-height:1.65">{{ object.rejection_reason }}</p>
+    </div>
+    % endif
+
+    <!-- Document checklist -->
+    <div style="background:#f8fafc;border-radius:10px;padding:18px 20px;margin:18px 0">
+      <p style="margin:0 0 12px;font-size:12px;font-weight:700;color:#0d1f35;text-transform:uppercase;letter-spacing:.5px">Document Checklist — قائمة المستندات</p>
+      <table style="width:100%;border-collapse:collapse">
+        <tr>
+          <td style="padding:6px 0;font-size:13px;color:#1c2a3a">
+            % if object.has_bill_of_lading:
+            <span style="color:#006C35;font-weight:700">✓</span>
+            % else:
+            <span style="color:#c0392b;font-weight:700">✗</span>
+            % endif
+            &nbsp; Bill of Lading / بوليصة الشحن
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:6px 0;font-size:13px;color:#1c2a3a">
+            % if object.has_invoice:
+            <span style="color:#006C35;font-weight:700">✓</span>
+            % else:
+            <span style="color:#c0392b;font-weight:700">✗</span>
+            % endif
+            &nbsp; Commercial Invoice / الفاتورة التجارية
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:6px 0;font-size:13px;color:#1c2a3a">
+            % if object.has_packing_list:
+            <span style="color:#006C35;font-weight:700">✓</span>
+            % else:
+            <span style="color:#c0392b;font-weight:700">✗</span>
+            % endif
+            &nbsp; Packing List / قائمة التعبئة
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:6px 0;font-size:13px;color:#1c2a3a">
+            % if object.has_coo:
+            <span style="color:#006C35;font-weight:700">✓</span>
+            % else:
+            <span style="color:#c0392b;font-weight:700">✗</span>
+            % endif
+            &nbsp; Certificate of Origin / شهادة المنشأ
+          </td>
+        </tr>
+        % if object.requires_saber or object.has_saber_scoc:
+        <tr>
+          <td style="padding:6px 0;font-size:13px;color:#1c2a3a">
+            % if object.has_saber_scoc:
+            <span style="color:#006C35;font-weight:700">✓</span>
+            % else:
+            <span style="color:#c0392b;font-weight:700">✗</span>
+            % endif
+            &nbsp; SABER SCoC Certificate
+          </td>
+        </tr>
+        % endif
+        % if object.has_sfda or object.sfda_approval_no:
+        <tr>
+          <td style="padding:6px 0;font-size:13px;color:#1c2a3a">
+            % if object.has_sfda:
+            <span style="color:#006C35;font-weight:700">✓</span>
+            % else:
+            <span style="color:#c0392b;font-weight:700">✗</span>
+            % endif
+            &nbsp; SFDA Approval / موافقة SFDA
+          </td>
+        </tr>
+        % endif
+        % if object.has_citc:
+        <tr>
+          <td style="padding:6px 0;font-size:13px;color:#1c2a3a">
+            % if object.has_citc:
+            <span style="color:#006C35;font-weight:700">✓</span>
+            % else:
+            <span style="color:#c0392b;font-weight:700">✗</span>
+            % endif
+            &nbsp; CITC Certificate
+          </td>
+        </tr>
+        % endif
+      </table>
+    </div>
+
+    <div style="text-align:center;margin:24px 0">
+      <a href="{{ object._get_tracking_url() }}"
+         style="display:inline-block;padding:13px 32px;background:linear-gradient(135deg,#1e5fa8,#2575c4);color:#ffffff;font-weight:700;font-size:14px;border-radius:10px;text-decoration:none;margin-right:10px">
+        View Details Online
+      </a>
+      <a href="http://143.198.98.223/customs-portal/register"
+         style="display:inline-block;padding:13px 32px;background:#f1f5f9;color:#1e5fa8;font-weight:700;font-size:14px;border-radius:10px;text-decoration:none;border:1px solid #cbd5e1">
+        Resubmit Request
+      </a>
+    </div>
+    <p style="color:#94a3b8;font-size:12px;margin-top:16px;text-align:center">
+      Questions? Reply to this email or call your assigned customs agent.
+    </p>
+  </div>
+  <div style="background:#f8fafc;padding:16px 28px;text-align:center;border-top:1px solid #e2e8f0">
+    <p style="color:#94a3b8;font-size:11px;margin:0">Customs Clearance KSA — ZATCA · FASAH · SABER Compliant | Powered by Odoo 17</p>
+  </div>
+</div>
+    ]]></field>
+    <field name="auto_delete" eval="True"/>
+  </record>
+
+  <!-- ── Service Invoice email ── -->
+  <record id="email_template_service_invoice" model="mail.template">
+    <field name="name">Customs Service Invoice — Send to Client</field>
+    <field name="model_id" ref="customs_clearance.model_customs_service_invoice"/>
+    <field name="subject">Invoice {{ object.name }} — Customs Clearance Service</field>
+    <field name="email_to">{{ object.partner_id.email }}</field>
+    <field name="body_html"><![CDATA[
+<div style="font-family:Inter,-apple-system,sans-serif;max-width:600px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;border:1px solid #e2e8f0">
+  <div style="background:linear-gradient(135deg,#0a0f1e,#0ea5e9);padding:28px;text-align:center">
+    <h2 style="color:#fff;margin:0;font-size:20px;font-weight:700">Tax Invoice — فاتورة ضريبية</h2>
+    <p style="color:rgba(255,255,255,0.7);margin:4px 0 0;font-size:12px">ZATCA Phase-1 Compliant</p>
+  </div>
+  <div style="padding:28px">
+    <p style="color:#0f172a">Dear {{ object.partner_id.name }},</p>
+    <p style="color:#334155">
+      Please find your service invoice for customs clearance order
+      <strong>{{ object.clearance_id.name }}</strong>.
+    </p>
+
+    <div style="background:#f8fafc;border-radius:8px;padding:16px;margin:20px 0">
+      <table style="width:100%;border-collapse:collapse">
+        <tr><td style="padding:5px 0;color:#64748b;font-size:13px;width:45%">Invoice No.</td>
+            <td style="padding:5px 0;font-weight:700;font-size:13px">{{ object.name }}</td></tr>
+        <tr><td style="padding:5px 0;color:#64748b;font-size:13px">Invoice Date</td>
+            <td style="padding:5px 0;font-size:13px">{{ object.invoice_date }}</td></tr>
+        <tr><td style="padding:5px 0;color:#64748b;font-size:13px">Subtotal</td>
+            <td style="padding:5px 0;font-size:13px">{{ "%.2f"|format(object.subtotal) }} {{ object.currency_id.symbol }}</td></tr>
+        <tr><td style="padding:5px 0;color:#64748b;font-size:13px">VAT (15%)</td>
+            <td style="padding:5px 0;font-size:13px">{{ "%.2f"|format(object.vat_amount) }} {{ object.currency_id.symbol }}</td></tr>
+        <tr style="border-top:2px solid #e2e8f0">
+          <td style="padding:8px 0;font-weight:700;font-size:14px">Total</td>
+          <td style="padding:8px 0;font-weight:700;font-size:14px;color:#0ea5e9">
+            {{ "%.2f"|format(object.total) }} {{ object.currency_id.symbol }}
+          </td>
+        </tr>
+      </table>
+    </div>
+
+    % if object.sadad_ref:
+    <div style="background:#fef9c3;border-left:4px solid #f59e0b;border-radius:8px;padding:12px 16px;margin-bottom:16px">
+      <strong style="color:#92400e">SADAD Reference:</strong>
+      <span style="font-size:15px;font-weight:700;color:#78350f;margin-left:8px">{{ object.sadad_ref }}</span>
+    </div>
+    % endif
+
+    <p style="color:#64748b;font-size:12px">Pay via SADAD, bank transfer, or contact your agent.</p>
+  </div>
+  <div style="background:#f8fafc;padding:14px;text-align:center;border-top:1px solid #e2e8f0">
+    <p style="color:#94a3b8;font-size:11px;margin:0">Customs Clearance KSA — ZATCA Compliant Invoice</p>
+  </div>
+</div>
+    ]]></field>
+    <field name="auto_delete" eval="True"/>
+  </record>
+
+</odoo>

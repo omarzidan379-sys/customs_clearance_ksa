@@ -2,12 +2,12 @@
 # -*- coding: utf-8 -*-
 """
 ================================================================================
-  Customs Clearance KSA — Demo Data Seed Script
-  Module: customs_clearance_ksa  |  Odoo 17  |  Version 2.0
+  Customs Clearance — Demo Data Seed Script
+  Module: customs_clearance  |  Odoo 17  |  Version 2.0
 ================================================================================
 
   PURPOSE:
-    Populate ALL models in the customs_clearance_ksa module with realistic
+    Populate ALL models in the customs_clearance module with realistic
     Saudi Arabia demo data so you can demonstrate every feature to the client
     immediately after installation.
 
@@ -33,7 +33,7 @@
       Settings → Technical → Shell → paste and execute
 
   REQUIREMENTS:
-    - customs_clearance_ksa module must be installed
+    - customs_clearance module must be installed
     - At least one company configured in Odoo
     - Run as Administrator user
 
@@ -79,7 +79,7 @@ def get_country(code):
 
 def get_port(xml_id_suffix):
     try:
-        return env.ref(f'customs_clearance_ksa.{xml_id_suffix}')
+        return env.ref(f'customs_clearance.{xml_id_suffix}')
     except Exception:
         # Fallback: search by name fragment
         return env['customs.port'].search([], limit=1)

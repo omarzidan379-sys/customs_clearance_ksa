@@ -15,8 +15,12 @@ class CustomsBroker(models.Model):
     license_expired = fields.Boolean(string='License Expired', compute='_compute_license_expired', store=True)
 
     # Saudi-specific
-    zatca_broker_code = fields.Char(string='ZATCA Broker Code / رمز المخلص في ZATCA', tracking=True)
-    fasah_username    = fields.Char(string='FASAH Username', tracking=True)
+    zatca_broker_code       = fields.Char(string='ZATCA Broker Code / رمز المخلص في ZATCA', tracking=True)
+    fasah_username          = fields.Char(string='FASAH Username', tracking=True)
+    zatca_delegation_expiry = fields.Date(string='ZATCA Delegation Expiry / انتهاء التفويض في زاتكا', tracking=True,
+                                           help='Date the broker\'s delegation in the ZATCA portal expires. Review monthly.')
+    zatca_delegation_expired = fields.Boolean(string='Delegation Expired / التفويض منتهٍ',
+                                               compute='_compute_delegation_expired', store=True)
     is_aeo_broker     = fields.Boolean(string='AEO Certified Broker', tracking=True)
     aeo_cert_no       = fields.Char(string='AEO Certificate No.', tracking=True)
 
@@ -39,6 +43,12 @@ class CustomsBroker(models.Model):
         today = date.today()
         for r in self:
             r.license_expired = bool(r.license_expiry_date and r.license_expiry_date < today)
+
+    @api.depends('zatca_delegation_expiry')
+    def _compute_delegation_expired(self):
+        today = date.today()
+        for r in self:
+            r.zatca_delegation_expired = bool(r.zatca_delegation_expiry and r.zatca_delegation_expiry < today)
 
     def _compute_clearance_count(self):
         for r in self:

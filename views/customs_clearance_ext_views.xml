@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+  <!--
+    Extends the existing customs.clearance form view (via inheritance) to add:
+      1. Smart buttons: Service Invoices, Penalties, Bonds, VIP badge
+      2. VIP info row in the General Information group
+      3. New notebook pages: Penalties, Bonds, Service Invoices
+    Nothing in the original view file is modified.
+  -->
+
+  <record id="view_customs_clearance_form_ext" model="ir.ui.view">
+    <field name="name">customs.clearance.form.ext</field>
+    <field name="model">customs.clearance</field>
+    <field name="inherit_id" ref="customs_clearance.view_customs_clearance_form"/>
+    <field name="arch" type="xml">
+
+      <!-- ── 1. Smart Buttons (appended to existing button_box) ─────────── -->
+      <div name="button_box" position="inside">
+
+        <!-- Service Invoices button -->
+        <button name="action_view_service_invoices" type="object"
+                class="oe_stat_button" icon="fa-file-invoice"
+                invisible="service_invoice_count == 0">
+          <field name="service_invoice_count" widget="statinfo" string="Invoices"/>
+        </button>
+
+        <!-- Create Service Invoice quick button -->
+        <button name="action_create_service_invoice" type="object"
+                class="oe_stat_button" icon="fa-plus-circle"
+                invisible="service_invoice_count > 0"
+                help="Create service invoice for this clearance">
+          <span class="o_stat_text">New Invoice</span>
+        </button>
+
+        <!-- Costs button -->
+        <button name="action_view_cost_lines" type="object"
+                class="oe_stat_button" icon="fa-money-bill-wave">
+          <field name="cost_line_count" widget="statinfo" string="Costs"/>
+        </button>
+
+        <!-- Penalties button -->
+        <button name="action_view_penalties" type="object"
+                class="oe_stat_button" icon="fa-exclamation-triangle"
+                invisible="penalty_count == 0">
+          <field name="penalty_count" widget="statinfo" string="Penalties"/>
+        </button>
+
+        <!-- Bonds button -->
+        <button name="action_view_bonds" type="object"
+                class="oe_stat_button" icon="fa-shield"
+                invisible="bond_count == 0">
+          <field name="bond_count" widget="statinfo" string="Bonds"/>
+        </button>
+
+        <!-- VIP badge (informational) -->
+        <div class="oe_stat_button" invisible="not is_vip"
+             style="cursor:default;background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#fff;border-color:#f59e0b">
+          <div class="o_field_widget o_stat_info">
+            <span class="o_stat_text" style="font-weight:700">⭐ VIP</span>
+            <field name="vip_tier" readonly="1" nolabel="1" widget="badge"/>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ── 2. VIP Info — injected into General Information group ─────── -->
+      <field name="is_aeo" position="after">
+        <field name="is_vip" readonly="1" invisible="not is_vip"/>
+        <field name="vip_customer_id" readonly="1" invisible="not is_vip"/>
+        <field name="vip_discount_applied" invisible="not is_vip"
+               string="VIP Discount Applied (%)"/>
+      </field>
+
+      <!-- ── 3. New notebook pages ─────────────────────────────────────── -->
+      <xpath expr="//notebook" position="inside">
+
+        <!-- ── Costs & Vendor Bills tab ──────────────────────────────── -->
+        <page string="💰 Costs &amp; Vendor Bills / التكاليف والفواتير" name="tab_costs">
+          <field name="cost_line_ids" nolabel="1">
+            <tree editable="bottom" decoration-success="state == 'paid'" decoration-warning="state == 'billed'">
+              <field name="sequence" widget="handle"/>
+              <field name="name"/>
+              <field name="cost_type"/>
+              <field name="vendor_id"/>
+              <field name="amount" widget="monetary" sum="Total Cost"/>
+              <field name="vat_exempt"/>
+              <field name="vat_amount" widget="monetary" optional="show" sum="VAT"/>
+              <field name="total_amount" widget="monetary" sum="Grand Total" readonly="1"/>
+              <field name="state" widget="badge"/>
+              <field name="vendor_bill_id" optional="show" readonly="1"/>
+              <field name="currency_id" invisible="1"/>
+            </tree>
+          </field>
+          <!-- Financial Summary Bar -->
+          <div class="o_row mt-2 p-3" style="background:linear-gradient(135deg,#0b1b35,#1e3a8a);border-radius:10px;color:#fff;display:flex;gap:32px;align-items:center">
+            <div>
+              <span style="font-size:11px;color:#94a3b8;display:block">Total Costs</span>
+              <field name="total_cost" readonly="1" nolabel="1" widget="monetary"
+                     style="font-size:18px;font-weight:800;color:#f43f5e"/>
+            </div>
+            <div style="color:#334155">|</div>
+            <div>
+              <span style="font-size:11px;color:#94a3b8;display:block">Total Revenue</span>
+              <field name="total_revenue" readonly="1" nolabel="1" widget="monetary"
+                     style="font-size:18px;font-weight:800;color:#22d3ee"/>
+            </div>
+            <div style="color:#334155">|</div>
+            <div>
+              <span style="font-size:11px;color:#94a3b8;display:block">Net Profit</span>
+              <field name="profit_amount" readonly="1" nolabel="1" widget="monetary"
+                     style="font-size:18px;font-weight:800;color:#22c55e"/>
+            </div>
+            <div style="color:#334155">|</div>
+            <div>
+              <span style="font-size:11px;color:#94a3b8;display:block">Margin</span>
+              <field name="profit_margin" readonly="1" nolabel="1"
+                     style="font-size:18px;font-weight:800;color:#a855f7"/>
+              <span style="font-size:16px;font-weight:800;color:#a855f7">%</span>
+            </div>
+          </div>
+        </page>
+
+        <!-- Penalties tab -->
+        <page string="Penalties / الغرامات" name="tab_penalties"
+              invisible="penalty_count == 0 and state not in ('inspection','customs_review','released','delivered')">
+          <field name="penalty_ids" nolabel="1">
+            <tree>
+              <field name="name"/>
+              <field name="violation_type"/>
+              <field name="violation_date"/>
+              <field name="penalty_amount"/>
+              <field name="final_amount"/>
+              <field name="due_date"/>
+              <field name="state" widget="badge"
+                     decoration-success="state in ('paid','waived')"
+                     decoration-warning="state == 'appealed'"
+                     decoration-danger="state == 'issued'"/>
+            </tree>
+          </field>
+          <group>
+            <button name="action_view_penalties" type="object"
+                    string="Open Full Penalty List" class="btn-link" icon="fa-external-link"/>
+          </group>
+        </page>
+
+        <!-- Bonds tab -->
+        <page string="Bonds / الكفالات" name="tab_bonds"
+              invisible="clearance_type not in ('temporary', 'transit') and bond_count == 0">
+          <field name="bond_ids" nolabel="1">
+            <tree>
+              <field name="name"/>
+              <field name="bond_type"/>
+              <field name="guarantor_id"/>
+              <field name="bond_amount"/>
+              <field name="expiry_date"/>
+              <field name="days_to_expiry" string="Days Left"/>
+              <field name="state" widget="badge"
+                     decoration-success="state == 'released'"
+                     decoration-warning="state == 'active'"
+                     decoration-danger="state in ('forfeited','expired')"/>
+            </tree>
+          </field>
+          <group>
+            <button name="action_create_bond" type="object"
+                    string="Add Bond / Guarantee" class="btn-link" icon="fa-plus"/>
+          </group>
+        </page>
+
+        <!-- Service Invoices tab -->
+        <page string="Service Invoices / الفواتير" name="tab_service_invoices">
+          <field name="service_invoice_ids" nolabel="1">
+            <tree>
+              <field name="name"/>
+              <field name="invoice_date"/>
+              <field name="total"/>
+              <field name="amount_due"/>
+              <field name="zatca_status" widget="badge"
+                     decoration-success="zatca_status == 'cleared'"/>
+              <field name="sadad_ref" optional="show"/>
+              <field name="state" widget="badge"
+                     decoration-success="state == 'paid'"
+                     decoration-warning="state in ('confirmed','sent')"
+                     decoration-muted="state == 'cancelled'"/>
+            </tree>
+          </field>
+          <group>
+            <button name="action_create_service_invoice" type="object"
+                    string="Create Service Invoice" class="btn-primary" icon="fa-plus"
+                    invisible="service_invoice_count > 0"/>
+          </group>
+        </page>
+
+      </xpath>
+
+    </field>
+  </record>
+
+  <!--
+    NOTE: Menu items are fully managed in customs_menu_views.xml.
+    No duplicate menu definitions here to avoid XML ID conflicts.
+  -->
+
+</odoo>

@@ -1,0 +1,454 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+<!-- ===========================================================
+     PORTAL LIVE TRACKING PAGE
+     Accessed via: /customs-portal/track/<portal_token>
+     Bilingual EN / AR — No Odoo session required
+     =========================================================== -->
+<template id="portal_tracking_template" name="Portal Tracking Page">
+  <html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Track Shipment — Customs Clearance KSA</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+    <style>
+      *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+      body{font-family:'Inter',-apple-system,sans-serif;background:#020c1a;color:#e2e8f0;min-height:100vh;-webkit-font-smoothing:antialiased}
+      a{color:#38bdf8;text-decoration:none}
+      /* Background */
+      .pt-bg{position:fixed;inset:0;z-index:0;overflow:hidden;
+        background:radial-gradient(ellipse 70% 60% at 20% 50%,rgba(12,20,70,.85) 0,transparent 65%),
+                   radial-gradient(ellipse 55% 70% at 80% 20%,rgba(8,30,65,.8) 0,transparent 60%),#020c1a}
+      .pt-blob{position:absolute;border-radius:50%;filter:blur(80px);opacity:.45;animation:blobDrift linear infinite}
+      .pt-blob--1{width:500px;height:500px;background:radial-gradient(circle,rgba(14,165,233,.28) 0,transparent 68%);top:-10%;left:-5%;animation-duration:22s}
+      .pt-blob--2{width:400px;height:400px;background:radial-gradient(circle,rgba(99,102,241,.22) 0,transparent 68%);bottom:-15%;right:-5%;animation-duration:28s;animation-delay:-10s;animation-direction:reverse}
+      @keyframes blobDrift{0%,100%{transform:translate(0,0) scale(1)}25%{transform:translate(25px,-18px) scale(1.04)}50%{transform:translate(-15px,22px) scale(.96)}75%{transform:translate(15px,10px) scale(1.02)}}
+      /* Layout */
+      .pt-page{position:relative;z-index:1;min-height:100vh;padding:28px 20px;max-width:780px;margin:0 auto}
+      /* Header */
+      .pt-header{text-align:center;margin-bottom:28px}
+      .pt-badge{display:inline-flex;align-items:center;gap:7px;padding:5px 14px;background:rgba(14,165,233,.08);border:1px solid rgba(14,165,233,.2);border-radius:100px;font-size:11px;font-weight:700;color:#38d9f5;letter-spacing:.08em;text-transform:uppercase;margin-bottom:14px}
+      .pt-badge__dot{width:6px;height:6px;border-radius:50%;background:#10b981;box-shadow:0 0 6px #10b981;animation:pulseDot 2.4s ease infinite}
+      .pt-title{font-size:clamp(22px,4vw,34px);font-weight:800;letter-spacing:-.03em;background:linear-gradient(135deg,#fff 0%,#bae6fd 45%,#38d9f5 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+      .pt-subtitle{font-size:13px;color:#475569;margin-top:6px}
+      /* Card */
+      .pt-card{background:rgba(8,18,38,.72);backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:28px;margin-bottom:18px;box-shadow:0 0 0 1px rgba(255,255,255,.03),0 24px 60px rgba(0,0,0,.5)}
+      .pt-card::before{content:'';display:block;height:1px;background:linear-gradient(90deg,transparent,rgba(14,165,233,.4),transparent);margin:-28px -28px 24px}
+      .pt-card-title{font-size:14px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.08em;margin-bottom:18px}
+      /* Status banner */
+      .pt-status{padding:16px 20px;border-radius:14px;display:flex;align-items:center;gap:14px;margin-bottom:0}
+      .pt-status--approved{background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.25)}
+      .pt-status--pending{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.25)}
+      .pt-status--rejected{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25)}
+      .pt-status__icon{font-size:28px;flex-shrink:0}
+      .pt-status__title{font-size:16px;font-weight:700;color:#f1f5f9}
+      .pt-status__sub{font-size:13px;color:#64748b;margin-top:3px}
+      /* Info grid */
+      .pt-info{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-top:4px}
+      .pt-info-item{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:12px 14px}
+      .pt-info-item__label{font-size:10.5px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+      .pt-info-item__value{font-size:14px;font-weight:600;color:#f1f5f9}
+      /* Progress bar */
+      .pt-progress-bar{height:8px;background:rgba(255,255,255,.07);border-radius:100px;overflow:hidden;margin-bottom:24px}
+      .pt-progress-bar__fill{height:100%;background:linear-gradient(90deg,#0369a1,#0ea5e9,#38bdf8);border-radius:100px;transition:width .6s ease;box-shadow:0 0 12px rgba(14,165,233,.5)}
+      /* Timeline */
+      .pt-timeline{position:relative;padding-left:28px}
+      .pt-timeline::before{content:'';position:absolute;left:11px;top:8px;bottom:8px;width:2px;background:rgba(255,255,255,.08);border-radius:2px}
+      .pt-step{position:relative;margin-bottom:20px;display:flex;align-items:flex-start;gap:14px}
+      .pt-step__dot{position:absolute;left:-28px;top:2px;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;border:2px solid transparent;transition:all .3s ease}
+      .pt-step--done .pt-step__dot{background:#10b981;border-color:#10b981;color:#fff;box-shadow:0 0 10px rgba(16,185,129,.4)}
+      .pt-step--active .pt-step__dot{background:linear-gradient(135deg,#0369a1,#0ea5e9);border-color:#0ea5e9;color:#fff;box-shadow:0 0 14px rgba(14,165,233,.5);animation:activePulse 2s ease infinite}
+      .pt-step--pending .pt-step__dot{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.12);color:#475569}
+      .pt-step--cancelled .pt-step__dot{background:rgba(239,68,68,.15);border-color:rgba(239,68,68,.3);color:#ef4444}
+      .pt-step__body{padding-top:2px}
+      .pt-step__label{font-size:14px;font-weight:600;color:#f1f5f9;line-height:1.3}
+      .pt-step--pending .pt-step__label{color:#475569}
+      .pt-step__label-ar{font-size:11.5px;color:#475569;direction:rtl;margin-top:2px}
+      /* Lane badge */
+      .pt-lane{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:100px;font-size:12px;font-weight:700;margin-top:6px}
+      .pt-lane--green{background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.3);color:#6ee7b7}
+      .pt-lane--yellow{background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.3);color:#fde68a}
+      .pt-lane--red{background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);color:#fca5a5}
+      /* Document list */
+      .pt-doc{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:rgba(255,255,255,.03);border-radius:10px;border:1px solid rgba(255,255,255,.06);margin-bottom:8px;font-size:13px}
+      .pt-doc__name{font-weight:500;color:#e2e8f0}
+      .pt-doc__state{font-size:11px;font-weight:700;padding:2px 10px;border-radius:100px}
+      .state-verified{background:rgba(16,185,129,.15);color:#6ee7b7}
+      .state-received{background:rgba(14,165,233,.15);color:#7dd3fc}
+      .state-pending{background:rgba(245,158,11,.15);color:#fde68a}
+      .state-rejected{background:rgba(239,68,68,.15);color:#fca5a5}
+      /* Invoice block */
+      .pt-invoice{background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.2);border-radius:14px;padding:18px 20px}
+      .pt-invoice__header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+      .pt-invoice__title{font-size:15px;font-weight:700;color:#fde68a}
+      .pt-invoice__row{display:flex;justify-content:space-between;padding:6px 0;font-size:13px;border-bottom:1px solid rgba(255,255,255,.05)}
+      .pt-invoice__row:last-child{border-bottom:none;font-size:14px;font-weight:700;color:#fde68a}
+      .pt-invoice__sadad{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.25);border-radius:10px;padding:12px 16px;margin-top:12px;text-align:center}
+      .pt-invoice__sadad-label{font-size:11px;color:#92400e;font-weight:600;text-transform:uppercase;letter-spacing:.06em}
+      .pt-invoice__sadad-value{font-size:20px;font-weight:800;color:#f59e0b;letter-spacing:.05em}
+      /* Not found */
+      .pt-not-found{text-align:center;padding:60px 20px}
+      .pt-not-found__icon{font-size:56px;margin-bottom:16px}
+      .pt-not-found__title{font-size:22px;font-weight:700;color:#f1f5f9;margin-bottom:8px}
+      .pt-not-found__sub{font-size:14px;color:#475569;margin-bottom:24px}
+      /* Footer */
+      .pt-footer{text-align:center;font-size:11.5px;color:#1e3a5f;margin-top:24px;padding-bottom:24px}
+      /* CTA button */
+      .pt-btn{display:inline-flex;align-items:center;gap:8px;padding:12px 24px;background:linear-gradient(135deg,#0369a1,#0ea5e9);color:#fff;font-weight:700;font-size:14px;border-radius:12px;text-decoration:none;transition:all .25s ease;border:none;cursor:pointer}
+      .pt-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(14,165,233,.4)}
+      /* Responsive */
+      @media(max-width:500px){.pt-card{padding:20px 16px}.pt-info{grid-template-columns:1fr 1fr}}
+      /* Animations */
+      @keyframes pulseDot{0%,100%{box-shadow:0 0 0 0 rgba(16,185,129,.45)}50%{box-shadow:0 0 0 5px rgba(16,185,129,0)}}
+      @keyframes activePulse{0%,100%{box-shadow:0 0 14px rgba(14,165,233,.5)}50%{box-shadow:0 0 24px rgba(14,165,233,.8)}}
+      @keyframes fadeInUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+      .pt-card{animation:fadeInUp .5s ease both}
+      .pt-card:nth-child(2){animation-delay:.1s}
+      .pt-card:nth-child(3){animation-delay:.2s}
+    </style>
+  </head>
+  <body>
+    <div class="pt-bg">
+      <div class="pt-blob pt-blob--1"></div>
+      <div class="pt-blob pt-blob--2"></div>
+    </div>
+
+    <main class="pt-page">
+
+      <!-- Header -->
+      <header class="pt-header">
+        <div class="pt-badge"><div class="pt-badge__dot"></div>Live Tracking</div>
+        <h1 class="pt-title">Shipment Tracker — تتبع الشحنة</h1>
+        <p class="pt-subtitle">Customs Clearance KSA · ZATCA · FASAH · SABER</p>
+      </header>
+
+      <!-- ── NOT FOUND ─────────────────────────────────────────────────────── -->
+      <t t-if="not found">
+        <div class="pt-card pt-not-found">
+          <div class="pt-not-found__icon">🔍</div>
+          <div class="pt-not-found__title">Tracking code not found</div>
+          <div class="pt-not-found__sub">
+            This token is invalid or has expired. Please check your approval email
+            and try again.
+          </div>
+          <a href="/customs-portal/register" class="pt-btn">Submit New Request</a>
+        </div>
+      </t>
+
+      <!-- ── REQUEST FOUND ─────────────────────────────────────────────────── -->
+      <t t-if="found and req">
+
+        <!-- Status Banner -->
+        <div class="pt-card">
+          <t t-if="req.state == 'approved' and clearance">
+            <div class="pt-status pt-status--approved">
+              <div class="pt-status__icon">✅</div>
+              <div>
+                <div class="pt-status__title">Request Approved — تم القبول</div>
+                <div class="pt-status__sub">
+                  Your clearance order <strong t-esc="clearance.name"/> is active.
+                  Ref: <t t-esc="req.name"/>
+                </div>
+              </div>
+            </div>
+          </t>
+          <t t-elif="req.state == 'rejected'">
+            <div class="pt-status pt-status--rejected">
+              <div class="pt-status__icon">❌</div>
+              <div>
+                <div class="pt-status__title">Request Rejected — تم الرفض</div>
+                <div class="pt-status__sub" t-esc="req.rejection_reason or 'No reason provided.'"/>
+              </div>
+            </div>
+          </t>
+          <t t-else="">
+            <div class="pt-status pt-status--pending">
+              <div class="pt-status__icon">⏳</div>
+              <div>
+                <div class="pt-status__title">Under Review — قيد المراجعة</div>
+                <div class="pt-status__sub">
+                  Ref: <t t-esc="req.name"/> — Our team will process your request shortly.
+                </div>
+              </div>
+            </div>
+          </t>
+
+          <!-- Request Info grid -->
+          <div class="pt-info" style="margin-top:16px">
+            <div class="pt-info-item">
+              <div class="pt-info-item__label">Request Ref.</div>
+              <div class="pt-info-item__value" t-esc="req.name"/>
+            </div>
+            <div class="pt-info-item">
+              <div class="pt-info-item__label">Shipment Type</div>
+              <div class="pt-info-item__value" t-esc="(req.clearance_type or '').title()"/>
+            </div>
+            <div class="pt-info-item">
+              <div class="pt-info-item__label">BL / AWB</div>
+              <div class="pt-info-item__value" t-esc="req.bill_of_lading_no or '—'"/>
+            </div>
+            <div class="pt-info-item" t-if="req.eta">
+              <div class="pt-info-item__label">ETA</div>
+              <div class="pt-info-item__value" t-esc="req.eta"/>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── CLEARANCE TRACKING (only if approved + clearance exists) ─── -->
+        <t t-if="clearance">
+
+          <!-- Progress bar + Clearance info -->
+          <div class="pt-card">
+            <p class="pt-card-title">Clearance Progress — تقدم التخليص</p>
+
+            <!-- Progress bar -->
+            <div class="pt-progress-bar">
+              <div class="pt-progress-bar__fill" t-attf-style="width:{{ progress_pct }}%"></div>
+            </div>
+
+            <!-- Clearance meta -->
+            <div class="pt-info">
+              <div class="pt-info-item">
+                <div class="pt-info-item__label">Clearance Ref.</div>
+                <div class="pt-info-item__value" t-esc="clearance.name"/>
+              </div>
+              <div class="pt-info-item">
+                <div class="pt-info-item__label">Port</div>
+                <div class="pt-info-item__value" t-esc="clearance.port_id.name if clearance.port_id else '—'"/>
+              </div>
+              <div class="pt-info-item" t-if="clearance.customs_declaration_no">
+                <div class="pt-info-item__label">Customs Declaration</div>
+                <div class="pt-info-item__value" t-esc="clearance.customs_declaration_no"/>
+              </div>
+              <div class="pt-info-item" t-if="clearance.fasah_declaration_no">
+                <div class="pt-info-item__label">FASAH Ref.</div>
+                <div class="pt-info-item__value" t-esc="clearance.fasah_declaration_no"/>
+              </div>
+              <div class="pt-info-item" t-if="clearance.expected_clearance_date">
+                <div class="pt-info-item__label">Expected Release</div>
+                <div class="pt-info-item__value" t-esc="clearance.expected_clearance_date"/>
+              </div>
+              <div class="pt-info-item" t-if="clearance.actual_clearance_date">
+                <div class="pt-info-item__label">Released On</div>
+                <div class="pt-info-item__value" t-esc="clearance.actual_clearance_date"/>
+              </div>
+            </div>
+
+            <!-- Inspection lane badge -->
+            <t t-if="clearance.inspection_lane">
+              <div style="margin-top:14px">
+                <span t-if="clearance.inspection_lane == 'green'" class="pt-lane pt-lane--green">🟢 Green Lane — المسار الأخضر</span>
+                <span t-elif="clearance.inspection_lane == 'yellow'" class="pt-lane pt-lane--yellow">🟡 Yellow Lane — مراجعة مستندات</span>
+                <span t-elif="clearance.inspection_lane == 'red'" class="pt-lane pt-lane--red">🔴 Red Lane — فحص جمركي</span>
+              </div>
+            </t>
+          </div>
+
+          <!-- Timeline -->
+          <div class="pt-card">
+            <p class="pt-card-title">Status Timeline — مراحل التخليص</p>
+            <div class="pt-timeline">
+              <t t-foreach="steps" t-as="step">
+                <div t-attf-class="pt-step pt-step--{{ step['status'] }}">
+                  <div class="pt-step__dot">
+                    <t t-if="step['status'] == 'done'">✓</t>
+                    <t t-elif="step['status'] == 'active'">●</t>
+                    <t t-else="">○</t>
+                  </div>
+                  <div class="pt-step__body">
+                    <div class="pt-step__label" t-esc="step['icon'] + ' ' + step['label']"/>
+                    <div class="pt-step__label-ar" t-esc="step['label_ar']"/>
+                  </div>
+                </div>
+              </t>
+            </div>
+          </div>
+
+          <!-- Documents -->
+          <t t-if="clearance.document_ids">
+            <div class="pt-card">
+              <p class="pt-card-title">Required Documents — المستندات المطلوبة</p>
+              <t t-foreach="clearance.document_ids" t-as="doc">
+                <div class="pt-doc">
+                  <span class="pt-doc__name" t-esc="doc.name"/>
+                  <span t-attf-class="pt-doc__state state-{{ doc.state }}" t-esc="doc.state.title()"/>
+                </div>
+              </t>
+            </div>
+          </t>
+
+          <!-- Service Invoice -->
+          <t t-if="invoice">
+            <div class="pt-card">
+              <p class="pt-card-title">Service Invoice — فاتورة الخدمة</p>
+              <div class="pt-invoice">
+                <div class="pt-invoice__header">
+                  <span class="pt-invoice__title">📄 <t t-esc="invoice.name"/></span>
+                  <span t-attf-class="pt-doc__state state-{{ invoice.state }}" t-esc="invoice.state.title()"/>
+                </div>
+                <div class="pt-invoice__row">
+                  <span style="color:#94a3b8">Invoice Date</span>
+                  <span t-esc="invoice.invoice_date"/>
+                </div>
+                <div class="pt-invoice__row">
+                  <span style="color:#94a3b8">Subtotal (excl. VAT)</span>
+                  <span><t t-esc="'%.2f' % (invoice.subtotal or 0)"/> <t t-esc="invoice.currency_id.symbol"/></span>
+                </div>
+                <div class="pt-invoice__row">
+                  <span style="color:#94a3b8">VAT (15%)</span>
+                  <span><t t-esc="'%.2f' % (invoice.vat_amount or 0)"/> <t t-esc="invoice.currency_id.symbol"/></span>
+                </div>
+                <div class="pt-invoice__row">
+                  <span>Total</span>
+                  <span><t t-esc="'%.2f' % (invoice.total or 0)"/> <t t-esc="invoice.currency_id.symbol"/></span>
+                </div>
+                <!-- SADAD reference -->
+                <t t-if="invoice.sadad_ref">
+                  <div class="pt-invoice__sadad">
+                    <div class="pt-invoice__sadad-label">SADAD Payment Reference — رقم سداد</div>
+                    <div class="pt-invoice__sadad-value" t-esc="invoice.sadad_ref"/>
+                    <div style="font-size:12px;color:#92400e;margin-top:4px">
+                      Pay via online banking, mobile app, or ATM — الدفع عبر الإنترنت أو الصراف
+                    </div>
+                  </div>
+                </t>
+              </div>
+            </div>
+          </t>
+
+        </t><!-- /clearance -->
+
+        <!-- Back link -->
+        <div style="text-align:center;margin-top:8px">
+          <a href="/customs-portal/register" class="pt-btn">
+            📋 Submit Another Request
+          </a>
+        </div>
+
+      </t><!-- /found -->
+
+      <footer class="pt-footer">
+        Customs Clearance KSA — ZATCA · FASAH · SABER · Powered by Odoo 17
+      </footer>
+    </main>
+
+    <!-- Live status auto-refresh every 60s -->
+    <script>
+    (function(){
+      var token = '<t t-out="token"/>';
+      if (!token || token === 'None') return;
+      function ping(){
+        fetch('/customs-portal/track/ping',{
+          method:'POST',
+          headers:{'Content-Type':'application/json','X-Requested-With':'XMLHttpRequest'},
+          body:JSON.stringify({jsonrpc:'2.0',method:'call',id:1,params:{portal_token:token}})
+        })
+        .then(function(r){return r.json()})
+        .then(function(data){
+          if(data.result &amp;&amp; data.result.progress_pct !== undefined){
+            var fill = document.querySelector('.pt-progress-bar__fill');
+            if(fill) fill.style.width = data.result.progress_pct + '%';
+          }
+        })
+        .catch(function(){});
+      }
+      setInterval(ping, 60000);
+    })();
+    </script>
+  </body>
+  </html>
+</template>
+
+<!-- ===========================================================
+     PORTAL INVOICE PREVIEW PAGE
+     Accessed via: /customs-portal/invoice/<inv_token>
+     =========================================================== -->
+<template id="portal_invoice_template" name="Portal Invoice Preview">
+  <html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Invoice — Customs Clearance KSA</title>
+    <style>
+      body{font-family:'Inter',-apple-system,sans-serif;background:#f8fafc;color:#0f172a;max-width:680px;margin:40px auto;padding:20px}
+      .inv-card{background:#fff;border-radius:16px;border:1px solid #e2e8f0;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.06)}
+      .inv-header{background:linear-gradient(135deg,#0a0f1e,#0ea5e9);padding:28px;color:#fff;text-align:center}
+      .inv-header h1{font-size:22px;font-weight:800;margin-bottom:4px}
+      .inv-header p{font-size:12px;opacity:.7}
+      .inv-body{padding:28px}
+      .inv-meta{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px}
+      .inv-meta-item label{font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:3px}
+      .inv-meta-item span{font-size:14px;font-weight:600}
+      table.inv-lines{width:100%;border-collapse:collapse;margin-bottom:16px;font-size:13px}
+      table.inv-lines th{background:#f0f9ff;color:#0369a1;font-weight:700;padding:8px 10px;text-align:left}
+      table.inv-lines td{padding:8px 10px;border-bottom:1px solid #f1f5f9}
+      .inv-totals{background:#f8fafc;border-radius:10px;padding:16px;margin-top:8px}
+      .inv-totals-row{display:flex;justify-content:space-between;font-size:13px;padding:4px 0;color:#64748b}
+      .inv-totals-row.total{font-size:15px;font-weight:700;color:#0ea5e9;border-top:2px solid #e2e8f0;padding-top:10px;margin-top:6px}
+      .sadad-box{background:#fef9c3;border:1px solid #fcd34d;border-radius:10px;padding:14px;text-align:center;margin-top:16px}
+      .sadad-box label{font-size:11px;color:#92400e;font-weight:700;display:block;margin-bottom:4px}
+      .sadad-box span{font-size:22px;font-weight:800;color:#f59e0b}
+      .inv-footer{background:#f8fafc;padding:14px;text-align:center;font-size:11px;color:#94a3b8;border-top:1px solid #e2e8f0}
+    </style>
+  </head>
+  <body>
+    <t t-if="not found">
+      <div style="text-align:center;padding:60px 20px">
+        <div style="font-size:48px">📄</div>
+        <h2 style="margin:16px 0 8px">Invoice not found</h2>
+        <p style="color:#64748b">This invoice link is invalid or has expired.</p>
+      </div>
+    </t>
+    <t t-if="found and invoice">
+      <div class="inv-card">
+        <div class="inv-header">
+          <h1>Tax Invoice — فاتورة ضريبية</h1>
+          <p>Customs Clearance KSA · ZATCA Phase-1 Compliant</p>
+        </div>
+        <div class="inv-body">
+          <div class="inv-meta">
+            <div class="inv-meta-item"><label>Invoice No.</label><span t-esc="invoice.name"/></div>
+            <div class="inv-meta-item"><label>Date</label><span t-esc="invoice.invoice_date"/></div>
+            <div class="inv-meta-item"><label>Bill To</label><span t-esc="invoice.partner_id.name"/></div>
+            <div class="inv-meta-item"><label>Clearance Ref.</label><span t-esc="invoice.clearance_id.name"/></div>
+            <t t-if="invoice.fatoorah_invoice_no">
+              <div class="inv-meta-item"><label>FATOORAH No.</label><span t-esc="invoice.fatoorah_invoice_no"/></div>
+            </t>
+          </div>
+          <table class="inv-lines">
+            <thead><tr><th>Description</th><th>Qty</th><th>Unit Price</th><th>Subtotal</th><th>VAT</th></tr></thead>
+            <tbody>
+              <t t-foreach="invoice.line_ids" t-as="line">
+                <tr>
+                  <td t-esc="line.description"/>
+                  <td t-esc="line.quantity"/>
+                  <td><t t-esc="'%.2f' % line.unit_price"/> <t t-esc="invoice.currency_id.symbol"/></td>
+                  <td><t t-esc="'%.2f' % line.subtotal"/> <t t-esc="invoice.currency_id.symbol"/></td>
+                  <td t-esc="'Exempt' if line.vat_exempt else '15%'"/>
+                </tr>
+              </t>
+            </tbody>
+          </table>
+          <div class="inv-totals">
+            <div class="inv-totals-row"><span>Subtotal</span><span><t t-esc="'%.2f' % invoice.subtotal"/> <t t-esc="invoice.currency_id.symbol"/></span></div>
+            <div class="inv-totals-row"><span>VAT (15%)</span><span><t t-esc="'%.2f' % invoice.vat_amount"/> <t t-esc="invoice.currency_id.symbol"/></span></div>
+            <div class="inv-totals-row total"><span>TOTAL</span><span><t t-esc="'%.2f' % invoice.total"/> <t t-esc="invoice.currency_id.symbol"/></span></div>
+          </div>
+          <t t-if="invoice.sadad_ref">
+            <div class="sadad-box">
+              <label>SADAD Payment Reference — رقم سداد للدفع</label>
+              <span t-esc="invoice.sadad_ref"/>
+            </div>
+          </t>
+        </div>
+        <div class="inv-footer">Customs Clearance KSA · ZATCA Compliant Invoice · Powered by Odoo 17</div>
+      </div>
+    </t>
+  </body>
+  </html>
+</template>
+
+</odoo>

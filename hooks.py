@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 """
-hooks.py — Post-install hook for customs_clearance_ksa
-=======================================================
+hooks.py — Post-install hook for customs_clearance
+===================================================
 Runs automatically when the module is installed.
 Creates all demo data using proper Odoo ORM methods.
 
 To re-run after install:
   - Uninstall the module, reinstall it
-  - Or upgrade with:  Apps → Customs Clearance KSA → Upgrade
+  - Or upgrade with:  Apps → Customs Clearance → Upgrade
 """
 import logging
 from datetime import date, timedelta
@@ -15,23 +15,109 @@ from datetime import date, timedelta
 _logger = logging.getLogger(__name__)
 
 def post_migrate_hook(env, version):
+    _fix_module_name_migration(env)
     _create_demo_data(env)
+    _set_home_action(env)
 
 def post_install_hook(env):
     """
     Entry point called by Odoo after module installation.
     Receives `env` — a fully functional Odoo Environment.
     """
-    _logger.info("=== Customs Clearance KSA: Running demo data hook ===")
+    _logger.info("=== Customs Clearance: Running demo data hook ===")
 
     try:
+        _fix_module_name_migration(env)
         _create_demo_data(env)
-        _logger.info("=== Customs Clearance KSA: Demo data created successfully ===")
+        _set_home_action(env)
+        _logger.info("=== Customs Clearance: Demo data created successfully ===")
     except Exception as e:
-        _logger.error("=== Customs Clearance KSA: Demo data error: %s ===", str(e))
+        _logger.error("=== Customs Clearance: Demo data error: %s ===", str(e))
         # Do NOT raise — a failed hook should not block installation
         import traceback
         _logger.error(traceback.format_exc())
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# MODULE NAME MIGRATION
+# ─────────────────────────────────────────────────────────────────────────────
+
+def _fix_module_name_migration(env):
+    """
+    Migrate external IDs from old module name (customs_clearance_ksa) to new name (customs_clearance).
+    This fixes the issue where security groups and other records were created with the old module prefix.
+    Also removes conflicting action records.
+    """
+    _logger.info("=== Running module name migration: customs_clearance_ksa → customs_clearance ===")
+    
+    try:
+        # Find all external IDs with the old module name
+        IrModelData = env['ir.model.data']
+        old_external_ids = IrModelData.search([
+            ('module', '=', 'customs_clearance_ksa')
+        ])
+        
+        if old_external_ids:
+            _logger.info("  Found %d external IDs with old module name", len(old_external_ids))
+            # Update them to use the new module name
+            old_external_ids.write({'module': 'customs_clearance'})
+            _logger.info("  ✓ Updated all external IDs to use 'customs_clearance' module name")
+        else:
+            _logger.info("  No old external IDs found - migration not needed")
+        
+        # Remove old conflicting action_customs_dashboard if it exists as wrong type
+        try:
+            old_action_data = IrModelData.search([
+                ('module', '=', 'customs_clearance'),
+                ('name', '=', 'action_customs_dashboard'),
+                ('model', '=', 'ir.actions.act_window')
+            ], limit=1)
+            
+            if old_action_data:
+                _logger.info("  Found conflicting action_customs_dashboard (act_window) - removing...")
+                # Get the actual record
+                old_action = env['ir.actions.act_window'].browse(old_action_data.res_id)
+                if old_action.exists():
+                    old_action.unlink()
+                old_action_data.unlink()
+                _logger.info("  ✓ Removed conflicting action")
+        except Exception as e:
+            _logger.warning("  Could not remove old action: %s", str(e))
+            
+    except Exception as e:
+        _logger.warning("  Migration warning: %s", str(e))
+        # Don't fail the installation if migration has issues
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# HOME ACTION — set dashboard as default page after login
+# ─────────────────────────────────────────────────────────────────────────────
+
+def _set_home_action(env):
+    """
+    Sets the Customs Dashboard as the home page for all users after login.
+    Uses res.users.action_id — the standard Odoo mechanism for per-user home actions.
+    """
+    try:
+        action = env.ref('customs_clearance.action_customs_dashboard', raise_if_not_found=False)
+        if not action:
+            _logger.warning("_set_home_action: action_customs_dashboard not found yet — skipping")
+            return
+
+        # Apply to all existing users (skip system/portal users to be safe)
+        users = env['res.users'].search([
+            ('share', '=', False),       # internal users only
+            ('active', '=', True),
+        ])
+        users.write({'action_id': action.id})
+        _logger.info("  ✓ Set Customs Dashboard as home for %d users", len(users))
+
+        # Set as system-wide default so new users also get it
+        env['ir.default'].set('res.users', 'action_id', action.id)
+        _logger.info("  ✓ Set Customs Dashboard as default home action for new users")
+
+    except Exception as e:
+        _logger.warning("  _set_home_action failed (non-blocking): %s", str(e))
 
 
 # ─────────────────────────────────────────────────────────────────────────────

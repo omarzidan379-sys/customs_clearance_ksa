@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+  <record id="res_config_settings_view_whatsapp" model="ir.ui.view">
+    <field name="name">res.config.settings.view.form.inherit.whatsapp</field>
+    <field name="model">res.config.settings</field>
+    <field name="inherit_id" ref="base_setup.res_config_settings_view_form"/>
+    <field name="arch" type="xml">
+      <xpath expr="//form" position="inside">
+
+        <app string="WhatsApp" name="customs_whatsapp"
+             groups="customs_clearance.group_customs_manager">
+
+          <!-- ── Enable toggle ── -->
+          <block title="WhatsApp Notifications — إشعارات واتساب" name="whatsapp_main">
+            <setting string="Enable WhatsApp Notifications" id="wa_enabled_setting">
+              <field name="wa_enabled"/>
+              <div class="text-muted">
+                Send automatic WhatsApp messages when portal requests are submitted, approved, rejected, or offered.
+              </div>
+            </setting>
+          </block>
+
+          <!-- ── Provider ── -->
+          <block title="Provider &amp; API" name="whatsapp_provider" invisible="not wa_enabled">
+            <setting string="WhatsApp Provider" id="wa_provider_setting">
+              <field name="wa_provider"/>
+              <div class="text-muted">
+                <strong>WAHA</strong>: free self-hosted (Docker).&#160;
+                <strong>UltraMsg</strong>: easy cloud API.&#160;
+                <strong>Twilio</strong>: enterprise-grade.
+              </div>
+            </setting>
+
+            <setting string="API Endpoint URL" id="wa_endpoint_setting">
+              <field name="wa_endpoint" placeholder="http://localhost:3000"/>
+              <div class="text-muted">
+                WAHA: <code>http://your-server:3000</code> |
+                UltraMsg: <code>https://api.ultramsg.com/instance&lt;ID&gt;</code>
+              </div>
+            </setting>
+
+            <setting string="API Token / Key" id="wa_token_setting">
+              <field name="wa_token" password="True" placeholder="Your API key or bearer token"/>
+            </setting>
+
+            <setting string="WAHA Session Name" id="wa_session_setting"
+                     invisible="wa_provider != 'waha'">
+              <field name="wa_waha_session" placeholder="default"/>
+              <div class="text-muted">Name of the active WAHA session. Scan QR code on first use via WAHA dashboard.</div>
+            </setting>
+
+            <setting string="Sender Number" id="wa_from_setting"
+                     invisible="wa_provider == 'waha'">
+              <field name="wa_from_number" placeholder="+966501234567"/>
+              <div class="text-muted">Your WhatsApp sender number in international format.</div>
+            </setting>
+
+            <setting string="WA Twilio Account SID" id="wa_twilio_sid_setting"
+                     invisible="wa_provider != 'twilio'">
+              <field name="wa_twilio_sid" placeholder="ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"/>
+            </setting>
+          </block>
+
+          <!-- ── Admin number ── -->
+          <block title="Admin Alerts" name="whatsapp_admin" invisible="not wa_enabled">
+            <setting string="Admin WhatsApp Number" id="wa_admin_setting">
+              <field name="wa_admin_number" placeholder="+966501234567"/>
+              <div class="text-muted">
+                This number receives an alert every time a new portal request is submitted.
+                Must be in international format (e.g. +966501234567).
+              </div>
+            </setting>
+          </block>
+
+          <!-- ── Notification events ── -->
+          <block title="Notification Events" name="whatsapp_events" invisible="not wa_enabled">
+            <setting string="New request submitted" id="wa_notify_new_setting">
+              <field name="wa_notify_new"/>
+              <div class="text-muted">Alert admin when a customer submits a new portal request.</div>
+            </setting>
+            <setting string="Service offer sent to client" id="wa_notify_offer_setting">
+              <field name="wa_notify_offer"/>
+              <div class="text-muted">Message client with offer details and accept link.</div>
+            </setting>
+            <setting string="Request approved" id="wa_notify_approve_setting">
+              <field name="wa_notify_approve"/>
+              <div class="text-muted">Message client with approval confirmation and tracking link.</div>
+            </setting>
+            <setting string="Request rejected" id="wa_notify_reject_setting">
+              <field name="wa_notify_reject"/>
+              <div class="text-muted">Message client with the rejection reason.</div>
+            </setting>
+          </block>
+
+          <!-- ── Test ── -->
+          <block title="Test" name="whatsapp_test" invisible="not wa_enabled">
+            <setting string="Send Test Message" id="wa_test_setting">
+              <button name="action_test_whatsapp" type="object"
+                      string="Send Test WhatsApp" class="btn btn-secondary"
+                      icon="fa-whatsapp"/>
+              <div class="text-muted">
+                Sends a test message to the Admin WhatsApp Number to verify your configuration.
+              </div>
+            </setting>
+          </block>
+
+        </app>
+      </xpath>
+    </field>
+  </record>
+
+</odoo>

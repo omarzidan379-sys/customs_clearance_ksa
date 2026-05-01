@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+  <!-- ═══ SERVICE INVOICE — FORM ════════════════════════════════════════════ -->
+  <record id="view_customs_service_invoice_form" model="ir.ui.view">
+    <field name="name">customs.service.invoice.form</field>
+    <field name="model">customs.service.invoice</field>
+    <field name="arch" type="xml">
+      <form string="Customs Service Invoice — فاتورة خدمة التخليص">
+        <header>
+          <button name="action_confirm"         string="Confirm"           type="object" class="btn-primary"
+                  invisible="state != 'draft'"/>
+          <button name="action_send_to_client"  string="Send to Client"    type="object" class="btn-primary"
+                  invisible="state != 'confirmed'"/>
+          <button name="action_create_account_entry" string="Post to Accounting" type="object"
+                  invisible="state not in ('confirmed','sent')" icon="fa-book"/>
+          <button name="action_mark_paid"       string="Mark as Paid"      type="object" class="btn-success"
+                  invisible="state not in ('confirmed','sent')"/>
+          <button name="action_submit_to_zatca"  string="Submit to ZATCA ▶" type="object" class="btn-warning"
+                  invisible="state not in ('confirmed','sent') or zatca_status == 'cleared'"
+                  icon="fa-send"/>
+          <button name="action_cancel"          string="Cancel"            type="object" class="btn-danger"
+                  invisible="state in ('paid','cancelled')"/>
+          <button name="action_reset_draft"     string="Reset to Draft"    type="object"
+                  invisible="state != 'cancelled'"/>
+          <field name="state" widget="statusbar"
+                 statusbar_visible="draft,confirmed,sent,paid"/>
+        </header>
+        <sheet>
+          <div class="oe_button_box" name="button_box">
+            <button name="action_open_account_move" type="object"
+                    class="oe_stat_button" icon="fa-book"
+                    invisible="not account_move_id">
+              <span class="o_stat_text">Journal Entry</span>
+            </button>
+          </div>
+
+          <widget name="web_ribbon" title="Paid ✓"     bg_color="bg-success" invisible="state != 'paid'"/>
+          <widget name="web_ribbon" title="Cancelled"  bg_color="bg-danger"  invisible="state != 'cancelled'"/>
+
+          <div class="oe_title">
+            <label for="name"/>
+            <h1><field name="name" readonly="1"/></h1>
+          </div>
+
+          <group>
+            <group string="Invoice Details">
+              <field name="clearance_id"/>
+              <field name="partner_id"/>
+              <field name="invoice_date"/>
+              <field name="due_date"/>
+              <field name="currency_id" invisible="1"/>
+            </group>
+            <group string="ZATCA / FATOORAH — فاتورة إلكترونية" col="2">
+              <field name="zatca_invoice_type" string="Invoice Type"/>
+              <field name="zatca_status" widget="badge" string="ZATCA Status"
+                     decoration-success="zatca_status == 'cleared'"
+                     decoration-warning="zatca_status == 'submitted'"
+                     decoration-danger="zatca_status == 'error'"/>
+              <field name="fatoorah_invoice_no" string="Fatoorah No."/>
+              <field name="zatca_submission_id" readonly="1" string="Submission ID"
+                     invisible="not zatca_submission_id"/>
+              <!-- Raw fields hidden — QR image and XML shown via zatca_integration extension -->
+              <field name="fatoorah_qr_code" invisible="1"/>
+              <field name="zatca_xml"         invisible="1"/>
+            </group>
+          </group>
+
+          <!-- Auto-populate button -->
+          <div class="alert alert-info" role="alert" invisible="line_ids">
+            <button name="action_populate_from_clearance" type="object"
+                    string="Auto-fill lines from Clearance" class="btn-link"/>
+          </div>
+
+          <!-- Invoice Lines -->
+          <field name="line_ids" nolabel="1">
+            <tree editable="bottom">
+              <field name="sequence" widget="handle"/>
+              <field name="description"/>
+              <field name="service_type"/>
+              <field name="quantity"/>
+              <field name="unit_price"/>
+              <field name="vat_exempt"/>
+              <field name="subtotal" readonly="1"/>
+            </tree>
+          </field>
+
+          <!-- Totals -->
+          <div class="oe_right" style="max-width:360px;margin-left:auto;margin-top:12px">
+            <table class="table table-sm" style="font-size:14px">
+              <tr>
+                <td style="color:#64748b">Subtotal (excl. VAT)</td>
+                <td class="text-end"><field name="subtotal" readonly="1" nolabel="1"/></td>
+              </tr>
+              <tr>
+                <td style="color:#64748b">VAT (<field name="vat_rate" readonly="1" nolabel="1"/>%)</td>
+                <td class="text-end"><field name="vat_amount" readonly="1" nolabel="1"/></td>
+              </tr>
+              <tr class="fw-bold" style="border-top:2px solid #e2e8f0">
+                <td>Total</td>
+                <td class="text-end"><field name="total" readonly="1" nolabel="1"/></td>
+              </tr>
+              <tr invisible="state != 'paid'">
+                <td style="color:#10b981">Amount Paid</td>
+                <td class="text-end"><field name="amount_paid" readonly="1" nolabel="1"/></td>
+              </tr>
+              <tr invisible="amount_due == 0">
+                <td style="color:#ef4444;font-weight:600">Balance Due</td>
+                <td class="text-end"><field name="amount_due" readonly="1" nolabel="1"/></td>
+              </tr>
+            </table>
+          </div>
+
+          <group string="Payment">
+            <group>
+              <field name="sadad_ref"/>
+              <field name="payment_reference"/>
+              <field name="payment_date"/>
+            </group>
+            <group>
+              <field name="account_move_id" readonly="1"/>
+            </group>
+          </group>
+
+          <field name="notes" placeholder="Internal notes…"/>
+        </sheet>
+        <div class="oe_chatter">
+          <field name="message_follower_ids"/>
+          <field name="activity_ids"/>
+          <field name="message_ids"/>
+        </div>
+      </form>
+    </field>
+  </record>
+
+  <!-- ═══ SERVICE INVOICE — LIST ════════════════════════════════════════════ -->
+  <record id="view_customs_service_invoice_list" model="ir.ui.view">
+    <field name="name">customs.service.invoice.list</field>
+    <field name="model">customs.service.invoice</field>
+    <field name="arch" type="xml">
+      <tree string="Service Invoices" decoration-success="state == 'paid'"
+            decoration-warning="state == 'sent'" decoration-muted="state == 'cancelled'">
+        <field name="name"/>
+        <field name="invoice_date"/>
+        <field name="clearance_id"/>
+        <field name="partner_id"/>
+        <field name="total"/>
+        <field name="amount_due"/>
+        <field name="zatca_status" widget="badge"
+               decoration-success="zatca_status == 'cleared'"/>
+        <field name="state" widget="badge"
+               decoration-success="state == 'paid'"
+               decoration-warning="state in ('confirmed','sent')"
+               decoration-muted="state == 'cancelled'"/>
+        <field name="sadad_ref" optional="show"/>
+        <field name="fatoorah_invoice_no" optional="show"/>
+      </tree>
+    </field>
+  </record>
+
+  <!-- ═══ SERVICE INVOICE — SEARCH ══════════════════════════════════════════ -->
+  <record id="view_customs_service_invoice_search" model="ir.ui.view">
+    <field name="name">customs.service.invoice.search</field>
+    <field name="model">customs.service.invoice</field>
+    <field name="arch" type="xml">
+      <search string="Service Invoices">
+        <field name="name"/>
+        <field name="partner_id"/>
+        <field name="clearance_id"/>
+        <field name="sadad_ref"/>
+        <filter name="draft"     string="Draft"     domain="[('state','=','draft')]"/>
+        <filter name="confirmed" string="Confirmed" domain="[('state','=','confirmed')]"/>
+        <filter name="sent"      string="Sent"      domain="[('state','=','sent')]"/>
+        <filter name="paid"      string="Paid"      domain="[('state','=','paid')]"/>
+        <filter name="unpaid"    string="Unpaid"    domain="[('state','in',['draft','confirmed','sent'])]"/>
+        <separator/>
+        <filter name="zatca_cleared" string="ZATCA Cleared" domain="[('zatca_status','=','cleared')]"/>
+        <filter name="zatca_pending" string="ZATCA Pending" domain="[('zatca_status','=','pending')]"/>
+        <group expand="0" string="Group By">
+          <filter name="by_state"   string="Status"   context="{'group_by': 'state'}"/>
+          <filter name="by_partner" string="Customer" context="{'group_by': 'partner_id'}"/>
+          <filter name="by_month"   string="Month"    context="{'group_by': 'invoice_date:month'}"/>
+        </group>
+      </search>
+    </field>
+  </record>
+
+  <!-- ═══ ACTIONS ═══════════════════════════════════════════════════════════ -->
+  <record id="action_customs_service_invoice" model="ir.actions.act_window">
+    <field name="name">Service Invoices — فواتير الخدمة</field>
+    <field name="res_model">customs.service.invoice</field>
+    <field name="view_mode">list,form</field>
+    <field name="search_view_id" ref="view_customs_service_invoice_search"/>
+    <field name="help" type="html">
+      <p class="o_view_nocontent_smiling_face">No service invoices yet</p>
+      <p>Issue ZATCA-compliant tax invoices to importers and exporters
+         for your customs clearance services.</p>
+    </field>
+  </record>
+
+  <record id="action_customs_invoices_unpaid" model="ir.actions.act_window">
+    <field name="name">Unpaid Invoices — فواتير غير مدفوعة</field>
+    <field name="res_model">customs.service.invoice</field>
+    <field name="view_mode">list,form</field>
+    <field name="domain">[('state', 'in', ['draft','confirmed','sent']), ('amount_due', '&gt;', 0)]</field>
+    <field name="search_view_id" ref="view_customs_service_invoice_search"/>
+  </record>
+
+  <record id="action_customs_invoices_zatca" model="ir.actions.act_window">
+    <field name="name">ZATCA Invoice Status — حالة الفواتير</field>
+    <field name="res_model">customs.service.invoice</field>
+    <field name="view_mode">list,form</field>
+    <field name="search_view_id" ref="view_customs_service_invoice_search"/>
+  </record>
+
+  <record id="action_customs_invoices_zatca_pending" model="ir.actions.act_window">
+    <field name="name">Pending ZATCA — بانتظار الإرسال</field>
+    <field name="res_model">customs.service.invoice</field>
+    <field name="view_mode">list,form</field>
+    <field name="domain">[('zatca_status', 'in', ['pending', 'submitted'])]</field>
+    <field name="search_view_id" ref="view_customs_service_invoice_search"/>
+  </record>
+
+  <record id="action_customs_invoices_zatca_cleared" model="ir.actions.act_window">
+    <field name="name">ZATCA Cleared — معتمد</field>
+    <field name="res_model">customs.service.invoice</field>
+    <field name="view_mode">list,form</field>
+    <field name="domain">[('zatca_status', '=', 'cleared')]</field>
+    <field name="search_view_id" ref="view_customs_service_invoice_search"/>
+  </record>
+
+  <record id="action_customs_clearance_profit" model="ir.actions.act_window">
+    <field name="name">Profit per Shipment — ربح الشحنة</field>
+    <field name="res_model">customs.clearance</field>
+    <field name="view_mode">list,pivot,graph</field>
+  </record>
+
+</odoo>

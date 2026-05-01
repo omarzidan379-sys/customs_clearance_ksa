@@ -1,0 +1,712 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<!-- ═══════════════════════════════════════════════════════════════════════
+     SHIPMENT TRACKING DETAIL  —  /customs-portal/tracking/<token>
+     Modern DHL/FedEx-style tracking dashboard.
+     Uses Leaflet.js (OpenStreetMap, no API key needed).
+═══════════════════════════════════════════════════════════════════════ -->
+<template id="portal_tracking_detail" name="Shipment Tracking Dashboard">
+<t t-call="website.layout">
+<t t-set="title">Shipment Tracking — Customs Clearance KSA</t>
+<t t-set="website_published" t-value="True"/>
+
+<!-- ── Leaflet CSS ── -->
+<t t-call-assets="web.assets_frontend" t-js="false"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+<style>
+/* ── Reset ── */
+*{box-sizing:border-box;}
+.trd{background:#f0f4f8;min-height:100vh;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;padding-bottom:80px;}
+
+/* ── Topbar ── */
+.trd-topbar{background:linear-gradient(135deg,#0a1628 0%,#0d2347 100%);padding:0;position:sticky;top:0;z-index:1000;box-shadow:0 2px 20px rgba(0,0,0,.4);}
+.trd-topbar-inner{max-width:1200px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+.trd-brand{display:flex;align-items:center;gap:10px;}
+.trd-brand-ico{width:36px;height:36px;border-radius:9px;background:rgba(13,110,253,.3);border:1px solid rgba(13,110,253,.5);display:flex;align-items:center;justify-content:center;font-size:16px;}
+.trd-brand strong{color:#fff;font-size:14px;font-weight:800;letter-spacing:-.3px;}
+.trd-brand span{color:#7a9cc0;font-size:11px;display:block;}
+.trd-topbar-links{display:flex;gap:8px;flex-wrap:wrap;}
+.trd-btn-sm{padding:7px 16px;border-radius:8px;font-size:12px;font-weight:700;text-decoration:none;border:1px solid;transition:all .2s;display:inline-flex;align-items:center;gap:5px;}
+.trd-btn-sm.ghost{border-color:rgba(255,255,255,.2);color:#9db3cc;}
+.trd-btn-sm.ghost:hover{border-color:rgba(255,255,255,.4);color:#fff;}
+.trd-btn-sm.blue{background:#0d6efd;border-color:#0d6efd;color:#fff;}
+.trd-btn-sm.blue:hover{background:#0b5ed7;}
+
+/* ── Not Found ── */
+.trd-nf{text-align:center;padding:100px 24px;color:#1a2a40;}
+.trd-nf-ico{font-size:60px;margin-bottom:16px;}
+
+/* ── Page wrapper ── */
+.trd-page{max-width:1200px;margin:0 auto;padding:28px 24px 0;}
+
+/* ── Hero card ── */
+.trd-hero{background:linear-gradient(135deg,#0a1628 0%,#0d2347 50%,#0a1e3d 100%);border-radius:18px;padding:28px 32px;margin-bottom:24px;position:relative;overflow:hidden;}
+.trd-hero::before{content:'';position:absolute;top:-60px;right:-60px;width:220px;height:220px;border-radius:50%;background:rgba(13,110,253,.1);pointer-events:none;}
+.trd-hero::after{content:'';position:absolute;bottom:-40px;left:30%;width:160px;height:160px;border-radius:50%;background:rgba(13,110,253,.06);pointer-events:none;}
+.trd-hero-top{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:24px;position:relative;z-index:1;}
+.trd-hero-ref{font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:900;color:#fff;letter-spacing:-1px;}
+.trd-hero-name{color:#7a9cc0;font-size:13px;margin-top:4px;}
+.trd-type-pill{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:99px;font-size:12px;font-weight:700;border:1px solid rgba(255,255,255,.15);color:#e2e8f0;background:rgba(255,255,255,.07);margin-top:6px;}
+.trd-hero-badges{display:flex;flex-direction:column;align-items:flex-end;gap:8px;}
+.trd-status-badge{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:99px;font-size:13px;font-weight:800;white-space:nowrap;}
+.trd-status-badge.draft{background:rgba(108,117,125,.15);border:1px solid rgba(108,117,125,.4);color:#ced4da;}
+.trd-status-badge.in_transit,.trd-status-badge.acd_submitted,.trd-status-badge.submitted{background:rgba(13,110,253,.15);border:1px solid rgba(13,110,253,.4);color:#6ea8fe;}
+.trd-status-badge.arrived,.trd-status-badge.customs_review,.trd-status-badge.inspection,.trd-status-badge.duty_payment{background:rgba(253,126,20,.12);border:1px solid rgba(253,126,20,.4);color:#fda04a;}
+.trd-status-badge.cleared,.trd-status-badge.released,.trd-status-badge.delivered{background:rgba(25,135,84,.15);border:1px solid rgba(25,135,84,.4);color:#75dc9a;}
+.trd-status-badge.refused,.trd-status-badge.cancelled{background:rgba(220,53,69,.12);border:1px solid rgba(220,53,69,.4);color:#f08a94;}
+.trd-badge-dot{width:8px;height:8px;border-radius:50%;background:currentColor;animation:pulse 2s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
+.trd-eta-pill{padding:6px 14px;border-radius:8px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:#e2e8f0;font-size:13px;font-weight:600;}
+.trd-eta-pill span{color:#7a9cc0;font-size:11px;display:block;font-weight:400;}
+
+/* ── Progress ── */
+.trd-progress-wrap{position:relative;z-index:1;}
+.trd-progress-label{display:flex;justify-content:space-between;margin-bottom:8px;}
+.trd-progress-label span{font-size:11px;font-weight:700;color:#7a9cc0;text-transform:uppercase;letter-spacing:.5px;}
+.trd-progress-label strong{font-size:14px;font-weight:800;color:#fff;}
+.trd-progress-bar-bg{height:10px;background:rgba(255,255,255,.1);border-radius:99px;overflow:hidden;}
+.trd-progress-bar-fill{height:100%;border-radius:99px;transition:width 1.2s cubic-bezier(.4,0,.2,1);background:linear-gradient(90deg,#0d6efd,#38bdf8);}
+.trd-progress-steps{display:flex;justify-content:space-between;margin-top:10px;}
+.trd-ps{font-size:9px;font-weight:700;color:#3a5580;text-align:center;text-transform:uppercase;letter-spacing:.3px;}
+.trd-ps.done{color:#38bdf8;}
+.trd-ps.active{color:#fff;}
+
+/* ── Grid ── */
+.trd-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:20px;}
+.trd-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;}
+@media(max-width:900px){.trd-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:600px){.trd-grid,.trd-grid-2{grid-template-columns:1fr;}}
+
+/* ── Cards ── */
+.trd-card{background:#fff;border-radius:16px;padding:22px 24px;box-shadow:0 2px 16px rgba(0,0,0,.07);border:1px solid #e8eef5;}
+.trd-card-title{font-size:11px;font-weight:800;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:16px;display:flex;align-items:center;gap:8px;padding-bottom:10px;border-bottom:1px solid #f0f4f8;}
+.trd-card-title i{width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;}
+.trd-card-title i.blue{background:#dbeafe;color:#1d4ed8;}
+.trd-card-title i.green{background:#d1fae5;color:#065f46;}
+.trd-card-title i.orange{background:#ffedd5;color:#c2410c;}
+.trd-card-title i.purple{background:#ede9fe;color:#6d28d9;}
+
+/* ── Info rows ── */
+.trd-row{display:flex;justify-content:space-between;align-items:flex-start;padding:7px 0;border-bottom:1px solid #f0f4f8;font-size:13px;gap:12px;}
+.trd-row:last-child{border:none;padding-bottom:0;}
+.trd-rk{color:#94a3b8;font-weight:600;white-space:nowrap;flex-shrink:0;}
+.trd-rv{color:#0f172a;font-weight:600;text-align:right;word-break:break-word;}
+.trd-rv.mono{font-family:'JetBrains Mono',monospace;font-size:12px;color:#1e40af;}
+.trd-rv.green{color:#059669;}
+.trd-rv.blue{color:#1d4ed8;}
+
+/* ── Stat mini cards ── */
+.trd-stat{background:#fff;border-radius:14px;padding:18px 20px;box-shadow:0 2px 12px rgba(0,0,0,.06);border:1px solid #e8eef5;text-align:center;}
+.trd-stat-ico{font-size:24px;margin-bottom:8px;}
+.trd-stat-val{font-size:20px;font-weight:900;color:#0f172a;letter-spacing:-1px;}
+.trd-stat-lbl{font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;margin-top:3px;}
+
+/* ── Map ── */
+.trd-map-card{background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,.07);border:1px solid #e8eef5;margin-bottom:20px;}
+.trd-map-header{padding:16px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #f0f4f8;}
+.trd-map-title{font-size:12px;font-weight:800;color:#64748b;text-transform:uppercase;letter-spacing:1px;display:flex;align-items:center;gap:8px;}
+.trd-map-live{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:#059669;background:#d1fae5;padding:4px 10px;border-radius:99px;}
+.trd-map-live-dot{width:7px;height:7px;border-radius:50%;background:#059669;animation:pulse 1.5s ease-in-out infinite;}
+#trd-map{height:380px;width:100%;}
+.trd-map-footer{padding:12px 24px;background:#f8fafc;display:flex;gap:20px;flex-wrap:wrap;}
+.trd-map-legend{display:flex;align-items:center;gap:6px;font-size:12px;color:#64748b;font-weight:500;}
+.trd-map-dot{width:10px;height:10px;border-radius:50%;}
+.trd-map-dot.origin{background:#0d6efd;}
+.trd-map-dot.current{background:#f97316;}
+.trd-map-dot.dest{background:#059669;}
+
+/* ── Timeline ── */
+.trd-timeline-card{background:#fff;border-radius:16px;padding:24px;box-shadow:0 2px 16px rgba(0,0,0,.07);border:1px solid #e8eef5;margin-bottom:20px;}
+.trd-tl{position:relative;padding-left:36px;}
+.trd-tl::before{content:'';position:absolute;left:15px;top:8px;bottom:8px;width:2px;background:linear-gradient(180deg,#e8eef5 0%,#e8eef5 100%);border-radius:2px;}
+.trd-tl-item{position:relative;padding:0 0 28px 20px;opacity:0;transform:translateX(-16px);transition:all .4s ease;}
+.trd-tl-item.visible{opacity:1;transform:translateX(0);}
+.trd-tl-item:last-child{padding-bottom:0;}
+.trd-tl-dot{position:absolute;left:-21px;top:2px;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.15);z-index:1;}
+.trd-tl-dot.done{background:#0d6efd;color:#fff;}
+.trd-tl-dot.active{background:#f97316;color:#fff;box-shadow:0 0 0 4px rgba(249,115,22,.2);}
+.trd-tl-dot.pending{background:#f0f4f8;color:#94a3b8;border-color:#e8eef5;}
+.trd-tl-time{font-size:11px;color:#94a3b8;font-weight:500;margin-bottom:3px;}
+.trd-tl-title{font-size:14px;font-weight:700;color:#0f172a;margin-bottom:3px;}
+.trd-tl-loc{font-size:12px;color:#64748b;display:flex;align-items:center;gap:5px;}
+
+/* ── Containers table ── */
+.trd-table{width:100%;border-collapse:collapse;font-size:13px;}
+.trd-table th{text-align:left;color:#64748b;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:8px 12px;background:#f8fafc;border-bottom:2px solid #e8eef5;}
+.trd-table td{padding:10px 12px;border-bottom:1px solid #f0f4f8;color:#0f172a;vertical-align:middle;}
+.trd-table tr:last-child td{border:none;}
+.trd-table .mono{font-family:'JetBrains Mono',monospace;font-size:12px;color:#1e40af;font-weight:700;}
+.trd-container-badge{display:inline-flex;padding:3px 8px;border-radius:6px;font-size:10px;font-weight:700;background:#dbeafe;color:#1d4ed8;}
+
+/* ── Bottom nav ── */
+.trd-nav{display:flex;gap:10px;justify-content:center;margin-top:32px;flex-wrap:wrap;}
+.trd-nav-btn{padding:11px 22px;border-radius:10px;font-size:13px;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:7px;transition:all .2s;}
+.trd-nav-btn.secondary{background:#fff;border:1px solid #e2e8f0;color:#64748b;}
+.trd-nav-btn.secondary:hover{border-color:#0d6efd;color:#0d6efd;}
+.trd-nav-btn.primary{background:#0d6efd;color:#fff;}
+.trd-nav-btn.primary:hover{background:#0b5ed7;}
+.trd-nav-btn.green{background:#059669;color:#fff;}
+.trd-nav-btn.green:hover{background:#047857;}
+
+@media(max-width:640px){
+  .trd-hero{padding:20px 18px;}
+  .trd-hero-ref{font-size:22px;}
+  .trd-page{padding:16px 12px 0;}
+  #trd-map{height:260px;}
+}
+</style>
+
+<div class="trd">
+
+  <!-- ── Topbar ── -->
+  <div class="trd-topbar">
+    <div class="trd-topbar-inner">
+      <div class="trd-brand">
+        <div class="trd-brand-ico"><i class="fa fa-ship"/></div>
+        <div>
+          <strong>Customs Clearance KSA</strong>
+          <span>&#x627;&#x644;&#x62A;&#x62E;&#x644;&#x64A;&#x635; &#x627;&#x644;&#x62C;&#x645;&#x631;&#x643;&#x64A;</span>
+        </div>
+      </div>
+      <div class="trd-topbar-links">
+        <a href="/customs-portal/search" class="trd-btn-sm ghost"><i class="fa fa-search"/> My Requests</a>
+        <a href="/customs-portal/status" class="trd-btn-sm ghost"><i class="fa fa-map-marker"/> Track</a>
+        <a href="/customs-portal/register" class="trd-btn-sm blue"><i class="fa fa-plus"/> New Request</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Not Found ── -->
+  <t t-if="not found">
+    <div class="trd-nf">
+      <div class="trd-nf-ico">&#x1F6A2;</div>
+      <h2>Shipment Not Found</h2>
+      <p style="color:#64748b;">No tracking data found for token: <strong t-esc="token"/></p>
+      <div class="trd-nav" style="margin-top:20px;">
+        <a href="/customs-portal/status" class="trd-nav-btn primary">&#x2190; Try Another</a>
+      </div>
+    </div>
+  </t>
+
+  <t t-else="">
+  <div class="trd-page">
+
+    <!-- ════════════ HERO ════════════ -->
+    <div class="trd-hero">
+
+      <div class="trd-hero-top">
+        <div>
+          <div class="trd-hero-ref" t-esc="req.name"/>
+          <div class="trd-hero-name">
+            <t t-esc="req.requester_company or req.requester_name"/>
+          </div>
+          <div class="trd-type-pill">
+            <t t-if="shipment and shipment.shipment_type == 'sea'"><i class="fa fa-ship"/> Sea Freight</t>
+            <t t-elif="shipment and shipment.shipment_type == 'air'"><i class="fa fa-plane"/> Air Freight</t>
+            <t t-elif="shipment and shipment.shipment_type == 'road'"><i class="fa fa-truck"/> Road Freight</t>
+            <t t-elif="shipment and shipment.shipment_type == 'rail'"><i class="fa fa-train"/> Rail Freight</t>
+            <t t-else=""><i class="fa fa-box"/> Customs Clearance</t>
+          </div>
+        </div>
+
+        <div class="trd-hero-badges">
+          <!-- Status badge -->
+          <t t-if="shipment">
+            <t t-set="sbadge" t-value="shipment.state"/>
+            <div t-attf-class="trd-status-badge #{sbadge}">
+              <span class="trd-badge-dot"/>
+              <t t-if="sbadge == 'draft'">Booking Created</t>
+              <t t-elif="sbadge == 'in_transit'">In Transit</t>
+              <t t-elif="sbadge == 'arrived'">Arrived at Port</t>
+              <t t-elif="sbadge == 'cleared'">Customs Cleared</t>
+              <t t-else="">Delivered</t>
+            </div>
+          </t>
+          <t t-elif="clearance">
+            <t t-set="sbadge" t-value="clearance.state"/>
+            <div t-attf-class="trd-status-badge #{sbadge}">
+              <span class="trd-badge-dot"/>
+              <t t-if="sbadge == 'draft'">Submitted</t>
+              <t t-elif="sbadge == 'acd_submitted'">ACD Filed</t>
+              <t t-elif="sbadge == 'submitted'">FASAH Filed</t>
+              <t t-elif="sbadge == 'customs_review'">Under Review</t>
+              <t t-elif="sbadge == 'inspection'">Inspection</t>
+              <t t-elif="sbadge == 'duty_payment'">Duty Payment</t>
+              <t t-elif="sbadge == 'released'">Released</t>
+              <t t-elif="sbadge == 'delivered'">Delivered</t>
+              <t t-else="">Processing</t>
+            </div>
+          </t>
+          <t t-else="">
+            <div class="trd-status-badge draft"><span class="trd-badge-dot"/> Under Review</div>
+          </t>
+
+          <!-- ETA pill -->
+          <t t-if="shipment and shipment.eta">
+            <div class="trd-eta-pill">
+              <span>ETA</span>
+              <t t-esc="shipment.eta"/>
+            </div>
+          </t>
+        </div>
+      </div>
+
+      <!-- Progress bar -->
+      <div class="trd-progress-wrap">
+        <div class="trd-progress-label">
+          <span>Shipment Progress</span>
+          <strong><t t-esc="progress"/>%</strong>
+        </div>
+        <div class="trd-progress-bar-bg">
+          <div class="trd-progress-bar-fill" t-attf-style="width:#{progress}%"/>
+        </div>
+        <div class="trd-progress-steps">
+          <span t-attf-class="trd-ps #{progress >= 5 and 'done' or ''}">Booked</span>
+          <span t-attf-class="trd-ps #{progress >= 40 and 'done' or (progress >= 5 and 'active' or '')}">In Transit</span>
+          <span t-attf-class="trd-ps #{progress >= 65 and 'done' or (progress >= 40 and 'active' or '')}">At Port</span>
+          <span t-attf-class="trd-ps #{progress >= 85 and 'done' or (progress >= 65 and 'active' or '')}">Customs</span>
+          <span t-attf-class="trd-ps #{progress >= 100 and 'done' or (progress >= 85 and 'active' or '')}">Delivered</span>
+        </div>
+      </div>
+
+    </div>
+    <!-- /hero -->
+
+    <!-- ════════════ STAT MINI CARDS ════════════ -->
+    <div class="trd-grid" style="margin-bottom:20px;">
+
+      <div class="trd-stat">
+        <div class="trd-stat-ico">&#x2693;</div>
+        <div class="trd-stat-val" style="font-size:15px;font-family:'JetBrains Mono',monospace;">
+          <t t-if="shipment and shipment.bill_of_lading_no" t-esc="shipment.bill_of_lading_no"/>
+          <t t-elif="req.bill_of_lading_no" t-esc="req.bill_of_lading_no"/>
+          <t t-else="">—</t>
+        </div>
+        <div class="trd-stat-lbl">Bill of Lading</div>
+      </div>
+
+      <div class="trd-stat">
+        <div class="trd-stat-ico">&#x1F4E6;</div>
+        <div class="trd-stat-val">
+          <t t-if="shipment and shipment.packages_count" t-esc="shipment.packages_count"/>
+          <t t-elif="clearance">1</t>
+          <t t-else="">—</t>
+        </div>
+        <div class="trd-stat-lbl">Packages</div>
+      </div>
+
+      <div class="trd-stat">
+        <div class="trd-stat-ico">&#x2696;</div>
+        <div class="trd-stat-val">
+          <t t-if="shipment and shipment.gross_weight">
+            <t t-esc="'%.0f' % shipment.gross_weight"/> <small style="font-size:11px;color:#94a3b8;">kg</small>
+          </t>
+          <t t-else="">—</t>
+        </div>
+        <div class="trd-stat-lbl">Gross Weight</div>
+      </div>
+
+    </div>
+
+    <!-- ════════════ MAP ════════════ -->
+    <div class="trd-map-card">
+      <div class="trd-map-header">
+        <div class="trd-map-title">
+          <i class="fa fa-globe" style="color:#0d6efd;margin-right:4px;font-size:14px;"/>
+          Live Route Map
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;">
+          <div class="trd-map-live">
+            <div class="trd-map-live-dot"/>
+            Live
+          </div>
+          <button onclick="scrollToMap()" class="trd-btn-sm blue" style="border:none;cursor:pointer;font-size:11px;">
+            <i class="fa fa-crosshairs"/> Track Live
+          </button>
+        </div>
+      </div>
+      <div id="trd-map"/>
+      <div class="trd-map-footer">
+        <div class="trd-map-legend"><div class="trd-map-dot origin"/> Origin Port</div>
+        <div class="trd-map-legend"><div class="trd-map-dot current"/> Current Position</div>
+        <div class="trd-map-legend"><div class="trd-map-dot dest"/> Destination</div>
+      </div>
+    </div>
+
+    <!-- ════════════ SHIPMENT INFO ════════════ -->
+    <div class="trd-grid-2" style="margin-bottom:20px;">
+
+      <!-- Route card -->
+      <div class="trd-card">
+        <div class="trd-card-title">
+          <i class="fa fa-map-signs blue"/>
+          Route Details — مسار الشحنة
+        </div>
+        <div class="trd-row">
+          <span class="trd-rk">Origin Port</span>
+          <span class="trd-rv green">
+            <t t-if="shipment and shipment.port_origin_id" t-esc="shipment.port_origin_id.name"/>
+            <t t-elif="req.port_of_loading" t-esc="req.port_of_loading"/>
+            <t t-else="">—</t>
+          </span>
+        </div>
+        <div class="trd-row">
+          <span class="trd-rk">Destination Port</span>
+          <span class="trd-rv blue">
+            <t t-if="shipment and shipment.port_destination_id" t-esc="shipment.port_destination_id.name"/>
+            <t t-elif="req.port_of_discharge" t-esc="req.port_of_discharge"/>
+            <t t-else="">—</t>
+          </span>
+        </div>
+        <div class="trd-row">
+          <span class="trd-rk">Clearance Type</span>
+          <span class="trd-rv">
+            <t t-if="clearance">
+              <t t-esc="dict(clearance.fields_get(['clearance_type'])['clearance_type']['selection'])[clearance.clearance_type]"/>
+            </t>
+            <t t-else=""><t t-esc="req.clearance_type or '—'"/></t>
+          </span>
+        </div>
+        <div class="trd-row">
+          <span class="trd-rk">Departure</span>
+          <span class="trd-rv">
+            <t t-if="shipment and shipment.departure_date" t-esc="shipment.departure_date"/>
+            <t t-else="">—</t>
+          </span>
+        </div>
+        <div class="trd-row">
+          <span class="trd-rk">ETA</span>
+          <span class="trd-rv" style="font-weight:800;">
+            <t t-if="shipment and shipment.eta" t-esc="shipment.eta"/>
+            <t t-elif="req.eta" t-esc="req.eta"/>
+            <t t-else="">—</t>
+          </span>
+        </div>
+        <div class="trd-row">
+          <span class="trd-rk">Actual Arrival</span>
+          <span class="trd-rv">
+            <t t-if="shipment and shipment.actual_arrival_date" t-esc="shipment.actual_arrival_date"/>
+            <t t-else="">—</t>
+          </span>
+        </div>
+      </div>
+
+      <!-- Vessel / Carrier card -->
+      <div class="trd-card">
+        <div class="trd-card-title">
+          <i class="fa fa-ship orange"/>
+          Vessel &amp; Carrier — السفينة والناقل
+        </div>
+        <div class="trd-row">
+          <span class="trd-rk">Vessel / Carrier</span>
+          <span class="trd-rv">
+            <t t-if="shipment and shipment.vessel_name" t-esc="shipment.vessel_name"/>
+            <t t-elif="req.vessel_name" t-esc="req.vessel_name"/>
+            <t t-else="">—</t>
+          </span>
+        </div>
+        <div class="trd-row">
+          <span class="trd-rk">Voyage / Flight No.</span>
+          <span class="trd-rv mono">
+            <t t-if="shipment and shipment.voyage_number" t-esc="shipment.voyage_number"/>
+            <t t-else="">—</t>
+          </span>
+        </div>
+        <div class="trd-row">
+          <span class="trd-rk">Master BL No.</span>
+          <span class="trd-rv mono">
+            <t t-if="shipment and shipment.master_bl_no" t-esc="shipment.master_bl_no"/>
+            <t t-elif="shipment and shipment.bill_of_lading_no" t-esc="shipment.bill_of_lading_no"/>
+            <t t-else="">—</t>
+          </span>
+        </div>
+        <div class="trd-row">
+          <span class="trd-rk">Shipper</span>
+          <span class="trd-rv">
+            <t t-if="shipment and shipment.shipper_id" t-esc="shipment.shipper_id.name"/>
+            <t t-else="">—</t>
+          </span>
+        </div>
+        <div class="trd-row">
+          <span class="trd-rk">Consignee</span>
+          <span class="trd-rv">
+            <t t-if="shipment and shipment.consignee_id" t-esc="shipment.consignee_id.name"/>
+            <t t-else=""><t t-esc="req.requester_company or req.requester_name"/></t>
+          </span>
+        </div>
+        <div class="trd-row">
+          <span class="trd-rk">Volume (CBM)</span>
+          <span class="trd-rv">
+            <t t-if="shipment and shipment.volume" t-esc="'%.2f' % shipment.volume"/>
+            <t t-elif="req.volume" t-esc="req.volume"/>
+            <t t-else="">—</t>
+          </span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ════════════ CUSTOMS INFO ════════════ -->
+    <t t-if="clearance">
+    <div class="trd-card" style="margin-bottom:20px;">
+      <div class="trd-card-title">
+        <i class="fa fa-university green"/>
+        Customs Clearance Details — تفاصيل التخليص
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:0;">
+        <div class="trd-row" style="padding:8px 16px 8px 0;">
+          <span class="trd-rk">Clearance Ref.</span>
+          <span class="trd-rv mono" t-esc="clearance.name"/>
+        </div>
+        <div class="trd-row" style="padding:8px 16px 8px 16px;">
+          <span class="trd-rk">ACD Reference</span>
+          <span class="trd-rv mono" t-esc="clearance.acd_reference_no or '—'"/>
+        </div>
+        <div class="trd-row" style="padding:8px 16px 8px 0;">
+          <span class="trd-rk">FASAH Declaration</span>
+          <span class="trd-rv mono" t-esc="clearance.fasah_declaration_no or '—'"/>
+        </div>
+        <div class="trd-row" style="padding:8px 16px 8px 16px;">
+          <span class="trd-rk">Customs Declaration</span>
+          <span class="trd-rv mono" t-esc="clearance.customs_declaration_no or '—'"/>
+        </div>
+        <div class="trd-row" style="padding:8px 16px 8px 0;">
+          <span class="trd-rk">MASAR Tracking</span>
+          <span class="trd-rv mono" t-esc="clearance.masar_tracking_no or '—'"/>
+        </div>
+        <div class="trd-row" style="padding:8px 16px 8px 16px;">
+          <span class="trd-rk">Release Permit</span>
+          <span class="trd-rv mono" t-esc="clearance.release_permit_no or '—'"/>
+        </div>
+        <div class="trd-row" style="padding:8px 16px 8px 0;">
+          <span class="trd-rk">Customs Office</span>
+          <span class="trd-rv" t-esc="clearance.customs_office or '—'"/>
+        </div>
+        <div class="trd-row" style="padding:8px 0 8px 16px;">
+          <span class="trd-rk">Inspection Lane</span>
+          <span class="trd-rv">
+            <t t-if="clearance.inspection_lane == 'red'">
+              <span style="background:#fee2e2;color:#b91c1c;padding:2px 10px;border-radius:6px;font-size:11px;font-weight:700;">&#x1F534; Red Lane</span>
+            </t>
+            <t t-elif="clearance.inspection_lane == 'yellow'">
+              <span style="background:#fef9c3;color:#92400e;padding:2px 10px;border-radius:6px;font-size:11px;font-weight:700;">&#x1F7E1; Yellow Lane</span>
+            </t>
+            <t t-elif="clearance.inspection_lane == 'green'">
+              <span style="background:#dcfce7;color:#166534;padding:2px 10px;border-radius:6px;font-size:11px;font-weight:700;">&#x1F7E2; Green Lane</span>
+            </t>
+            <t t-else="">—</t>
+          </span>
+        </div>
+      </div>
+    </div>
+    </t>
+
+    <!-- ════════════ CONTAINERS ════════════ -->
+    <t t-if="shipment and shipment.container_ids">
+    <div class="trd-card" style="margin-bottom:20px;">
+      <div class="trd-card-title">
+        <i class="fa fa-cube blue"/>
+        Containers — الحاويات
+        <span style="margin-left:auto;background:#dbeafe;color:#1d4ed8;padding:2px 9px;border-radius:99px;font-size:10px;font-weight:700;">
+          <t t-esc="len(shipment.container_ids)"/>
+        </span>
+      </div>
+      <table class="trd-table">
+        <thead>
+          <tr>
+            <th>Container No.</th>
+            <th>Type</th>
+            <th>Seal No.</th>
+            <th>Weight (kg)</th>
+            <th>Volume (CBM)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <t t-foreach="shipment.container_ids" t-as="cnt">
+            <tr>
+              <td><span class="mono" t-esc="cnt.container_number"/></td>
+              <td><span class="trd-container-badge" t-esc="cnt.container_type.upper()"/></td>
+              <td><t t-esc="cnt.seal_number or '—'"/></td>
+              <td><t t-esc="'%.0f' % cnt.gross_weight if cnt.gross_weight else '—'"/></td>
+              <td><t t-esc="'%.2f' % cnt.volume if cnt.volume else '—'"/></td>
+            </tr>
+          </t>
+        </tbody>
+      </table>
+    </div>
+    </t>
+
+    <!-- ════════════ TIMELINE ════════════ -->
+    <div class="trd-timeline-card">
+      <div class="trd-card-title" style="margin-bottom:20px;">
+        <i class="fa fa-history purple"/>
+        Shipment Timeline — مراحل الشحنة
+      </div>
+
+      <t t-if="timeline">
+      <div class="trd-tl" id="trd-timeline">
+        <t t-foreach="timeline" t-as="ev">
+          <div class="trd-tl-item">
+            <div t-attf-class="trd-tl-dot #{ev.get('active') and 'active' or (ev.get('done') and 'done' or 'pending')}"
+                 t-attf-style="background:#{ev.get('color','#0d6efd')};color:#fff;">
+              <i t-attf-class="fa #{ev.get('icon','fa-circle')}" style="font-size:10px;"/>
+            </div>
+            <div class="trd-tl-time">
+              <t t-if="ev.get('date')"><t t-esc="str(ev['date'])"/></t>
+              <t t-if="ev.get('time')"> &#x2022; <t t-esc="ev['time']"/></t>
+            </div>
+            <div class="trd-tl-title" t-esc="ev.get('description', '')"/>
+            <div class="trd-tl-loc">
+              <i class="fa fa-map-marker" style="font-size:10px;color:#94a3b8;"/>
+              <t t-esc="ev.get('location', '')"/>
+            </div>
+          </div>
+        </t>
+      </div>
+      </t>
+      <t t-else="">
+        <div style="text-align:center;padding:40px 20px;color:#94a3b8;">
+          <i class="fa fa-clock-o" style="font-size:32px;margin-bottom:10px;display:block;"/>
+          Timeline will appear as your shipment progresses.
+        </div>
+      </t>
+    </div>
+
+    <!-- ════════════ BOTTOM NAV ════════════ -->
+    <div class="trd-nav">
+      <a t-attf-href="/customs-portal/status/#{token}" class="trd-nav-btn secondary">
+        <i class="fa fa-file-text"/> Full Status
+      </a>
+      <a href="/customs-portal/search" class="trd-nav-btn secondary">
+        <i class="fa fa-search"/> My Requests
+      </a>
+      <a href="/customs-portal/status" class="trd-nav-btn secondary">
+        <i class="fa fa-arrow-left"/> Track Another
+      </a>
+      <a href="/customs-portal/register" class="trd-nav-btn green">
+        <i class="fa fa-plus"/> New Request
+      </a>
+    </div>
+
+  </div><!-- /trd-page -->
+  </t><!-- /t-else found -->
+
+</div><!-- /trd -->
+
+<!-- ── Scripts ── -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"/>
+<script type="text/javascript">
+//<![CDATA[
+
+/* ── Map initialisation ── */
+(function() {
+    var originCoords  = <t t-out="json.dumps(origin_coords)"/>;
+    var destCoords    = <t t-out="json.dumps(dest_coords)"/>;
+    var currentCoords = <t t-out="json.dumps(current_coords)"/>;
+    var progress      = <t t-out="progress"/>;
+
+    var mapEl = document.getElementById('trd-map');
+    if (!mapEl) { return; }
+
+    /* Centre map between origin and destination */
+    var centerLat = (originCoords[0] + destCoords[0]) / 2;
+    var centerLon = (originCoords[1] + destCoords[1]) / 2;
+
+    /* Auto zoom based on distance */
+    var latDiff = Math.abs(originCoords[0] - destCoords[0]);
+    var lonDiff = Math.abs(originCoords[1] - destCoords[1]);
+    var maxDiff = Math.max(latDiff, lonDiff);
+    var zoom = maxDiff > 80 ? 3 : maxDiff > 30 ? 4 : maxDiff > 10 ? 5 : 6;
+
+    var map = L.map('trd-map', { zoomControl: true, scrollWheelZoom: false }).setView([centerLat, centerLon], zoom);
+
+    /* OpenStreetMap tiles — no API key needed */
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&#169; OpenStreetMap contributors',
+        maxZoom: 18,
+    }).addTo(map);
+
+    /* Custom marker icons */
+    function makeIcon(color, emoji) {
+        return L.divIcon({
+            className: '',
+            html: '<div style="background:' + color + ';width:36px;height:36px;border-radius:50%;border:3px solid #fff;box-shadow:0 4px 12px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;font-size:16px;">' + emoji + '</div>',
+            iconSize: [36, 36],
+            iconAnchor: [18, 18],
+            popupAnchor: [0, -20],
+        });
+    }
+
+    /* Origin marker */
+    L.marker(originCoords, { icon: makeIcon('#0d6efd', '&#x1F7E6;') })
+        .addTo(map)
+        .bindPopup('<strong>&#x1F4CD; Origin Port</strong><br/>Departure point');
+
+    /* Destination marker */
+    L.marker(destCoords, { icon: makeIcon('#059669', '&#x1F3C1;') })
+        .addTo(map)
+        .bindPopup('<strong>&#x1F3C1; Destination Port</strong><br/>Delivery point');
+
+    /* Current position marker (only if different from origin/dest) */
+    var sameAsOrigin = (currentCoords[0] === originCoords[0] && currentCoords[1] === originCoords[1]);
+    var sameAsDest   = (currentCoords[0] === destCoords[0]   && currentCoords[1] === destCoords[1]);
+    if (!sameAsOrigin && !sameAsDest) {
+        L.marker(currentCoords, { icon: makeIcon('#f97316', '&#x1F6A2;') })
+            .addTo(map)
+            .bindPopup('<strong>&#x1F4CD; Current Position</strong><br/>Last known location')
+            .openPopup();
+    }
+
+    /* Route polyline */
+    var routePoints = [originCoords, currentCoords, destCoords].filter(function(p, i, arr) {
+        return i === 0 || (p[0] !== arr[i-1][0] || p[1] !== arr[i-1][1]);
+    });
+
+    /* Dashed grey line for full route */
+    L.polyline([originCoords, destCoords], {
+        color: '#cbd5e1', weight: 2, dashArray: '6 6', opacity: .7,
+    }).addTo(map);
+
+    /* Solid blue line for completed portion */
+    if (!sameAsOrigin) {
+        L.polyline([originCoords, currentCoords], {
+            color: '#0d6efd', weight: 3, opacity: .9,
+        }).addTo(map);
+    }
+})();
+
+/* ── Timeline scroll animation ── */
+function animateTimeline() {
+    var items = document.querySelectorAll('.trd-tl-item');
+    var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry, idx) {
+            if (entry.isIntersecting) {
+                var el = entry.target;
+                var delay = parseInt(el.getAttribute('data-idx') || '0') * 80;
+                setTimeout(function() { el.classList.add('visible'); }, delay);
+                observer.unobserve(el);
+            }
+        });
+    }, { threshold: 0.1 });
+    items.forEach(function(item, idx) {
+        item.setAttribute('data-idx', idx);
+        observer.observe(item);
+    });
+}
+
+/* ── Track Live button ── */
+function scrollToMap() {
+    var el = document.getElementById('trd-map');
+    if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    animateTimeline();
+});
+//]]>
+</script>
+
+</t>
+</template>
+</odoo>

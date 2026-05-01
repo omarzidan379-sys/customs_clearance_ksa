@@ -19,10 +19,8 @@
                                   class="oe_stat_button" icon="fa-file">
                               <field name="clearance_count" widget="statinfo" string="Clearances"/>
                           </button>
-                          <button type="action"
-                                  class="oe_stat_button"
-                                  icon="fa-cube"
-                                  name="%(customs_clearance_ksa.action_customs_clearance)d">
+                          <button class="oe_stat_button" icon="fa-cube" type="object"
+                                  name="action_view_clearances" invisible="1">
                               <field name="container_count" widget="statinfo" string="Containers"/>
                           </button>
                       </div>

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+  <!-- Service Invoice sequence: SVC/2024/00001 -->
+  <record id="seq_customs_service_invoice" model="ir.sequence">
+    <field name="name">Customs Service Invoice</field>
+    <field name="code">customs.service.invoice</field>
+    <field name="prefix">SVC/%(year)s/</field>
+    <field name="padding">5</field>
+    <field name="company_id" eval="False"/>
+  </record>
+
+  <!-- Service Invoice portal token sequence -->
+  <record id="seq_customs_service_invoice_portal" model="ir.sequence">
+    <field name="name">Customs Service Invoice Portal Token</field>
+    <field name="code">customs.service.invoice.portal</field>
+    <field name="prefix">SINV-</field>
+    <field name="padding">8</field>
+    <field name="company_id" eval="False"/>
+  </record>
+
+  <!-- Customs Bond sequence: BOND/2024/00001 -->
+  <record id="seq_customs_bond" model="ir.sequence">
+    <field name="name">Customs Bond</field>
+    <field name="code">customs.bond</field>
+    <field name="prefix">BOND/%(year)s/</field>
+    <field name="padding">5</field>
+    <field name="company_id" eval="False"/>
+  </record>
+
+  <!-- Customs Penalty sequence: PEN/2024/00001 -->
+  <record id="seq_customs_penalty" model="ir.sequence">
+    <field name="name">Customs Penalty</field>
+    <field name="code">customs.penalty</field>
+    <field name="prefix">PEN/%(year)s/</field>
+    <field name="padding">5</field>
+    <field name="company_id" eval="False"/>
+  </record>
+
+  <!-- Release Permit auto-sequence: REL/2026/00001 -->
+  <record id="seq_customs_release_permit" model="ir.sequence">
+    <field name="name">Customs Release Permit</field>
+    <field name="code">customs.release.permit</field>
+    <field name="prefix">REL/%(year)s/</field>
+    <field name="padding">5</field>
+    <field name="company_id" eval="False"/>
+  </record>
+
+  <!-- Portal offer token sequence -->
+  <record id="seq_customs_portal_offer" model="ir.sequence">
+    <field name="name">Customs Portal Offer Token</field>
+    <field name="code">customs.portal.offer.token</field>
+    <field name="prefix">OFFER-</field>
+    <field name="padding">8</field>
+    <field name="company_id" eval="False"/>
+  </record>
+
+</odoo>

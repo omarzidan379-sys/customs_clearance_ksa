@@ -48,6 +48,7 @@ New: FASAH, SABER, ACD, 3-lane risk, SADAD, FATOORAH, AEO, Saudi ports & duties.
         'templates/portal_templates.xml',
         'templates/portal_tracking_templates.xml',      # NEW: Live tracking + invoice preview
         'templates/portal_tracking_detail.xml',         # NEW: Modern shipment tracking dashboard
+        'templates/portal_tracking_search.xml',         # NEW: Tracking search landing page
         'templates/homepage_gateway.xml',               # NEW: Gateway homepage (2 buttons)
         'templates/portal_contract_template.xml',       # NEW: Printable service contract page
 

@@ -3,7 +3,7 @@
   <menuitem id="menu_customs_clearance_root"
             name="Customs Clearance KSA / تخليص جمركي"
             sequence="80"
-            groups="customs_clearance_ksa.group_customs_user,customs_clearance_ksa.group_customs_manager"/>
+            groups="customs_clearance.group_customs_user,customs_clearance.group_customs_manager"/>
 
   <menuitem id="menu_customs_portal_main" name="Portal Requests / طلبات البوابة"
             parent="menu_customs_clearance_root" sequence="5"/>
@@ -33,14 +33,104 @@
   <menuitem id="menu_customs_documents" name="All Documents"
             parent="menu_customs_docs_main" action="action_customs_document" sequence="10"/>
 
+  <!-- ══ ACCOUNTING &amp; FINANCE ══════════════════════════════════════════ -->
+  <menuitem id="menu_customs_accounting"
+            name="💰 Accounting &amp; Finance / المحاسبة"
+            parent="menu_customs_clearance_root" sequence="35"/>
+
+  <!-- 1. Customer Invoices -->
+  <menuitem id="menu_acc_invoices_main"
+            name="Customer Invoices / فواتير العملاء"
+            parent="menu_customs_accounting" sequence="10"/>
+  <menuitem id="menu_acc_all_invoices"
+            name="All Invoices — جميع الفواتير"
+            parent="menu_acc_invoices_main"
+            action="action_customs_service_invoice" sequence="10"/>
+  <menuitem id="menu_acc_unpaid_invoices"
+            name="Unpaid — غير مدفوعة"
+            parent="menu_acc_invoices_main"
+            action="action_customs_invoices_unpaid" sequence="20"/>
+
+  <!-- 2. Shipment Costs / Vendor Bills -->
+  <menuitem id="menu_acc_costs_main"
+            name="Vendor Costs / تكاليف الشحنة"
+            parent="menu_customs_accounting" sequence="20"/>
+  <menuitem id="menu_acc_all_costs"
+            name="All Costs — جميع التكاليف"
+            parent="menu_acc_costs_main"
+            action="action_customs_shipment_cost" sequence="10"/>
+  <menuitem id="menu_acc_unpaid_costs"
+            name="Unpaid Costs — تكاليف غير مدفوعة"
+            parent="menu_acc_costs_main"
+            action="action_shipment_costs_unpaid" sequence="20"/>
+
+  <!-- 3. ZATCA Integration -->
+  <menuitem id="menu_acc_zatca"
+            name="ZATCA Integration / زاتكا"
+            parent="menu_customs_accounting" sequence="30"/>
+  <menuitem id="menu_acc_zatca_all"
+            name="ZATCA Invoice Status — حالة الفواتير"
+            parent="menu_acc_zatca"
+            action="action_customs_invoices_zatca" sequence="10"/>
+  <menuitem id="menu_acc_zatca_pending"
+            name="Pending ZATCA — بانتظار الإرسال"
+            parent="menu_acc_zatca"
+            action="action_customs_invoices_zatca_pending" sequence="20"/>
+  <menuitem id="menu_acc_zatca_cleared"
+            name="ZATCA Cleared — معتمد"
+            parent="menu_acc_zatca"
+            action="action_customs_invoices_zatca_cleared" sequence="30"/>
+
+  <!-- 4. Bonds & Guarantees -->
+  <menuitem id="menu_acc_bonds"
+            name="Bonds &amp; Guarantees / الكفالات"
+            parent="menu_customs_accounting" sequence="40"/>
+  <menuitem id="menu_customs_bonds"
+            name="All Bonds — جميع الكفالات"
+            parent="menu_acc_bonds"
+            action="action_customs_bond" sequence="10"/>
+
+  <!-- 5. Penalties & Appeals -->
+  <menuitem id="menu_acc_penalties"
+            name="Penalties &amp; Appeals / الغرامات"
+            parent="menu_customs_accounting" sequence="50"/>
+  <menuitem id="menu_customs_penalties"
+            name="All Penalties — جميع الغرامات"
+            parent="menu_acc_penalties"
+            action="action_customs_penalty" sequence="10"/>
+
+  <!-- 6. Financial Reports -->
+  <menuitem id="menu_acc_reports"
+            name="Financial Reports / التقارير المالية"
+            parent="menu_customs_accounting" sequence="60"/>
+  <menuitem id="menu_acc_profit_report"
+            name="Profit per Shipment — ربح الشحنة"
+            parent="menu_acc_reports"
+            action="action_customs_clearance_profit" sequence="10"/>
+  <menuitem id="menu_acc_cost_analysis"
+            name="Cost Analysis — تحليل التكاليف"
+            parent="menu_acc_reports"
+            action="action_customs_shipment_cost" sequence="20"/>
+
+  <!-- ══ VIP &amp; AEO CLIENTS ══════════════════════════════════════════ -->
+  <menuitem id="menu_customs_vip_main"
+            name="⭐ VIP &amp; AEO Clients"
+            parent="menu_customs_clearance_root" sequence="45"/>
+  <menuitem id="menu_customs_vip"
+            name="VIP / AEO Profiles"
+            parent="menu_customs_vip_main"
+            action="action_customs_vip" sequence="10"/>
+
   <menuitem id="menu_customs_analytics" name="Analytics / التحليلات"
-            parent="menu_customs_clearance_root" sequence="40"/>
-  <menuitem id="menu_customs_dashboard" name="Dashboard"
+            parent="menu_customs_clearance_root" sequence="50"/>
+  <menuitem id="menu_customs_dashboard_analytics" name="Dashboard"
             parent="menu_customs_analytics" action="action_customs_dashboard" sequence="10"/>
+  <menuitem id="menu_customs_analytics_reports" name="Analytics Reports"
+            parent="menu_customs_analytics" action="action_customs_analytics" sequence="20"/>
 
   <menuitem id="menu_customs_config"     name="Configuration / الإعدادات"
             parent="menu_customs_clearance_root" sequence="100"
-            groups="customs_clearance_ksa.group_customs_manager"/>
+            groups="customs_clearance.group_customs_manager"/>
   <menuitem id="menu_customs_ports"      name="Saudi Ports &amp; Customs Offices"
             parent="menu_customs_config" action="action_customs_port" sequence="10"/>
   <menuitem id="menu_customs_brokers"    name="Customs Brokers"
@@ -51,7 +141,5 @@
             parent="menu_customs_config" action="action_customs_duty_type" sequence="40"/>
   <menuitem id="menu_customs_doc_types"  name="Document Types"
             parent="menu_customs_config" action="action_customs_document_type" sequence="50"/>
-  <menuitem id="menu_customs_dashboard" name="Dashboard / لوحة التحكم" parent="menu_customs_clearance_root"
-            action="action_controller_dashboard" sequence="50"/>
 
 </odoo>

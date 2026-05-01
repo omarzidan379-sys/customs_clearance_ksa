@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<template id="report_customs_service_invoice">
+<t t-call="web.html_container">
+<t t-foreach="docs" t-as="o">
+<t t-call="web.external_layout">
+
+<div class="page" style="font-family:'Segoe UI',system-ui,sans-serif; font-size:13px; color:#1e293b;">
+
+  <!-- ══ HEADER BAND ══════════════════════════════════════════════════════ -->
+  <div style="background:linear-gradient(135deg,#0b1b35 0%,#1e3a8a 60%,#0e7490 100%);
+              border-radius:12px; padding:24px 28px; margin-bottom:20px; color:#fff;">
+    <table width="100%">
+      <tr>
+        <td width="60%">
+          <div style="font-size:22px; font-weight:800; letter-spacing:-0.5px;">
+            ⚖ <t t-esc="o.company_id.name"/>
+          </div>
+          <div style="font-size:11px; color:#94a3b8; margin-top:4px; font-family:'Noto Sans Arabic',sans-serif;">
+            نظام التخليص الجمركي للمملكة العربية السعودية
+          </div>
+          <div style="margin-top:12px; font-size:11px; color:#cbd5e1;">
+            <span t-if="o.company_id.vat">VAT: <t t-esc="o.company_id.vat"/></span>
+            <span t-if="o.company_id.phone"> | Tel: <t t-esc="o.company_id.phone"/></span>
+          </div>
+          <!-- Integration badges -->
+          <div style="margin-top:10px; display:flex; gap:8px;">
+            <span style="background:rgba(6,182,212,0.2); border:1px solid rgba(6,182,212,0.4); border-radius:12px; padding:3px 10px; font-size:10px; color:#22d3ee;">● FASAH</span>
+            <span style="background:rgba(124,58,237,0.2); border:1px solid rgba(124,58,237,0.4); border-radius:12px; padding:3px 10px; font-size:10px; color:#a855f7;">● SABER</span>
+            <span style="background:rgba(34,197,94,0.2);  border:1px solid rgba(34,197,94,0.4);  border-radius:12px; padding:3px 10px; font-size:10px; color:#22c55e;">● ZATCA</span>
+          </div>
+        </td>
+        <td width="40%" style="text-align:right; vertical-align:top;">
+          <div style="background:rgba(255,255,255,0.08); border-radius:10px; padding:14px 18px; display:inline-block;">
+            <!-- Invoice type badge -->
+            <div style="font-size:10px; color:#94a3b8; text-transform:uppercase; letter-spacing:1px;">
+              <t t-if="o.zatca_invoice_type == 'standard'">Standard Tax Invoice — فاتورة ضريبية</t>
+              <t t-else="">Simplified Invoice — فاتورة مبسطة</t>
+            </div>
+            <div style="font-size:28px; font-weight:800; color:#fff; margin:6px 0; letter-spacing:-1px;">
+              <t t-esc="o.name"/>
+            </div>
+            <div style="font-size:11px; color:#94a3b8;">
+              Date: <t t-esc="o.invoice_date"/>
+              <t t-if="o.due_date"> | Due: <t t-esc="o.due_date"/></t>
+            </div>
+            <!-- ZATCA status badge -->
+            <div style="margin-top:8px;">
+              <t t-if="o.zatca_status == 'cleared'">
+                <span style="background:#22c55e; color:#fff; border-radius:8px; padding:4px 12px; font-size:11px; font-weight:700;">✓ ZATCA Cleared</span>
+              </t>
+              <t t-elif="o.zatca_status == 'submitted'">
+                <span style="background:#eab308; color:#fff; border-radius:8px; padding:4px 12px; font-size:11px; font-weight:700;">↑ Submitted</span>
+              </t>
+              <t t-elif="o.zatca_status == 'error'">
+                <span style="background:#ef4444; color:#fff; border-radius:8px; padding:4px 12px; font-size:11px; font-weight:700;">✗ Error</span>
+              </t>
+              <t t-else="">
+                <span style="background:#64748b; color:#fff; border-radius:8px; padding:4px 12px; font-size:11px; font-weight:700;">⏸ Pending</span>
+              </t>
+            </div>
+          </div>
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- ══ SELLER / BUYER INFO ══════════════════════════════════════════════ -->
+  <table width="100%" style="margin-bottom:18px; border-radius:8px; overflow:hidden;">
+    <tr>
+      <td width="48%" style="background:#f1f5f9; border-radius:8px; padding:14px 16px; vertical-align:top;">
+        <div style="font-size:10px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:1px; margin-bottom:8px;">
+          SUPPLIER / المورد
+        </div>
+        <div style="font-size:14px; font-weight:700; color:#0f172a;"><t t-esc="o.company_id.name"/></div>
+        <div style="font-size:12px; color:#475569; margin-top:4px;">
+          <t t-if="o.company_id.street"><t t-esc="o.company_id.street"/><br/></t>
+          <t t-if="o.company_id.city"><t t-esc="o.company_id.city"/>, Saudi Arabia<br/></t>
+          <t t-if="o.company_id.vat">VAT No.: <strong><t t-esc="o.company_id.vat"/></strong></t>
+        </div>
+      </td>
+      <td width="4%"/>
+      <td width="48%" style="background:#f0fdf4; border-radius:8px; padding:14px 16px; vertical-align:top;">
+        <div style="font-size:10px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:1px; margin-bottom:8px;">
+          CUSTOMER / العميل
+        </div>
+        <div style="font-size:14px; font-weight:700; color:#0f172a;"><t t-esc="o.partner_id.name"/></div>
+        <div style="font-size:12px; color:#475569; margin-top:4px;">
+          <t t-if="o.partner_id.street"><t t-esc="o.partner_id.street"/><br/></t>
+          <t t-if="o.partner_id.city"><t t-esc="o.partner_id.city"/><br/></t>
+          <t t-if="o.partner_id.vat">VAT No.: <strong><t t-esc="o.partner_id.vat"/></strong></t>
+          <t t-if="not o.partner_id.vat"><span style="color:#ef4444;">VAT: Not Registered</span></t>
+        </div>
+      </td>
+    </tr>
+  </table>
+
+  <!-- ══ CLEARANCE REFERENCE ═════════════════════════════════════════════ -->
+  <t t-if="o.clearance_id">
+  <div style="background:#eff6ff; border:1px solid #bfdbfe; border-radius:8px; padding:10px 16px; margin-bottom:16px; font-size:12px;">
+    🚢 Clearance Order: <strong><t t-esc="o.clearance_id.name"/></strong>
+    <t t-if="o.clearance_id.fasah_declaration_no"> | FASAH: <strong><t t-esc="o.clearance_id.fasah_declaration_no"/></strong></t>
+    <t t-if="o.fatoorah_invoice_no"> | FATOORAH: <strong><t t-esc="o.fatoorah_invoice_no"/></strong></t>
+  </div>
+  </t>
+
+  <!-- ══ INVOICE LINES ════════════════════════════════════════════════════ -->
+  <table width="100%" style="border-collapse:collapse; margin-bottom:16px; font-size:12px;">
+    <thead>
+      <tr style="background:#0b1b35; color:#fff;">
+        <th style="padding:10px 12px; text-align:left; border-radius:8px 0 0 0; font-weight:600;">#</th>
+        <th style="padding:10px 12px; text-align:left; font-weight:600;">Description / الوصف</th>
+        <th style="padding:10px 12px; text-align:left; font-weight:600;">Type</th>
+        <th style="padding:10px 8px; text-align:right; font-weight:600;">Qty</th>
+        <th style="padding:10px 8px; text-align:right; font-weight:600;">Unit Price</th>
+        <th style="padding:10px 8px; text-align:right; font-weight:600;">VAT</th>
+        <th style="padding:10px 12px; text-align:right; border-radius:0 8px 0 0; font-weight:600;">Subtotal</th>
+      </tr>
+    </thead>
+    <tbody>
+      <t t-foreach="o.line_ids" t-as="line">
+      <tr t-attf-style="background: #{ 'white' if line_index % 2 == 0 else '#f8fafc' }; border-bottom:1px solid #e2e8f0;">
+        <td style="padding:10px 12px; color:#64748b;"><t t-esc="line_index + 1"/></td>
+        <td style="padding:10px 12px; font-weight:600; color:#0f172a;"><t t-esc="line.description"/></td>
+        <td style="padding:10px 12px; color:#475569; font-size:11px;">
+          <t t-esc="dict(line.fields_get(['service_type'])['service_type']['selection']).get(line.service_type, line.service_type)"/>
+        </td>
+        <td style="padding:10px 8px; text-align:right;"><t t-esc="line.quantity"/></td>
+        <td style="padding:10px 8px; text-align:right;">
+          <t t-esc="o.currency_id.symbol"/> <t t-esc="'%.2f' % line.unit_price"/>
+        </td>
+        <td style="padding:10px 8px; text-align:right; color:#64748b;">
+          <t t-if="line.vat_exempt"><span style="color:#f59e0b; font-size:10px;">Exempt</span></t>
+          <t t-else="">15%</t>
+        </td>
+        <td style="padding:10px 12px; text-align:right; font-weight:600;">
+          <t t-esc="o.currency_id.symbol"/> <t t-esc="'%.2f' % line.subtotal"/>
+        </td>
+      </tr>
+      </t>
+    </tbody>
+  </table>
+
+  <!-- ══ TOTALS + QR ══════════════════════════════════════════════════════ -->
+  <table width="100%">
+    <tr>
+      <!-- Left: QR Code + SADAD -->
+      <td width="40%" style="vertical-align:top;">
+        <t t-if="o.fatoorah_qr_code">
+        <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:14px; text-align:center;">
+          <div style="font-size:10px; color:#64748b; margin-bottom:8px; font-weight:600; text-transform:uppercase;">
+            ZATCA Phase 1 QR Code
+          </div>
+          <!-- Display QR as barcode widget via report -->
+          <img t-att-src="'data:image/png;base64,' + o.fatoorah_qr_code" style="width:100px; height:100px;" t-if="False"/>
+          <div style="font-family:monospace; font-size:8px; word-break:break-all; color:#475569; max-width:180px; margin:0 auto; background:#fff; padding:8px; border-radius:6px; border:1px solid #e2e8f0;">
+            <t t-esc="(o.fatoorah_qr_code or '')[:80]"/>…
+          </div>
+          <div style="font-size:9px; color:#94a3b8; margin-top:6px;">Scan with Saudi e-Invoice app</div>
+        </div>
+        </t>
+        <t t-if="o.sadad_ref">
+        <div style="margin-top:10px; background:#fefce8; border:1px solid #fef08a; border-radius:8px; padding:10px 14px; font-size:11px;">
+          💳 SADAD Ref: <strong style="color:#92400e;"><t t-esc="o.sadad_ref"/></strong>
+        </div>
+        </t>
+        <t t-if="o.zatca_submission_id">
+        <div style="margin-top:8px; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; padding:10px 14px; font-size:11px;">
+          🛡 Submission ID: <strong style="color:#166534;"><t t-esc="o.zatca_submission_id"/></strong>
+        </div>
+        </t>
+      </td>
+      <td width="10%"/>
+      <!-- Right: Totals table -->
+      <td width="50%" style="vertical-align:top;">
+        <table width="100%" style="font-size:13px;">
+          <tr>
+            <td style="padding:8px 12px; color:#64748b;">Subtotal (excl. VAT) / المجموع قبل الضريبة</td>
+            <td style="padding:8px 12px; text-align:right; font-weight:600;">
+              <t t-esc="o.currency_id.symbol"/> <t t-esc="'%.2f' % o.subtotal"/>
+            </td>
+          </tr>
+          <tr style="background:#f8fafc;">
+            <td style="padding:8px 12px; color:#64748b;">VAT 15% / ضريبة القيمة المضافة</td>
+            <td style="padding:8px 12px; text-align:right; font-weight:600; color:#0e7490;">
+              <t t-esc="o.currency_id.symbol"/> <t t-esc="'%.2f' % o.vat_amount"/>
+            </td>
+          </tr>
+          <tr style="background:#0b1b35; color:#fff; border-radius:8px;">
+            <td style="padding:12px 14px; font-weight:800; font-size:15px; border-radius:8px 0 0 8px;">
+              TOTAL / الإجمالي
+            </td>
+            <td style="padding:12px 14px; text-align:right; font-weight:800; font-size:15px; border-radius:0 8px 8px 0; color:#22d3ee;">
+              <t t-esc="o.currency_id.symbol"/> <t t-esc="'%.2f' % o.total"/>
+            </td>
+          </tr>
+          <t t-if="o.amount_due > 0">
+          <tr>
+            <td style="padding:8px 12px; color:#ef4444; font-weight:600;">Balance Due / المبلغ المستحق</td>
+            <td style="padding:8px 12px; text-align:right; font-weight:700; color:#ef4444;">
+              <t t-esc="o.currency_id.symbol"/> <t t-esc="'%.2f' % o.amount_due"/>
+            </td>
+          </tr>
+          </t>
+          <t t-if="o.state == 'paid'">
+          <tr>
+            <td colspan="2" style="padding:10px 12px; text-align:center;">
+              <span style="background:#22c55e; color:#fff; border-radius:8px; padding:6px 18px; font-size:13px; font-weight:700;">
+                ✓ PAID — مدفوعة
+              </span>
+            </td>
+          </tr>
+          </t>
+        </table>
+        <!-- VAT breakdown note -->
+        <div style="margin-top:12px; background:#eff6ff; border-radius:8px; padding:10px 14px; font-size:11px; color:#1e40af;">
+          📋 This invoice complies with ZATCA Phase 2 (فاتورة إلكترونية — المرحلة الثانية).
+          VAT Registration required per Saudi law (15% standard rate).
+        </div>
+      </td>
+    </tr>
+  </table>
+
+  <!-- ══ FOOTER ═══════════════════════════════════════════════════════════ -->
+  <div style="margin-top:24px; border-top:2px solid #e2e8f0; padding-top:14px;
+              display:flex; justify-content:space-between; align-items:center; font-size:10px; color:#94a3b8;">
+    <div>
+      <strong style="color:#0b1b35;"><t t-esc="o.company_id.name"/></strong>
+      <t t-if="o.company_id.website"> | <t t-esc="o.company_id.website"/></t>
+      <t t-if="o.company_id.email"> | <t t-esc="o.company_id.email"/></t>
+    </div>
+    <div style="text-align:center;">
+      Integrated with FASAH · SABER · ZATCA · SADAD
+    </div>
+    <div style="text-align:right;">
+      Printed: <t t-esc="context_timestamp(datetime.datetime.now()).strftime('%Y-%m-%d %H:%M')"/>
+    </div>
+  </div>
+
+</div>
+</t>
+</t>
+</t>
+</template>
+</odoo>

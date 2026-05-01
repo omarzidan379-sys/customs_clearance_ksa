@@ -574,6 +574,26 @@ class CustomsPortalController(http.Controller):
             return _PROG.get(clearance.state, 10)
         return 0
 
+    @http.route('/customs-portal/tracking', type='http', auth='public', website=True)
+    def portal_tracking_home(self, ref='', **kwargs):
+        """Tracking search landing page — enter reference to look up shipment."""
+        error = None
+        if ref:
+            portal_req = request.env['customs.portal.request'].sudo().search(
+                [('portal_token', '=', ref.strip())], limit=1
+            )
+            if not portal_req:
+                portal_req = request.env['customs.portal.request'].sudo().search(
+                    [('name', '=', ref.strip())], limit=1
+                )
+            if portal_req:
+                return request.redirect('/customs-portal/tracking/' + portal_req.portal_token)
+            error = 'No shipment found for reference: %s' % ref.strip()
+        return request.render('customs_clearance.portal_tracking_search', {
+            'ref': ref,
+            'error': error,
+        })
+
     @http.route('/customs-portal/tracking/<string:token>', type='http', auth='public', website=True)
     def portal_tracking_detail(self, token, **kwargs):
         """Modern shipment tracking dashboard — linked from View Details button."""

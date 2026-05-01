@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+  <!-- ═══ VIP CUSTOMER — FORM ═══════════════════════════════════════════════ -->
+  <record id="view_customs_vip_form" model="ir.ui.view">
+    <field name="name">customs.vip.customer.form</field>
+    <field name="model">customs.vip.customer</field>
+    <field name="arch" type="xml">
+      <form string="VIP / AEO Customer Profile">
+        <sheet>
+          <div class="oe_button_box" name="button_box">
+            <button name="action_view_clearances" type="object"
+                    class="oe_stat_button" icon="fa-ship">
+              <field name="clearance_count" widget="statinfo" string="Clearances"/>
+            </button>
+          </div>
+
+          <widget name="web_ribbon" title="AEO Certified"
+                  bg_color="bg-success" invisible="vip_tier != 'aeo'"/>
+          <widget name="web_ribbon" title="AEO Expired!"
+                  bg_color="bg-danger"  invisible="not aeo_expired"/>
+
+          <div class="oe_title">
+            <label for="partner_id" string="Customer"/>
+            <h1><field name="partner_id" placeholder="Select Customer…"/></h1>
+          </div>
+
+          <group>
+            <group string="VIP Classification">
+              <field name="vip_tier" widget="radio" options="{'horizontal': true}"/>
+              <field name="active" widget="boolean_toggle"/>
+            </group>
+            <group string="Statistics">
+              <field name="clearance_count" readonly="1"/>
+              <field name="total_service_fees" readonly="1"/>
+              <field name="avg_clearance_days" readonly="1" string="Avg. Clearance Days"/>
+            </group>
+          </group>
+
+          <notebook>
+            <page string="Service Benefits" name="benefits">
+              <group>
+                <group string="Processing Benefits">
+                  <field name="priority_processing"/>
+                  <field name="green_lane_preferred"/>
+                  <field name="fast_track_inspection"/>
+                  <field name="dedicated_broker_id"/>
+                </group>
+                <group string="Financial Benefits">
+                  <field name="service_fee_discount"/>
+                  <field name="credit_facility"/>
+                  <field name="credit_limit" invisible="not credit_facility"/>
+                  <field name="duty_payment_days"/>
+                  <field name="currency_id" invisible="1"/>
+                </group>
+              </group>
+            </page>
+
+            <page string="AEO / ZATCA" name="aeo">
+              <group>
+                <group string="AEO Certificate">
+                  <field name="aeo_certificate_no"/>
+                  <field name="aeo_issue_date"/>
+                  <field name="aeo_expiry_date"/>
+                  <field name="aeo_expired" readonly="1"/>
+                  <field name="gcc_aeo_recognized"/>
+                </group>
+                <group string="ZATCA">
+                  <field name="zatca_importer_code"/>
+                </group>
+              </group>
+            </page>
+
+            <page string="Notes" name="notes">
+              <field name="notes" placeholder="Internal notes…" nolabel="1"/>
+            </page>
+          </notebook>
+        </sheet>
+        <div class="oe_chatter">
+          <field name="message_follower_ids"/>
+          <field name="activity_ids"/>
+          <field name="message_ids"/>
+        </div>
+      </form>
+    </field>
+  </record>
+
+  <!-- ═══ VIP CUSTOMER — LIST ════════════════════════════════════════════════ -->
+  <record id="view_customs_vip_list" model="ir.ui.view">
+    <field name="name">customs.vip.customer.list</field>
+    <field name="model">customs.vip.customer</field>
+    <field name="arch" type="xml">
+      <tree string="VIP Customers" decoration-success="vip_tier == 'aeo'"
+            decoration-warning="aeo_expired">
+        <field name="partner_id"/>
+        <field name="vip_tier" widget="badge"
+               decoration-success="vip_tier in ('aeo','diamond')"
+               decoration-warning="vip_tier == 'gold'"
+               decoration-info="vip_tier == 'platinum'"/>
+        <field name="dedicated_broker_id"/>
+        <field name="service_fee_discount" string="Discount %"/>
+        <field name="clearance_count"/>
+        <field name="aeo_certificate_no" optional="show"/>
+        <field name="aeo_expiry_date" optional="show"/>
+        <field name="aeo_expired" invisible="1"/>
+        <field name="priority_processing" optional="show"/>
+        <field name="credit_facility" optional="show"/>
+      </tree>
+    </field>
+  </record>
+
+  <!-- ═══ VIP CUSTOMER — SEARCH ═════════════════════════════════════════════ -->
+  <record id="view_customs_vip_search" model="ir.ui.view">
+    <field name="name">customs.vip.customer.search</field>
+    <field name="model">customs.vip.customer</field>
+    <field name="arch" type="xml">
+      <search string="VIP Customers">
+        <field name="partner_id"/>
+        <field name="aeo_certificate_no"/>
+        <filter string="AEO Certified"   name="aeo"      domain="[('vip_tier','=','aeo')]"/>
+        <filter string="Diamond"         name="diamond"  domain="[('vip_tier','=','diamond')]"/>
+        <filter string="Priority Processing" name="priority" domain="[('priority_processing','=',True)]"/>
+        <filter string="AEO Expired"     name="expired"  domain="[('aeo_expired','=',True)]"/>
+        <group expand="0" string="Group By">
+          <filter name="tier" string="Tier" context="{'group_by': 'vip_tier'}"/>
+        </group>
+      </search>
+    </field>
+  </record>
+
+  <!-- ═══ ACTION ════════════════════════════════════════════════════════════ -->
+  <record id="action_customs_vip" model="ir.actions.act_window">
+    <field name="name">VIP / AEO Customers</field>
+    <field name="res_model">customs.vip.customer</field>
+    <field name="view_mode">list,form</field>
+    <field name="search_view_id" ref="view_customs_vip_search"/>
+    <field name="help" type="html">
+      <p class="o_view_nocontent_smiling_face">
+        Register your first VIP / AEO customer
+      </p>
+      <p>VIP profiles control priority processing, lane preference, and fee discounts
+         per ZATCA's Awlawia (أولويا) AEO programme.</p>
+    </field>
+  </record>
+
+</odoo>

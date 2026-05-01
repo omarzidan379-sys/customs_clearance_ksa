@@ -23,11 +23,16 @@
           <button name="action_red_lane" string="Red Lane" type="object"
                   class="btn-warning"
                   invisible="state != 'submitted'"/>
-          <!-- Inspection done -->
+          <!-- Inspection done → payment -->
           <button name="action_duty_payment" string="Proceed to Payment" type="object"
                   class="btn-primary"
                   invisible="state not in ('customs_review','inspection')"/>
-          <!-- Release -->
+          <!-- Refuse (during review or inspection) -->
+          <button name="action_refuse" string="Refuse / رفض" type="object"
+                  class="btn-danger"
+                  invisible="state not in ('submitted','customs_review','inspection')"
+                  confirm="Mark this declaration as refused by customs? Make sure the refusal reason is filled in."/>
+          <!-- Release (auto-generates permit if not provided) -->
           <button name="action_release" string="Issue Release Permit" type="object"
                   class="btn-primary"
                   invisible="state != 'duty_payment'"/>
@@ -37,11 +42,11 @@
                   invisible="state != 'released'"/>
           <button name="action_cancel" string="Cancel" type="object"
                   class="btn-danger"
-                  invisible="state in ('delivered','cancelled')"/>
+                  invisible="state in ('delivered','refused','cancelled')"/>
           <button name="action_draft" string="Reset to Draft" type="object"
-                  invisible="state != 'cancelled'"/>
+                  invisible="state not in ('cancelled','refused')"/>
           <field name="state" widget="statusbar"
-                 statusbar_visible="draft,acd_submitted,submitted,duty_payment,released,delivered"/>
+                 statusbar_visible="draft,acd_submitted,submitted,customs_review,duty_payment,released,delivered"/>
         </header>
         <sheet>
           <!-- Smart buttons -->
@@ -64,9 +69,10 @@
             </button>
           </div>
 
-          <widget name="web_ribbon" title="Cancelled"          bg_color="bg-danger"  invisible="state != 'cancelled'"/>
-          <widget name="web_ribbon" title="Released ✓"          bg_color="bg-success" invisible="state not in ('released','delivered')"/>
-          <widget name="web_ribbon" title="Red Lane — Inspection" bg_color="bg-warning" invisible="inspection_lane != 'red' or state not in ('inspection','customs_review')"/>
+          <widget name="web_ribbon" title="Cancelled"              bg_color="bg-danger"   invisible="state != 'cancelled'"/>
+          <widget name="web_ribbon" title="Refused by Customs"    bg_color="bg-danger"   invisible="state != 'refused'"/>
+          <widget name="web_ribbon" title="Released ✓"            bg_color="bg-success"  invisible="state not in ('released','delivered')"/>
+          <widget name="web_ribbon" title="Red Lane — Inspection" bg_color="bg-warning"  invisible="inspection_lane != 'red' or state not in ('inspection','customs_review')"/>
 
           <div class="oe_title">
             <label for="name"/>
@@ -100,14 +106,44 @@
                      decoration-muted="payment_status == 'unpaid'"/>
               <field name="broker_id"/>
               <field name="broker_license_no" readonly="1"/>
+              <field name="broker_delegation_expired" invisible="1"/>
               <field name="port_id"/>
               <field name="customs_office_id"/>
             </group>
           </group>
 
+          <!-- ── Risk Warnings ──────────────────────────────────────────── -->
+          <!-- 1. HS Code not reviewed -->
+          <div class="alert alert-warning" role="alert"
+               invisible="hs_code_reviewed or state not in ('draft','acd_submitted')">
+            ⚠️ <strong>HS Codes not reviewed:</strong> Have a certified classifier verify all HS codes before ACD submission to avoid penalties and delays.
+          </div>
+          <!-- 2. Broker delegation expired -->
+          <div class="alert alert-danger" role="alert"
+               invisible="not broker_delegation_expired or not broker_id">
+            🔴 <strong>Broker ZATCA delegation expired:</strong> <field name="broker_id" readonly="1" nolabel="1"/> cannot submit in FASAH. Renew the delegation in the ZATCA portal immediately.
+          </div>
+          <!-- 3. Customs response overdue -->
+          <div class="alert alert-danger" role="alert"
+               invisible="not response_overdue">
+            🔴 <strong>Customs response overdue!</strong> Deadline was <field name="customs_response_deadline" readonly="1" nolabel="1"/>. Assign a dedicated broker to follow up with customs immediately to avoid storage fees.
+          </div>
+          <!-- 4. Payment not confirmed before release -->
+          <div class="alert alert-warning" role="alert"
+               invisible="payment_confirmed or state != 'duty_payment'">
+            ⚠️ <strong>Payment not confirmed:</strong> Confirm payment and enter the SADAD receipt reference before issuing the release permit.
+          </div>
+          <!-- hidden compute fields -->
+          <field name="response_overdue" invisible="1"/>
+          <field name="hs_code_reviewed" invisible="1"/>
+
           <notebook>
             <!-- ── TAB 1: Saudi References ──────────────────────────── -->
             <page string="Saudi References / المراجع السعودية" name="saudi_refs">
+              <group string="HS Code Review / مراجعة الرمز الجمركي">
+                <field name="hs_code_reviewed" widget="boolean_toggle"/>
+                <field name="hs_code_reviewer_id" invisible="not hs_code_reviewed"/>
+              </group>
               <group>
                 <group string="ZATCA / FASAH">
                   <field name="fasah_declaration_no"/>
@@ -126,6 +162,7 @@
                   <field name="airway_bill_no"/>
                   <field name="shipment_id"/>
                   <field name="purchase_order_id"/>
+                  <field name="customs_response_deadline"/>
                 </group>
               </group>
               <group string="SABER Certificates / شهادات سابر">
@@ -134,7 +171,13 @@
                 <field name="saber_scoc_no" invisible="not requires_saber"/>
                 <field name="saber_scoc_expiry" invisible="not requires_saber"/>
                 <field name="saber_scoc_verified" invisible="not requires_saber"/>
+                <field name="saber_scoc_expired" invisible="1"/>
+                <field name="saber_scoc_expiry_warning" invisible="1"/>
               </group>
+              <div class="alert alert-warning"
+                   invisible="not saber_scoc_expired or not requires_saber">
+                  ⚠️ <field name="saber_scoc_expiry_warning" readonly="1" nolabel="1"/>
+              </div>
             </page>
 
             <!-- ── TAB 2: Regulatory Approvals ──────────────────────── -->
@@ -209,6 +252,12 @@
                   <field name="fixed_amount" optional="hide"/>
                 </tree>
               </field>
+              <group string="Payment Confirmation / تأكيد السداد">
+                <group>
+                  <field name="payment_confirmed" widget="boolean_toggle"/>
+                  <field name="payment_receipt_ref" invisible="not payment_confirmed"/>
+                </group>
+              </group>
               <group>
                 <group/>
                 <group>
@@ -272,6 +321,48 @@
                 <field name="zatca_remarks"/>
               </group>
             </page>
+
+            <!-- ── TAB 8: Inspection Result / نتيجة الفحص ──────────────── -->
+            <page string="Inspection / الفحص" name="inspection_tab"
+                  invisible="state not in ('inspection','duty_payment','released','delivered','refused') and not inspection_result">
+              <group string="Refusal / الرفض" invisible="state != 'refused' and not refusal_reason">
+                <field name="refusal_date" readonly="1"/>
+                <field name="refusal_reason"/>
+              </group>
+              <group string="Inspector Details / تفاصيل المفتش">
+                <group>
+                  <field name="inspector_name"/>
+                  <field name="inspection_date"/>
+                  <field name="inspection_result" widget="badge"
+                         decoration-success="inspection_result == 'pass'"
+                         decoration-warning="inspection_result == 'conditional'"
+                         decoration-danger="inspection_result == 'fail'"/>
+                </group>
+              </group>
+              <group string="Inspector Notes / ملاحظات المفتش">
+                <field name="inspection_notes" nolabel="1" placeholder="Record physical inspection findings here..."/>
+              </group>
+            </page>
+
+            <!-- ── TAB 9: Archive &amp; Claims / الأرشيف والمطالبات ──────── -->
+            <page string="Archive &amp; Claims / الأرشيف" name="archive_tab"
+                  invisible="state not in ('delivered','released') and not archive_date">
+              <group string="Document Archive / أرشيف المستندات">
+                <group>
+                  <field name="archive_date" readonly="1"/>
+                  <field name="archive_retention_date" readonly="1"/>
+                  <field name="archive_reference"/>
+                </group>
+              </group>
+              <div class="alert alert-info" invisible="not archive_retention_date">
+                Documents must be retained until <field name="archive_retention_date" readonly="1" nolabel="1"/> (5 years — Saudi Customs Law).
+              </div>
+              <group string="Post-Release Claims / المطالبات اللاحقة">
+                <field name="has_pending_claims" widget="boolean_toggle"/>
+                <field name="claims_notes" nolabel="1" colspan="2"
+                       placeholder="Record any post-release claims, disputes, or follow-up actions here..."/>
+              </group>
+            </page>
           </notebook>
         </sheet>
         <chatter/>
@@ -286,6 +377,7 @@
     <field name="arch" type="xml">
       <tree string="Customs Clearance Orders"
             decoration-muted="state == 'cancelled'"
+            decoration-danger="state == 'refused'"
             decoration-success="state in ('released','delivered')"
             decoration-warning="state in ('duty_payment','inspection')">
         <field name="name"/>
@@ -315,6 +407,7 @@
                decoration-success="state in ('released','delivered')"
                decoration-info="state in ('submitted','customs_review','acd_submitted')"
                decoration-warning="state in ('duty_payment','inspection')"
+               decoration-danger="state in ('refused','cancelled')"
                decoration-muted="state == 'cancelled'"/>
         <field name="priority" widget="priority" optional="show"/>
         <field name="currency_id" column_invisible="True"/>

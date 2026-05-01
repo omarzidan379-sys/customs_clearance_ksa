@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+  <!-- ═══ PENALTY — FORM ════════════════════════════════════════════════════ -->
+  <record id="view_customs_penalty_form" model="ir.ui.view">
+    <field name="name">customs.penalty.form</field>
+    <field name="model">customs.penalty</field>
+    <field name="arch" type="xml">
+      <form string="Customs Penalty / Violation — غرامة جمركية">
+        <header>
+          <button name="action_notify_client"  string="Notify Client"    type="object"
+                  class="btn-primary" invisible="state != 'issued'"/>
+          <button name="action_submit_appeal"  string="Submit Appeal"    type="object"
+                  invisible="state not in ('issued','notified')"/>
+          <button name="action_mark_paid"      string="Mark Paid"        type="object"
+                  class="btn-success" invisible="state not in ('issued','notified')"/>
+          <button name="action_waive"          string="Waive Penalty"    type="object"
+                  invisible="state not in ('issued','notified','appealed')"/>
+          <button name="action_cancel"         string="Cancel"           type="object" class="btn-danger"
+                  invisible="state in ('paid','cancelled','waived')"/>
+          <field name="state" widget="statusbar"
+                 statusbar_visible="issued,notified,paid"/>
+        </header>
+        <sheet>
+          <widget name="web_ribbon" title="PAID ✓"     bg_color="bg-success" invisible="state != 'paid'"/>
+          <widget name="web_ribbon" title="WAIVED"     bg_color="bg-info"    invisible="state != 'waived'"/>
+          <widget name="web_ribbon" title="Under Appeal" bg_color="bg-warning" invisible="state != 'appealed'"/>
+
+          <div class="oe_title">
+            <label for="name"/>
+            <h1><field name="name" readonly="1"/></h1>
+          </div>
+
+          <group>
+            <group string="Violation Details">
+              <field name="violation_type"/>
+              <field name="violation_date"/>
+              <field name="due_date"/>
+              <field name="penalty_amount"/>
+              <field name="final_amount" readonly="1" string="Final Amount Due"
+                     decoration-success="final_amount == 0"
+                     decoration-danger="final_amount &gt; 0"/>
+              <field name="currency_id" invisible="1"/>
+              <field name="zatca_penalty_ref"/>
+            </group>
+            <group string="Related Records">
+              <field name="partner_id"/>
+              <field name="clearance_id"/>
+              <field name="customs_office_id"/>
+            </group>
+          </group>
+
+          <group string="Violation Description">
+            <field name="violation_desc" nolabel="1" placeholder="Describe the violation details…"/>
+          </group>
+
+          <notebook>
+            <page string="Payment" name="payment">
+              <group>
+                <group>
+                  <field name="notice_date"/>
+                  <field name="payment_date"/>
+                  <field name="payment_reference"/>
+                  <field name="sadad_reference"/>
+                </group>
+              </group>
+            </page>
+
+            <page string="Appeal / اعتراض" name="appeal">
+              <group>
+                <group string="Appeal Submission">
+                  <field name="appeal_date"/>
+                  <field name="appeal_deadline"/>
+                  <field name="appeal_submitted_by" readonly="1"/>
+                  <field name="appeal_reason" placeholder="Grounds for appeal…"/>
+                </group>
+                <group string="ZATCA Decision">
+                  <field name="appeal_decision" widget="radio"/>
+                  <field name="appeal_reduction_pct" invisible="appeal_decision != 'reduced'"/>
+                  <field name="appeal_decision_date"/>
+                  <field name="appeal_notes" placeholder="Decision notes…"/>
+                </group>
+              </group>
+            </page>
+
+            <page string="Notes">
+              <field name="notes" nolabel="1"/>
+            </page>
+          </notebook>
+        </sheet>
+        <div class="oe_chatter">
+          <field name="message_follower_ids"/>
+          <field name="activity_ids"/>
+          <field name="message_ids"/>
+        </div>
+      </form>
+    </field>
+  </record>
+
+  <!-- ═══ PENALTY — LIST ════════════════════════════════════════════════════ -->
+  <record id="view_customs_penalty_list" model="ir.ui.view">
+    <field name="name">customs.penalty.list</field>
+    <field name="model">customs.penalty</field>
+    <field name="arch" type="xml">
+      <tree string="Customs Penalties"
+            decoration-success="state in ('paid','waived')"
+            decoration-warning="state == 'appealed'"
+            decoration-danger="state == 'issued' and due_date and due_date &lt; context_today().strftime('%Y-%m-%d')">
+        <field name="name"/>
+        <field name="violation_type"/>
+        <field name="partner_id"/>
+        <field name="clearance_id" optional="show"/>
+        <field name="violation_date"/>
+        <field name="due_date"/>
+        <field name="penalty_amount"/>
+        <field name="final_amount"/>
+        <field name="zatca_penalty_ref" optional="show"/>
+        <field name="state" widget="badge"
+               decoration-success="state in ('paid','waived')"
+               decoration-warning="state == 'appealed'"
+               decoration-danger="state == 'issued'"/>
+      </tree>
+    </field>
+  </record>
+
+  <!-- ═══ PENALTY — SEARCH ══════════════════════════════════════════════════ -->
+  <record id="view_customs_penalty_search" model="ir.ui.view">
+    <field name="name">customs.penalty.search</field>
+    <field name="model">customs.penalty</field>
+    <field name="arch" type="xml">
+      <search string="Customs Penalties">
+        <field name="name"/>
+        <field name="partner_id"/>
+        <field name="clearance_id"/>
+        <field name="zatca_penalty_ref"/>
+        <filter name="issued"   string="Issued"       domain="[('state','=','issued')]"/>
+        <filter name="appealed" string="Under Appeal" domain="[('state','=','appealed')]"/>
+        <filter name="paid"     string="Paid"         domain="[('state','=','paid')]"/>
+        <filter name="waived"   string="Waived"       domain="[('state','=','waived')]"/>
+        <group expand="0" string="Group By">
+          <filter name="by_type"    string="Violation Type" context="{'group_by': 'violation_type'}"/>
+          <filter name="by_partner" string="Party"          context="{'group_by': 'partner_id'}"/>
+          <filter name="by_state"   string="Status"         context="{'group_by': 'state'}"/>
+          <filter name="by_month"   string="Month"          context="{'group_by': 'violation_date:month'}"/>
+        </group>
+      </search>
+    </field>
+  </record>
+
+  <!-- ═══ ACTION ════════════════════════════════════════════════════════════ -->
+  <record id="action_customs_penalty" model="ir.actions.act_window">
+    <field name="name">Customs Penalties — الغرامات الجمركية</field>
+    <field name="res_model">customs.penalty</field>
+    <field name="view_mode">list,form</field>
+    <field name="search_view_id" ref="view_customs_penalty_search"/>
+    <field name="help" type="html">
+      <p class="o_view_nocontent_smiling_face">No penalties recorded</p>
+      <p>Track ZATCA/FASAH customs penalties, manage SADAD payments,
+         and file formal appeals per Saudi customs law.</p>
+    </field>
+  </record>
+
+</odoo>
