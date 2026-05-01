@@ -417,7 +417,15 @@ class CustomsPortalRequest(models.Model):
 
     def _get_tracking_url(self):
         base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url', 'http://localhost')
-        return '%s/customs-portal/status/%s' % (base_url, self.portal_token)
+        return '%s/customs-portal/tracking/%s' % (base_url, self.portal_token)
+
+    def _ensure_portal_token(self):
+        """Backfill any record that lost its portal_token."""
+        if not self.portal_token:
+            token = self.env['ir.sequence'].next_by_code('customs.portal.token') or (
+                'CCK-%s' % self.env['ir.sequence']._next_sequence_code('customs.portal.token')
+            )
+            self.sudo().write({'portal_token': token})
 
     # ── Email Notifications ───────────────────────────────────────────────
     def _send_confirmation_email(self):

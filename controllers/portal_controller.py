@@ -536,7 +536,7 @@ class CustomsPortalController(http.Controller):
                     events.append({
                         'date': msg.date.date() if msg.date else None,
                         'time': msg.date.strftime('%H:%M') if msg.date else '',
-                        'location': clearance.customs_office or 'Saudi Customs',
+                        'location': (clearance.customs_office_id.name if clearance.customs_office_id else '') or 'Saudi Customs',
                         'description': lbl_data[0],
                         'icon': lbl_data[1],
                         'color': lbl_data[2],
@@ -549,7 +549,7 @@ class CustomsPortalController(http.Controller):
             events.append({
                 'date': clearance.date,
                 'time': '',
-                'location': clearance.customs_office or 'Saudi Customs',
+                'location': (clearance.customs_office_id.name if clearance.customs_office_id else '') or 'Saudi Customs',
                 'description': current[0],
                 'icon': current[1],
                 'color': current[2],

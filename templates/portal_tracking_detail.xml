@@ -481,7 +481,7 @@
         </div>
         <div class="trd-row" style="padding:8px 16px 8px 0;">
           <span class="trd-rk">Customs Office</span>
-          <span class="trd-rv" t-esc="clearance.customs_office or '—'"/>
+          <span class="trd-rv" t-esc="clearance.customs_office_id.name if clearance.customs_office_id else '&#x2014;'"/>
         </div>
         <div class="trd-row" style="padding:8px 0 8px 16px;">
           <span class="trd-rk">Inspection Lane</span>
