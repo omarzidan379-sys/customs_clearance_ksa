@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<template id="portal_contract_template" name="Customs Clearance — Service Contract">
+<t t-call="website.layout">
+<t t-set="title">Service Contract — عقد الخدمة</t>
+<style>
+  @media print {
+    .no-print { display: none !important; }
+    body { margin: 0; }
+    .contract-wrap { box-shadow: none !important; border: none !important; max-width: 100% !important; }
+  }
+  body { background: #f4f6f8; font-family: 'Segoe UI', Arial, sans-serif; }
+  .contract-wrap {
+    max-width: 860px; margin: 40px auto 60px; background: #fff;
+    border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,.10);
+    padding: 48px 56px;
+  }
+  .contract-header {
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 3px solid #1e5fa8; padding-bottom: 20px; margin-bottom: 28px;
+  }
+  .contract-logo-block h1 { font-size: 22px; font-weight: 900; color: #1a3a5c; margin: 0 0 4px; }
+  .contract-logo-block p  { font-size: 12px; color: #718096; margin: 0; }
+  .contract-badge {
+    background: #1e5fa8; color: #fff; border-radius: 8px;
+    padding: 10px 18px; font-size: 12px; font-weight: 700; text-align: center;
+  }
+  .contract-badge span { display: block; font-size: 18px; font-weight: 900; }
+  .contract-title {
+    text-align: center; margin-bottom: 28px;
+  }
+  .contract-title h2 { font-size: 20px; font-weight: 900; color: #1a3a5c; margin: 0 0 4px; }
+  .contract-title .ar { font-size: 16px; color: #4a6585; font-family: 'Arial', sans-serif; }
+  .parties-table { width: 100%; border-collapse: collapse; margin-bottom: 28px; font-size: 13px; }
+  .parties-table th { background: #1e5fa8; color: #fff; padding: 10px 14px; text-align: left; font-weight: 700; }
+  .parties-table td { padding: 10px 14px; border: 1px solid #e2e8f0; vertical-align: top; }
+  .parties-table tr:nth-child(even) td { background: #f8fafc; }
+  .clause-num { color: #1e5fa8; font-weight: 800; font-size: 14px; margin: 22px 0 6px; }
+  .clause-body { font-size: 13px; color: #334155; line-height: 1.75; margin: 0 0 4px; }
+  .sig-section { margin-top: 40px; border-top: 2px solid #e2e8f0; padding-top: 28px; }
+  .sig-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+  .sig-box { border: 1.5px solid #cbd5e0; border-radius: 8px; padding: 18px 20px; }
+  .sig-box label { font-size: 11px; font-weight: 700; color: #718096; text-transform: uppercase; letter-spacing: .5px; display: block; margin-bottom: 8px; }
+  .sig-line { border-bottom: 1.5px solid #1a3a5c; min-height: 36px; margin-bottom: 8px; }
+  .sig-date { font-size: 11px; color: #718096; }
+  .print-btn {
+    display: inline-flex; align-items: center; gap: 8px; margin: 0 auto 32px;
+    background: #1e5fa8; color: #fff; border: none; border-radius: 8px;
+    padding: 11px 24px; font-size: 13px; font-weight: 700; cursor: pointer;
+    text-decoration: none; transition: background .2s;
+  }
+  .print-btn:hover { background: #174d90; color: #fff; }
+  .top-bar { background: #1a3a5c; padding: 14px 56px; display: flex; align-items: center; justify-content: space-between; }
+  .top-bar a { color: #93c5fd; font-size: 13px; text-decoration: none; }
+  .top-bar a:hover { color: #fff; }
+</style>
+
+<div class="top-bar no-print">
+  <a href="/customs-portal">&#x2190; Back to Portal</a>
+  <button class="print-btn" onclick="window.print()">&#x1F5A8; Print / Save as PDF</button>
+</div>
+
+<div class="contract-wrap">
+  <div class="contract-header">
+    <div class="contract-logo-block">
+      <h1><t t-if="company" t-out="company.name">KSA Customs Clearance Co.</t></h1>
+      <p>&#x634;&#x631;&#x643;&#x629; &#x627;&#x644;&#x62A;&#x62E;&#x644;&#x64A;&#x635; &#x627;&#x644;&#x62C;&#x645;&#x631;&#x643;&#x64A; — &#x627;&#x644;&#x645;&#x645;&#x644;&#x643;&#x629; &#x627;&#x644;&#x639;&#x631;&#x628;&#x64A;&#x629; &#x627;&#x644;&#x633;&#x639;&#x648;&#x62F;&#x64A;&#x629;</p>
+    </div>
+    <div class="contract-badge">
+      SERVICE<span>CONTRACT</span>عقد الخدمة
+    </div>
+  </div>
+
+  <div class="contract-title">
+    <h2>Customs Clearance Service Agreement</h2>
+    <div class="ar">&#x627;&#x62A;&#x641;&#x627;&#x642;&#x64A;&#x629; &#x62E;&#x62F;&#x645;&#x627;&#x62A; &#x627;&#x644;&#x62A;&#x62E;&#x644;&#x64A;&#x635; &#x627;&#x644;&#x62C;&#x645;&#x631;&#x643;&#x64A;</div>
+  </div>
+
+  <table class="parties-table">
+    <tr>
+      <th>Party</th>
+      <th>Details</th>
+    </tr>
+    <tr>
+      <td><strong>Company (Service Provider)</strong><br/>&#x645;&#x632;&#x648;&#x62F; &#x627;&#x644;&#x62E;&#x62F;&#x645;&#x629;</td>
+      <td>
+        <t t-if="company" t-out="company.name">KSA Customs Clearance Co.</t><br/>
+        <t t-if="company and company.street" t-out="company.street">Riyadh, KSA</t>
+        <t t-if="company and company.vat"><br/>VAT: <t t-out="company.vat"/></t>
+        <t t-if="company and company.phone"><br/>Tel: <t t-out="company.phone"/></t>
+        <t t-if="company and company.email"><br/>Email: <t t-out="company.email"/></t>
+      </td>
+    </tr>
+    <tr>
+      <td><strong>Client (Service Recipient)</strong><br/>&#x639;&#x645;&#x64A;&#x644; &#x627;&#x644;&#x62E;&#x62F;&#x645;&#x629;</td>
+      <td>
+        Name / &#x627;&#x644;&#x627;&#x633;&#x645;: ___________________________________<br/>
+        Company / &#x627;&#x644;&#x634;&#x631;&#x643;&#x629;: ________________________________<br/>
+        CR No. / &#x633;&#x62C;&#x644; &#x62A;&#x62C;&#x627;&#x631;&#x64A;: _______________________________<br/>
+        VAT No. / &#x631;&#x642;&#x645; &#x636;&#x631;&#x64A;&#x628;&#x629;: _______________________________<br/>
+        Phone / &#x647;&#x627;&#x62A;&#x641;: ____________________________________
+      </td>
+    </tr>
+  </table>
+
+  <div class="clause-num">1. Scope of Service — &#x646;&#x637;&#x627;&#x642; &#x627;&#x644;&#x62E;&#x62F;&#x645;&#x629;</div>
+  <div class="clause-body">
+    The Company agrees to provide professional customs clearance and brokerage services for shipments declared by the Client through the Saudi Customs Authority (ZATCA) digital systems, including but not limited to: ACD filing, FASAH coordination, MASAR tracking, duty calculation and payment facilitation, inspection coordination, and customs release.
+  </div>
+
+  <div class="clause-num">2. Client Obligations — &#x627;&#x644;&#x62A;&#x632;&#x627;&#x645;&#x627;&#x62A; &#x627;&#x644;&#x639;&#x645;&#x64A;&#x644;</div>
+  <div class="clause-body">
+    The Client shall: (a) provide accurate, complete, and timely shipping documentation including Bill of Lading, Commercial Invoice, Packing List, Certificate of Origin, and all applicable regulatory approvals (SABER, SFDA, CITC etc.); (b) declare the correct HS codes and customs value; (c) notify the Company of any changes to shipment details at least 48 hours before arrival; (d) settle all government duties, fees, and storage charges promptly. Any delay or penalty arising from incomplete or inaccurate documents is solely the Client's responsibility.
+  </div>
+
+  <div class="clause-num">3. Fees and Payment — &#x627;&#x644;&#x623;&#x62A;&#x639;&#x627;&#x628; &#x648;&#x627;&#x644;&#x633;&#x62F;&#x627;&#x62F;</div>
+  <div class="clause-body">
+    Service fees are as stated in the official quotation issued per shipment. Government duties, ZATCA levies, port storage, and demurrage charges are additional and billed at cost to the Client. All invoices are due within seven (7) calendar days of issuance. Late payments attract a 2% monthly surcharge. The Company reserves the right to withhold customs documents until full settlement.
+  </div>
+
+  <div class="clause-num">4. Liability Limitation — &#x62A;&#x62D;&#x62F;&#x64A;&#x62F; &#x627;&#x644;&#x645;&#x633;&#x624;&#x648;&#x644;&#x64A;&#x629;</div>
+  <div class="clause-body">
+    The Company's maximum liability for any claim arising from this agreement is limited to the service fee paid for the specific shipment in question. The Company shall not be liable for delays, fines, seizures, or other consequences resulting from: incorrect or incomplete client declarations, regulatory violations by the Client, decisions by customs or other government authorities, force-majeure events (including strikes, natural disasters, system outages), or third-party carrier delays.
+  </div>
+
+  <div class="clause-num">5. Confidentiality — &#x627;&#x644;&#x633;&#x631;&#x64A;&#x629;</div>
+  <div class="clause-body">
+    Both parties agree to maintain strict confidentiality of all commercial data, customs declarations, pricing, and any other proprietary information exchanged under this agreement, in compliance with the Saudi Personal Data Protection Law (PDPL) and applicable regulations.
+  </div>
+
+  <div class="clause-num">6. Intellectual Property and Data</div>
+  <div class="clause-body">
+    All customs filings, declarations, and related data remain the property of the Client. The Company retains the right to use anonymised data for internal analytics and regulatory compliance reporting only.
+  </div>
+
+  <div class="clause-num">7. Duration and Termination — &#x645;&#x62F;&#x629; &#x627;&#x644;&#x639;&#x642;&#x62F; &#x648;&#x625;&#x646;&#x647;&#x627;&#x626;&#x647;</div>
+  <div class="clause-body">
+    This agreement is effective from the date of signing for one (1) year, renewing automatically on the same terms unless terminated in writing by either party with thirty (30) days' notice. The Company may terminate immediately if the Client fails to settle outstanding dues within 14 days of demand, or engages in fraudulent declarations.
+  </div>
+
+  <div class="clause-num">8. Governing Law and Dispute Resolution — &#x627;&#x644;&#x642;&#x627;&#x646;&#x648;&#x646; &#x627;&#x644;&#x648;&#x627;&#x62C;&#x628; &#x627;&#x644;&#x62A;&#x637;&#x628;&#x64A;&#x642;</div>
+  <div class="clause-body">
+    This agreement is governed exclusively by the laws of the Kingdom of Saudi Arabia. Any dispute shall first be referred to good-faith negotiation for thirty (30) days. If unresolved, it shall be submitted to the competent commercial courts of Riyadh.
+  </div>
+
+  <div class="sig-section">
+    <div class="sig-grid">
+      <div class="sig-box">
+        <label>Company Representative — &#x645;&#x645;&#x62B;&#x644; &#x627;&#x644;&#x634;&#x631;&#x643;&#x629;</label>
+        <div class="sig-line"></div>
+        <div class="sig-date">Name: _________________________</div>
+        <div class="sig-date" style="margin-top:6px;">Title: _________________________</div>
+        <div class="sig-date" style="margin-top:6px;">Date: _________________________</div>
+        <div class="sig-date" style="margin-top:6px;">Stamp: ________________________</div>
+      </div>
+      <div class="sig-box">
+        <label>Client — &#x627;&#x644;&#x639;&#x645;&#x64A;&#x644;</label>
+        <div class="sig-line"></div>
+        <div class="sig-date">Name: _________________________</div>
+        <div class="sig-date" style="margin-top:6px;">Title: _________________________</div>
+        <div class="sig-date" style="margin-top:6px;">Date: _________________________</div>
+        <div class="sig-date" style="margin-top:6px;">Stamp: ________________________</div>
+      </div>
+    </div>
+    <p style="font-size:11px;color:#a0aec0;text-align:center;margin-top:20px;">
+      This document has no legal value until signed by both authorised parties. &#x2014;
+      &#x647;&#x630;&#x627; &#x627;&#x644;&#x645;&#x633;&#x62A;&#x646;&#x62F; &#x644;&#x627; &#x642;&#x64A;&#x645;&#x629; &#x642;&#x627;&#x646;&#x648;&#x646;&#x64A;&#x629; &#x644;&#x647; &#x62D;&#x62A;&#x649; &#x64A;&#x648;&#x642;&#x639;&#x647; &#x627;&#x644;&#x637;&#x631;&#x641;&#x627;&#x646; &#x627;&#x644;&#x645;&#x641;&#x648;&#x636;&#x627;&#x646;.
+    </p>
+  </div>
+</div>
+</t>
+</template>
+</odoo>

@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
-from odoo import http, _
+from odoo import fields, http, _
 from odoo.http import request
 import json
+import base64
 import logging
 
 _logger = logging.getLogger(__name__)
@@ -16,7 +17,7 @@ class CustomsPortalController(http.Controller):
     @http.route('/customs-portal/register', type='http', auth='public', website=True)
     def portal_register(self, **kwargs):
         countries = request.env['res.country'].sudo().search([], order='name')
-        return request.render('customs_clearance_ksa.portal_register_page', {
+        return request.render('customs_clearance.portal_register_page', {
             'countries': countries,
             'page_title': 'Register Shipment — Customs Clearance Portal',
         })
@@ -102,6 +103,50 @@ class CustomsPortalController(http.Controller):
 
             portal_req = request.env['customs.portal.request'].sudo().create(vals)
 
+            # ── Real-time notification to all customs staff ───────────────
+            try:
+                customs_group = request.env.ref(
+                    'customs_clearance.group_customs_user', raise_if_not_found=False)
+                if customs_group:
+                    partners = customs_group.sudo().users.mapped('partner_id')
+                    notif_msg = (
+                        '🚢 New Portal Request: <b>%s</b><br/>'
+                        'From: %s (%s)<br/>'
+                        'Type: %s | Company: %s'
+                    ) % (
+                        portal_req.name,
+                        vals.get('requester_name', ''),
+                        vals.get('requester_email', ''),
+                        vals.get('clearance_type', '').upper(),
+                        vals.get('requester_company', ''),
+                    )
+                    # Post on the record chatter so staff see it
+                    portal_req.message_post(
+                        body=notif_msg,
+                        message_type='comment',
+                        subtype_xmlid='mail.mt_note',
+                    )
+                    # Bus real-time pop-up for each online customs user
+                    notifications = []
+                    for partner in partners:
+                        notifications.append((
+                            partner,
+                            'simple_notification',
+                            {
+                                'title': '📦 New Portal Request',
+                                'message': '%s submitted a new %s clearance request.' % (
+                                    vals.get('requester_name', 'A customer'),
+                                    vals.get('clearance_type', 'import'),
+                                ),
+                                'warning': False,
+                                'sticky': False,
+                            }
+                        ))
+                    if notifications:
+                        request.env['bus.bus'].sudo()._sendmany(notifications)
+            except Exception as notify_err:
+                _logger.warning("Portal notification error: %s", notify_err)
+
             resp = {
                 'success':   True,
                 'reference': portal_req.name,
@@ -118,20 +163,233 @@ class CustomsPortalController(http.Controller):
             headers=[('Content-Type', 'application/json')]
         )
 
+    @http.route('/customs-portal/status', type='http', auth='public', website=True)
+    def portal_status_home(self, **kwargs):
+        """Status page without token — show a token entry form."""
+        return request.render('customs_clearance.portal_status_entry_page', {})
+
+    @http.route('/customs-portal/status-search', type='http', auth='public', website=True)
+    def portal_status_search(self, ref='', **kwargs):
+        """Redirect to the status page for the entered reference/token."""
+        ref = ref.strip()
+        if not ref:
+            return request.redirect('/customs-portal/status')
+        req = request.env['customs.portal.request'].sudo().search([
+            '|',
+            ('portal_token', '=', ref),
+            ('name', '=', ref),
+        ], limit=1)
+        if req:
+            return request.redirect('/customs-portal/status/%s' % req.portal_token)
+        return request.render('customs_clearance.portal_status_page', {
+            'found': False, 'token': ref,
+        })
+
     @http.route('/customs-portal/status/<string:token>', type='http', auth='public', website=True)
     def portal_status(self, token, **kwargs):
         req = request.env['customs.portal.request'].sudo().search(
             [('portal_token', '=', token)], limit=1
         )
         if not req:
-            return request.render('customs_clearance_ksa.portal_status_page', {
+            return request.render('customs_clearance.portal_status_page', {
                 'found': False, 'token': token,
             })
-        return request.render('customs_clearance_ksa.portal_status_page', {
-            'found': True,
-            'req':   req,
-            'token': token,
+
+        clearance = req.clearance_id or None
+        steps = []
+        progress_pct = 0
+
+        if clearance:
+            _STEPS_DEF = [
+                ('draft',          'Approved',        'موافق عليه'),
+                ('acd_submitted',  'ACD Filed',       'تقديم ACD'),
+                ('submitted',      'FASAH Filed',     'تقديم فساح'),
+                ('customs_review', 'Doc Review',      'مراجعة'),
+                ('inspection',     'Inspection',      'الفحص'),
+                ('duty_payment',   'Duty Payment',    'سداد الرسوم'),
+                ('released',       'Released',        'الإفراج'),
+                ('delivered',      'Delivered',       'التسليم'),
+            ]
+            _STATE_ORDER = [s[0] for s in _STEPS_DEF]
+            _PROGRESS_MAP = {
+                'draft': 5, 'acd_submitted': 15, 'submitted': 30,
+                'customs_review': 45, 'inspection': 60,
+                'duty_payment': 75, 'released': 90, 'delivered': 100,
+            }
+            progress_pct = _PROGRESS_MAP.get(clearance.state, 0)
+            try:
+                cur_idx = _STATE_ORDER.index(clearance.state)
+            except ValueError:
+                cur_idx = -1
+            for i, (key, lbl_en, lbl_ar) in enumerate(_STEPS_DEF):
+                try:
+                    idx = _STATE_ORDER.index(key)
+                except ValueError:
+                    idx = i
+                if clearance.state == 'cancelled':
+                    status = 'cancelled'
+                elif idx < cur_idx:
+                    status = 'done'
+                elif idx == cur_idx:
+                    status = 'active'
+                else:
+                    status = 'pending'
+                steps.append({'key': key, 'label': lbl_en, 'label_ar': lbl_ar, 'status': status})
+
+        return request.render('customs_clearance.portal_status_page', {
+            'found':        True,
+            'req':          req,
+            'clearance':    clearance,
+            'token':        token,
+            'steps':        steps,
+            'progress_pct': progress_pct,
         })
+
+    @http.route('/customs-portal/offer/accept/<string:token>', type='http', auth='public', website=True)
+    def offer_accept(self, token, **kwargs):
+        req = request.env['customs.portal.request'].sudo().search(
+            [('offer_token', '=', token)], limit=1
+        )
+        if not req:
+            return request.render('customs_clearance.portal_offer_response_page', {
+                'success': False,
+                'action':  'accept',
+                'message': 'Invalid or expired offer link.',
+            })
+        if req.offer_state == 'accepted':
+            return request.render('customs_clearance.portal_offer_response_page', {
+                'success': True,
+                'action':  'accept',
+                'already': True,
+                'req':     req,
+            })
+        req.sudo().write({
+            'offer_state':        'accepted',
+            'offer_replied_date': fields.Datetime.now(),
+        })
+        req.message_post(body='Customer accepted the service offer via portal link.')
+        # Auto-create service invoice for the linked clearance if it exists
+        if req.clearance_id and req.clearance_id.partner_id:
+            try:
+                clr = req.clearance_id
+                if not clr.service_invoice_ids:
+                    inv = request.env['customs.service.invoice'].sudo().create({
+                        'clearance_id': clr.id,
+                        'partner_id':   clr.partner_id.id,
+                        'invoice_date': fields.Date.today(),
+                    })
+                    inv.sudo().action_populate_from_clearance()
+                    _logger.info('Auto-created service invoice %s after customer accepted offer.', inv.name)
+            except Exception as e:
+                _logger.warning('Could not create service invoice after offer accept: %s', e)
+        return request.render('customs_clearance.portal_offer_response_page', {
+            'success': True,
+            'action':  'accept',
+            'already': False,
+            'req':     req,
+        })
+
+    @http.route('/customs-portal/offer/reject/<string:token>', type='http', auth='public', website=True)
+    def offer_reject(self, token, **kwargs):
+        req = request.env['customs.portal.request'].sudo().search(
+            [('offer_token', '=', token)], limit=1
+        )
+        if not req:
+            return request.render('customs_clearance.portal_offer_response_page', {
+                'success': False,
+                'action':  'reject',
+                'message': 'Invalid or expired offer link.',
+            })
+        if req.offer_state in ('accepted', 'rejected'):
+            return request.render('customs_clearance.portal_offer_response_page', {
+                'success': True,
+                'action':  req.offer_state,
+                'already': True,
+                'req':     req,
+            })
+        req.sudo().write({
+            'offer_state':        'rejected',
+            'offer_replied_date': fields.Datetime.now(),
+        })
+        req.message_post(body='Customer declined the service offer via portal link.')
+        return request.render('customs_clearance.portal_offer_response_page', {
+            'success': True,
+            'action':  'reject',
+            'already': False,
+            'req':     req,
+        })
+
+    @http.route('/customs-portal/upload-doc', type='http', auth='public', csrf=False, methods=['POST'], website=True)
+    def portal_upload_doc(self, **post):
+        """Receive a file upload for a portal request identified by token."""
+        try:
+            token     = request.httprequest.form.get('token', '').strip()
+            doc_field = request.httprequest.form.get('doc_field', '').strip()
+            file_obj  = request.httprequest.files.get('file')
+
+            if not token or not file_obj:
+                return request.make_response(
+                    json.dumps({'success': False, 'error': 'Missing token or file'}),
+                    headers=[('Content-Type', 'application/json')]
+                )
+
+            portal_req = request.env['customs.portal.request'].sudo().search(
+                [('portal_token', '=', token)], limit=1
+            )
+            if not portal_req:
+                return request.make_response(
+                    json.dumps({'success': False, 'error': 'Request not found'}),
+                    headers=[('Content-Type', 'application/json')]
+                )
+
+            file_data = file_obj.read()
+            filename  = file_obj.filename or (doc_field + '_upload')
+
+            attachment = request.env['ir.attachment'].sudo().create({
+                'name':      filename,
+                'datas':     base64.b64encode(file_data).decode('utf-8'),
+                'res_model': 'customs.portal.request',
+                'res_id':    portal_req.id,
+                'mimetype':  file_obj.content_type or 'application/octet-stream',
+            })
+            portal_req.sudo().write({'attachment_ids': [(4, attachment.id)]})
+
+            resp = {'success': True, 'attachment_id': attachment.id}
+        except Exception as e:
+            _logger.error("Portal upload error: %s", str(e))
+            resp = {'success': False, 'error': str(e)}
+
+        return request.make_response(
+            json.dumps(resp),
+            headers=[('Content-Type', 'application/json')]
+        )
+
+    @http.route('/customs-portal/doc/<string:token>/<int:att_id>', type='http', auth='public', website=True)
+    def portal_download_doc(self, token, att_id, **kwargs):
+        """Serve an attachment file using the portal token for auth."""
+        portal_req = request.env['customs.portal.request'].sudo().search(
+            [('portal_token', '=', token)], limit=1
+        )
+        if not portal_req:
+            return request.not_found()
+
+        attachment = request.env['ir.attachment'].sudo().search([
+            ('id', '=', att_id),
+            ('res_model', '=', 'customs.portal.request'),
+            ('res_id', '=', portal_req.id),
+        ], limit=1)
+        if not attachment or attachment.id not in portal_req.attachment_ids.ids:
+            return request.not_found()
+
+        file_data = base64.b64decode(attachment.datas)
+        return request.make_response(
+            file_data,
+            headers=[
+                ('Content-Type', attachment.mimetype or 'application/octet-stream'),
+                ('Content-Disposition', 'attachment; filename="%s"' % attachment.name),
+                ('Content-Length', str(len(file_data))),
+            ]
+        )
 
     @http.route('/customs-portal/search', type='http', auth='public', website=True)
     def portal_search(self, **kwargs):
@@ -171,11 +429,198 @@ class CustomsPortalController(http.Controller):
                 domain, order='create_date desc', limit=50
             )
 
-        return request.render('customs_clearance_ksa.portal_search_page', {
+        return request.render('customs_clearance.portal_search_page', {
             'requests':   requests,
             'searched':   searched,
             'name':       name,
             'phone':      phone,
             'date_from':  date_from,
             'date_to':    date_to,
+        })
+
+    # ── Shipment Tracking Dashboard ───────────────────────────────────────────
+
+    # Known coordinates for major Saudi / international ports (UN/LOCODE → [lat, lon])
+    _PORT_COORDS = {
+        'SAJED': [21.4858, 39.1925],  # Jeddah Islamic Port
+        'SADMM': [26.4207, 50.1031],  # Dammam King Abdul Aziz Port
+        'SARIY': [24.6877, 46.7219],  # Riyadh Dry Port
+        'SAYNB': [23.6150, 38.0627],  # Yanbu Industrial Port
+        'SAGJN': [16.8894, 42.5638],  # Gizan / Jizan Port
+        'SAQIS': [28.4563, 34.7864],  # Aqaba (Haql border area)
+        'AEDXB': [25.2532, 55.3657],  # Dubai Jebel Ali
+        'AEJEA': [24.9964, 55.0600],  # Jebel Ali
+        'BHMUH': [26.2172, 50.6480],  # Bahrain Muharraq
+        'CNSHA': [31.2304, 121.4737], # Shanghai
+        'CNNGB': [29.8683, 121.5440], # Ningbo
+        'CNSZX': [22.5431, 114.0579], # Shenzhen
+        'CNTAO': [36.0671, 120.3826], # Qingdao
+        'USNYC': [40.6840, -74.0440], # New York
+        'USLAX': [33.7395, -118.2596],# Los Angeles
+        'DEHAM': [53.5511, 9.9937],   # Hamburg
+        'NLRTM': [51.9244, 4.4777],   # Rotterdam
+        'SGSIN': [1.2897, 103.8501],  # Singapore
+        'INMAA': [13.0827, 80.2707],  # Chennai
+        'INBOM': [18.9322, 72.8264],  # Mumbai
+        'PKKAR': [24.8607, 67.0011],  # Karachi
+        'TRIST': [41.0082, 28.9784],  # Istanbul
+        'EGPSD': [31.2357, 32.3051],  # Port Said
+        'GBFXT': [51.8761, 1.2875],   # Felixstowe UK
+    }
+
+    def _get_port_coords(self, port):
+        """Return [lat, lon] for a port record, falling back to country capital."""
+        if not port:
+            return None
+        coords = self._PORT_COORDS.get(port.code or '')
+        if coords:
+            return coords
+        # fallback: Saudi Arabia default
+        return [24.7136, 46.6753]
+
+    def _build_timeline(self, clearance, shipment):
+        """Build a list of timeline events from clearance state history."""
+        events = []
+        if not clearance:
+            return events
+
+        _STATE_LABELS = {
+            'draft':          ('Clearance Request Received', 'fa-file-text', '#6c757d'),
+            'acd_submitted':  ('ACD Filed with Customs', 'fa-paper-plane', '#0d6efd'),
+            'submitted':      ('FASAH Declaration Submitted', 'fa-check-circle', '#0d6efd'),
+            'customs_review': ('Under Customs Review', 'fa-search', '#fd7e14'),
+            'inspection':     ('Physical Inspection', 'fa-eye', '#fd7e14'),
+            'duty_payment':   ('Duty Payment Required', 'fa-credit-card', '#ffc107'),
+            'released':       ('Customs Released', 'fa-unlock', '#198754'),
+            'delivered':      ('Delivered to Consignee', 'fa-flag-checkered', '#198754'),
+            'refused':        ('Refused by Customs', 'fa-times-circle', '#dc3545'),
+            'cancelled':      ('Cancelled', 'fa-ban', '#dc3545'),
+        }
+        if shipment:
+            _SHIP_LABELS = {
+                'draft':      ('Shipment Booking Created', 'fa-anchor', '#6c757d'),
+                'in_transit': ('Departed – In Transit', 'fa-ship', '#0d6efd'),
+                'arrived':    ('Arrived at Destination Port', 'fa-map-marker', '#fd7e14'),
+                'cleared':    ('Customs Cleared', 'fa-check', '#198754'),
+                'delivered':  ('Delivered', 'fa-flag-checkered', '#198754'),
+            }
+            if shipment.departure_date:
+                lbl = _SHIP_LABELS.get(shipment.state, ('Shipment Update', 'fa-circle', '#6c757d'))
+                events.append({
+                    'date': shipment.departure_date,
+                    'time': '00:00',
+                    'location': shipment.port_origin_id.name if shipment.port_origin_id else 'Origin Port',
+                    'description': 'Departed from %s' % (shipment.port_origin_id.name or 'Origin'),
+                    'icon': 'fa-ship',
+                    'color': '#0d6efd',
+                    'done': True,
+                })
+            if shipment.eta:
+                events.append({
+                    'date': shipment.eta,
+                    'time': '00:00',
+                    'location': shipment.port_destination_id.name if shipment.port_destination_id else 'Destination Port',
+                    'description': 'ETA at %s' % (shipment.port_destination_id.name or 'Destination'),
+                    'icon': 'fa-flag',
+                    'color': '#198754' if shipment.state == 'delivered' else '#6c757d',
+                    'done': shipment.state in ('arrived', 'cleared', 'delivered'),
+                })
+
+        # Clearance state events from chatter
+        for msg in clearance.message_ids.filtered(
+            lambda m: m.message_type in ('comment', 'email') and m.tracking_value_ids
+        ).sorted('date'):
+            for tv in msg.tracking_value_ids:
+                if tv.field_id.name == 'state':
+                    lbl_data = _STATE_LABELS.get(tv.new_value_char, ('Status Update', 'fa-circle', '#0d6efd'))
+                    events.append({
+                        'date': msg.date.date() if msg.date else None,
+                        'time': msg.date.strftime('%H:%M') if msg.date else '',
+                        'location': clearance.customs_office or 'Saudi Customs',
+                        'description': lbl_data[0],
+                        'icon': lbl_data[1],
+                        'color': lbl_data[2],
+                        'done': True,
+                    })
+
+        # Always show current state as last active
+        current = _STATE_LABELS.get(clearance.state, ('Current Status', 'fa-circle', '#0d6efd'))
+        if not any(e.get('description') == current[0] for e in events):
+            events.append({
+                'date': clearance.date,
+                'time': '',
+                'location': clearance.customs_office or 'Saudi Customs',
+                'description': current[0],
+                'icon': current[1],
+                'color': current[2],
+                'done': clearance.state in ('released', 'delivered'),
+                'active': clearance.state not in ('released', 'delivered', 'refused', 'cancelled'),
+            })
+
+        events.sort(key=lambda e: e.get('date') or fields.Date.today())
+        return events
+
+    def _calc_progress(self, shipment, clearance):
+        """Return integer 0-100 progress percentage."""
+        if shipment:
+            _PROG = {'draft': 5, 'in_transit': 40, 'arrived': 65, 'cleared': 85, 'delivered': 100}
+            return _PROG.get(shipment.state, 10)
+        if clearance:
+            _PROG = {
+                'draft': 5, 'acd_submitted': 20, 'submitted': 35,
+                'customs_review': 50, 'inspection': 60, 'duty_payment': 70,
+                'released': 88, 'delivered': 100, 'refused': 0, 'cancelled': 0,
+            }
+            return _PROG.get(clearance.state, 10)
+        return 0
+
+    @http.route('/customs-portal/tracking/<string:token>', type='http', auth='public', website=True)
+    def portal_tracking_detail(self, token, **kwargs):
+        """Modern shipment tracking dashboard — linked from View Details button."""
+        portal_req = request.env['customs.portal.request'].sudo().search(
+            [('portal_token', '=', token)], limit=1
+        )
+        if not portal_req:
+            return request.render('customs_clearance.portal_tracking_detail', {
+                'found': False, 'token': token,
+            })
+
+        clearance = portal_req.clearance_id or None
+        shipment  = (clearance.shipment_id if clearance else None) or None
+
+        timeline = self._build_timeline(clearance, shipment)
+        progress = self._calc_progress(shipment, clearance)
+
+        origin_coords = self._get_port_coords(shipment.port_origin_id if shipment else None)
+        dest_coords   = self._get_port_coords(shipment.port_destination_id if shipment else None)
+
+        # Current position: if in_transit use midpoint, else use arrived port
+        if shipment and shipment.state == 'in_transit' and origin_coords and dest_coords:
+            current_coords = [
+                round((origin_coords[0] + dest_coords[0]) / 2, 4),
+                round((origin_coords[1] + dest_coords[1]) / 2, 4),
+            ]
+        elif shipment and shipment.state in ('arrived', 'cleared', 'delivered'):
+            current_coords = dest_coords
+        else:
+            current_coords = origin_coords
+
+        return request.render('customs_clearance.portal_tracking_detail', {
+            'found':           True,
+            'token':           token,
+            'req':             portal_req,
+            'clearance':       clearance,
+            'shipment':        shipment,
+            'timeline':        timeline,
+            'progress':        progress,
+            'origin_coords':   origin_coords   or [24.7, 46.7],
+            'dest_coords':     dest_coords     or [24.7, 46.7],
+            'current_coords':  current_coords  or [24.7, 46.7],
+        })
+    @http.route('/customs-portal/contract', type='http', auth='public', website=True)
+    def portal_contract_page(self, **kwargs):
+        """Printable service contract terms page."""
+        company = request.env['res.company'].sudo().search([], limit=1)
+        return request.render('customs_clearance.portal_contract_template', {
+            'company': company,
         })

@@ -197,6 +197,46 @@
 .ksa-toast.show{transform:translateY(0);opacity:1;}
 .ksa-toast.err{border-left-color:var(--red);}
 
+/* Doc upload zones */
+.ksa-doc-wrap{display:flex;flex-direction:column;}
+.ksa-upload-zone{margin-top:6px;border:1.5px dashed var(--green);border-radius:8px;padding:9px 12px;background:rgba(26,107,53,.03);cursor:pointer;transition:all .2s;}
+.ksa-upload-zone:hover{background:rgba(26,107,53,.07);}
+.ksa-upload-zone.done{border-style:solid;border-color:var(--green2);background:rgba(26,107,53,.06);}
+.ksa-upload-zone input[type=file]{display:none;}
+.ksa-upload-trigger{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;color:var(--green);}
+.ksa-upload-trigger .uico{font-size:15px;}
+.ksa-upload-fname{font-size:11px;color:var(--green2);font-weight:600;margin-top:3px;display:none;word-break:break-all;}
+.ksa-upload-zone.done .ksa-upload-fname{display:block;}
+
+/* Service Contract section */
+.ksa-contract-box{background:linear-gradient(135deg,#f0f7ff 0%,#e8f4fd 100%);border:2px solid #1e5fa8;border-radius:12px;padding:20px 22px;margin-bottom:20px;}
+.ksa-contract-header{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.ksa-contract-header-ico{width:36px;height:36px;border-radius:9px;background:#1e5fa8;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.ksa-contract-header-text strong{display:block;font-size:15px;font-weight:800;color:#1a3a5c;}
+.ksa-contract-header-text span{font-size:12px;color:#4a6585;}
+.ksa-contract-terms{background:#fff;border:1px solid #cce0f5;border-radius:8px;padding:14px 16px;margin-bottom:14px;max-height:180px;overflow-y:auto;}
+.ksa-contract-terms p{font-size:12px;color:#334155;line-height:1.7;margin:0 0 8px;}
+.ksa-contract-terms p:last-child{margin-bottom:0;}
+.ksa-contract-terms strong{color:#1a3a5c;}
+.ksa-contract-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px;}
+.ksa-contract-download{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;background:#1e5fa8;color:#fff;border-radius:8px;font-size:12px;font-weight:700;text-decoration:none;transition:background .2s;}
+.ksa-contract-download:hover{background:#174d90;color:#fff;}
+.ksa-contract-upload-zone{border:2px dashed #1e5fa8;border-radius:8px;padding:12px 16px;background:rgba(30,95,168,.03);cursor:pointer;transition:all .2s;margin-bottom:14px;}
+.ksa-contract-upload-zone:hover{background:rgba(30,95,168,.07);}
+.ksa-contract-upload-zone.done{border-style:solid;border-color:#1a6b35;background:rgba(26,107,53,.05);}
+.ksa-contract-upload-zone input[type=file]{display:none;}
+.ksa-contract-upload-trigger{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:#1e5fa8;}
+.ksa-contract-upload-zone.done .ksa-contract-upload-trigger{color:#1a6b35;}
+.ksa-contract-fname{font-size:11px;color:#1a6b35;font-weight:600;margin-top:4px;display:none;word-break:break-all;}
+.ksa-contract-upload-zone.done .ksa-contract-fname{display:block;}
+.ksa-agree-row{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;background:#fff;border:1.5px solid #cce0f5;border-radius:8px;cursor:pointer;}
+.ksa-agree-row input[type=checkbox]{width:16px;height:16px;margin-top:1px;accent-color:#1e5fa8;flex-shrink:0;cursor:pointer;}
+.ksa-agree-row label{font-size:13px;color:#1a3a5c;font-weight:500;line-height:1.55;cursor:pointer;}
+.ksa-agree-row label strong{color:#1e5fa8;}
+.ksa-agree-row.err-agree{border-color:#e53e3e;background:#fff5f5;}
+.ksa-req-tag{display:inline-block;background:#e53e3e;color:#fff;font-size:9px;font-weight:800;padding:1px 6px;border-radius:4px;letter-spacing:.3px;margin-left:4px;vertical-align:middle;}
+.ksa-optional-tag{display:inline-block;background:#718096;color:#fff;font-size:9px;font-weight:700;padding:1px 6px;border-radius:4px;letter-spacing:.3px;margin-left:4px;vertical-align:middle;}
+
 @media(max-width:600px){
   .ksa-strip{grid-template-columns:1fr;}
   .ksa-doc-grid{grid-template-columns:1fr;}
@@ -400,14 +440,113 @@
             <h3>Available Documents <span class="ar">&#x627;&#x644;&#x645;&#x633;&#x62A;&#x646;&#x62F;&#x627;&#x62A; &#x627;&#x644;&#x645;&#x62A;&#x648;&#x641;&#x631;&#x629;</span></h3>
           </div>
           <p style="font-size:13px;color:var(--subtext);margin-bottom:16px;">Tick all documents you have ready.</p>
+
+          <!-- Service Contract -->
+          <div class="ksa-contract-box">
+            <div class="ksa-contract-header">
+              <div class="ksa-contract-header-ico">&#x1F4C4;</div>
+              <div class="ksa-contract-header-text">
+                <strong>Service Contract &#x2014; &#x639;&#x642;&#x62F; &#x627;&#x644;&#x62E;&#x62F;&#x645;&#x629;</strong>
+                <span>Please read, agree, and upload the signed contract before submitting.</span>
+              </div>
+            </div>
+            <div class="ksa-contract-terms" id="ksa-contract-terms-box">
+              <p><strong>1. Scope of Service</strong><br/>
+              The Company agrees to provide customs clearance and brokerage services for shipments declared by the Client, in accordance with Saudi Customs Authority (ZATCA) regulations and applicable Saudi trade laws.</p>
+              <p><strong>2. Client Responsibilities</strong><br/>
+              The Client shall provide accurate and complete documentation (Bill of Lading, Commercial Invoice, Packing List, Certificate of Origin, and all regulatory approvals) prior to shipment arrival. Any delay due to missing or incorrect documents is the Client's responsibility.</p>
+              <p><strong>3. Fees and Payment</strong><br/>
+              Service fees shall be as agreed in the official quotation issued by the Company. Additional government duties, ZATCA fees, and storage charges are the Client's responsibility and billed separately. Payment is due within 7 days of invoice issuance.</p>
+              <p><strong>4. Liability</strong><br/>
+              The Company shall not be liable for delays, fines, or confiscation caused by incomplete declarations, regulatory violations by the Client, or force-majeure events. Maximum liability is limited to the service fee paid for the specific shipment.</p>
+              <p><strong>5. Confidentiality</strong><br/>
+              Both parties agree to maintain confidentiality of all commercial and customs data shared under this agreement, in compliance with Saudi data protection regulations.</p>
+              <p><strong>6. Governing Law</strong><br/>
+              This agreement is governed by the laws of the Kingdom of Saudi Arabia. Disputes shall be resolved through the competent commercial courts of Riyadh.</p>
+              <p><strong>7. Duration</strong><br/>
+              This contract is valid for one (1) year from the date of signing and renews automatically unless terminated in writing by either party with 30 days notice.</p>
+            </div>
+            <div class="ksa-contract-actions">
+              <a class="ksa-contract-download" href="/customs-portal/contract" target="_blank">
+                &#x2B07; Download Contract Template (PDF)
+              </a>
+              <span style="font-size:12px;color:#718096;">&#x2192; Print, sign, scan, then upload below</span>
+            </div>
+            <div class="ksa-contract-upload-zone" id="ksa-contract-zone" onclick="document.getElementById('ksa-contract-file').click()">
+              <input type="file" id="ksa-contract-file" accept=".pdf,.jpg,.jpeg,.png" onchange="contractFileSelected(this)"/>
+              <div class="ksa-contract-upload-trigger">
+                <span>&#x1F4CE;</span>
+                <span id="ksa-contract-trigger-label">Upload Signed Contract <span class="ksa-optional-tag">Optional</span></span>
+              </div>
+              <div class="ksa-contract-fname" id="ksa-contract-fname"></div>
+            </div>
+            <label class="ksa-agree-row" id="ksa-agree-row" for="ksa-agree-chk">
+              <input type="checkbox" id="ksa-agree-chk" style="width:18px;height:18px;flex-shrink:0;accent-color:#1e5fa8;cursor:pointer;"/>
+              <span style="font-size:13px;color:#1a3a5c;line-height:1.5;">
+                I have read and agree to the <strong>Service Contract Terms</strong> above.
+                I confirm that all information provided is accurate and authorise the Company to proceed with customs clearance on my behalf.
+                <span class="ksa-req-tag">Required</span>
+              </span>
+            </label>
+          </div>
+
           <div class="ksa-doc-grid">
-            <label class="ksa-doc-chk"><input type="checkbox" id="has_bill_of_lading" onchange="toggleDoc(this)"/><div class="dt"><strong>Bill of Lading / AWB</strong><span>&#x628;&#x648;&#x644;&#x64A;&#x635;&#x629; &#x627;&#x644;&#x634;&#x62D;&#x646;</span></div></label>
-            <label class="ksa-doc-chk"><input type="checkbox" id="has_invoice" onchange="toggleDoc(this)"/><div class="dt"><strong>Commercial Invoice</strong><span>&#x627;&#x644;&#x641;&#x627;&#x62A;&#x648;&#x631;&#x629; &#x627;&#x644;&#x62A;&#x62C;&#x627;&#x631;&#x64A;&#x629;</span></div></label>
-            <label class="ksa-doc-chk"><input type="checkbox" id="has_packing_list" onchange="toggleDoc(this)"/><div class="dt"><strong>Packing List</strong><span>&#x642;&#x627;&#x626;&#x645;&#x629; &#x627;&#x644;&#x639;&#x628;&#x648;&#x629;</span></div></label>
-            <label class="ksa-doc-chk"><input type="checkbox" id="has_coo" onchange="toggleDoc(this)"/><div class="dt"><strong>Certificate of Origin</strong><span>&#x634;&#x647;&#x627;&#x62F;&#x629; &#x627;&#x644;&#x645;&#x646;&#x634;&#x623;</span></div></label>
-            <label class="ksa-doc-chk"><input type="checkbox" id="has_saber_scoc" onchange="toggleDoc(this)"/><div class="dt"><strong>SABER SCoC</strong><span>&#x634;&#x647;&#x627;&#x62F;&#x629; &#x645;&#x637;&#x627;&#x628;&#x642;&#x629; &#x633;&#x627;&#x628;&#x631;</span></div></label>
-            <label class="ksa-doc-chk"><input type="checkbox" id="has_sfda" onchange="toggleDoc(this)"/><div class="dt"><strong>SFDA Approval</strong><span>&#x645;&#x648;&#x627;&#x641;&#x642;&#x629; &#x647;&#x64A;&#x626;&#x629; &#x627;&#x644;&#x63A;&#x630;&#x627;&#x621; &#x648;&#x627;&#x644;&#x62F;&#x648;&#x627;&#x621;</span></div></label>
-            <label class="ksa-doc-chk"><input type="checkbox" id="has_citc" onchange="toggleDoc(this)"/><div class="dt"><strong>CITC Certificate</strong><span>&#x634;&#x647;&#x627;&#x62F;&#x629; &#x647;&#x64A;&#x626;&#x629; &#x627;&#x644;&#x627;&#x62A;&#x635;&#x627;&#x644;&#x627;&#x62A;</span></div></label>
+            <div class="ksa-doc-wrap">
+              <label class="ksa-doc-chk"><input type="checkbox" id="has_bill_of_lading" onchange="toggleDoc(this)"/><div class="dt"><strong>Bill of Lading / AWB</strong><span>&#x628;&#x648;&#x644;&#x64A;&#x635;&#x629; &#x627;&#x644;&#x634;&#x62D;&#x646;</span></div></label>
+              <div class="ksa-upload-zone" id="uz_has_bill_of_lading" style="display:none;" onclick="document.getElementById('fi_has_bill_of_lading').click()">
+                <input type="file" id="fi_has_bill_of_lading" accept=".pdf,.jpg,.jpeg,.png" onchange="fileSelected(this,'has_bill_of_lading')"/>
+                <div class="ksa-upload-trigger"><span class="uico">&#x1F4CE;</span> Attach Bill of Lading</div>
+                <div class="ksa-upload-fname" id="fn_has_bill_of_lading"></div>
+              </div>
+            </div>
+            <div class="ksa-doc-wrap">
+              <label class="ksa-doc-chk"><input type="checkbox" id="has_invoice" onchange="toggleDoc(this)"/><div class="dt"><strong>Commercial Invoice</strong><span>&#x627;&#x644;&#x641;&#x627;&#x62A;&#x648;&#x631;&#x629; &#x627;&#x644;&#x62A;&#x62C;&#x627;&#x631;&#x64A;&#x629;</span></div></label>
+              <div class="ksa-upload-zone" id="uz_has_invoice" style="display:none;" onclick="document.getElementById('fi_has_invoice').click()">
+                <input type="file" id="fi_has_invoice" accept=".pdf,.jpg,.jpeg,.png" onchange="fileSelected(this,'has_invoice')"/>
+                <div class="ksa-upload-trigger"><span class="uico">&#x1F4CE;</span> Attach Invoice</div>
+                <div class="ksa-upload-fname" id="fn_has_invoice"></div>
+              </div>
+            </div>
+            <div class="ksa-doc-wrap">
+              <label class="ksa-doc-chk"><input type="checkbox" id="has_packing_list" onchange="toggleDoc(this)"/><div class="dt"><strong>Packing List</strong><span>&#x642;&#x627;&#x626;&#x645;&#x629; &#x627;&#x644;&#x639;&#x628;&#x648;&#x629;</span></div></label>
+              <div class="ksa-upload-zone" id="uz_has_packing_list" style="display:none;" onclick="document.getElementById('fi_has_packing_list').click()">
+                <input type="file" id="fi_has_packing_list" accept=".pdf,.jpg,.jpeg,.png" onchange="fileSelected(this,'has_packing_list')"/>
+                <div class="ksa-upload-trigger"><span class="uico">&#x1F4CE;</span> Attach Packing List</div>
+                <div class="ksa-upload-fname" id="fn_has_packing_list"></div>
+              </div>
+            </div>
+            <div class="ksa-doc-wrap">
+              <label class="ksa-doc-chk"><input type="checkbox" id="has_coo" onchange="toggleDoc(this)"/><div class="dt"><strong>Certificate of Origin</strong><span>&#x634;&#x647;&#x627;&#x62F;&#x629; &#x627;&#x644;&#x645;&#x646;&#x634;&#x623;</span></div></label>
+              <div class="ksa-upload-zone" id="uz_has_coo" style="display:none;" onclick="document.getElementById('fi_has_coo').click()">
+                <input type="file" id="fi_has_coo" accept=".pdf,.jpg,.jpeg,.png" onchange="fileSelected(this,'has_coo')"/>
+                <div class="ksa-upload-trigger"><span class="uico">&#x1F4CE;</span> Attach CoO</div>
+                <div class="ksa-upload-fname" id="fn_has_coo"></div>
+              </div>
+            </div>
+            <div class="ksa-doc-wrap">
+              <label class="ksa-doc-chk"><input type="checkbox" id="has_saber_scoc" onchange="toggleDoc(this)"/><div class="dt"><strong>SABER SCoC</strong><span>&#x634;&#x647;&#x627;&#x62F;&#x629; &#x645;&#x637;&#x627;&#x628;&#x642;&#x629; &#x633;&#x627;&#x628;&#x631;</span></div></label>
+              <div class="ksa-upload-zone" id="uz_has_saber_scoc" style="display:none;" onclick="document.getElementById('fi_has_saber_scoc').click()">
+                <input type="file" id="fi_has_saber_scoc" accept=".pdf,.jpg,.jpeg,.png" onchange="fileSelected(this,'has_saber_scoc')"/>
+                <div class="ksa-upload-trigger"><span class="uico">&#x1F4CE;</span> Attach SABER SCoC</div>
+                <div class="ksa-upload-fname" id="fn_has_saber_scoc"></div>
+              </div>
+            </div>
+            <div class="ksa-doc-wrap">
+              <label class="ksa-doc-chk"><input type="checkbox" id="has_sfda" onchange="toggleDoc(this)"/><div class="dt"><strong>SFDA Approval</strong><span>&#x645;&#x648;&#x627;&#x641;&#x642;&#x629; &#x647;&#x64A;&#x626;&#x629; &#x627;&#x644;&#x63A;&#x630;&#x627;&#x621; &#x648;&#x627;&#x644;&#x62F;&#x648;&#x627;&#x621;</span></div></label>
+              <div class="ksa-upload-zone" id="uz_has_sfda" style="display:none;" onclick="document.getElementById('fi_has_sfda').click()">
+                <input type="file" id="fi_has_sfda" accept=".pdf,.jpg,.jpeg,.png" onchange="fileSelected(this,'has_sfda')"/>
+                <div class="ksa-upload-trigger"><span class="uico">&#x1F4CE;</span> Attach SFDA Approval</div>
+                <div class="ksa-upload-fname" id="fn_has_sfda"></div>
+              </div>
+            </div>
+            <div class="ksa-doc-wrap">
+              <label class="ksa-doc-chk"><input type="checkbox" id="has_citc" onchange="toggleDoc(this)"/><div class="dt"><strong>CITC Certificate</strong><span>&#x634;&#x647;&#x627;&#x62F;&#x629; &#x647;&#x64A;&#x626;&#x629; &#x627;&#x644;&#x627;&#x62A;&#x635;&#x627;&#x644;&#x627;&#x62A;</span></div></label>
+              <div class="ksa-upload-zone" id="uz_has_citc" style="display:none;" onclick="document.getElementById('fi_has_citc').click()">
+                <input type="file" id="fi_has_citc" accept=".pdf,.jpg,.jpeg,.png" onchange="fileSelected(this,'has_citc')"/>
+                <div class="ksa-upload-trigger"><span class="uico">&#x1F4CE;</span> Attach CITC Certificate</div>
+                <div class="ksa-upload-fname" id="fn_has_citc"></div>
+              </div>
+            </div>
           </div>
           <div class="ksa-field" style="margin-top:12px;">
             <label>Additional Notes</label>
@@ -526,6 +665,16 @@ function validate(n) {
             toastMsg('Please describe your goods.', true);
         } else { el.classList.remove('err'); }
     }
+    if (n === 3) {
+        var agreeChk = document.getElementById('ksa-agree-chk');
+        if (!agreeChk.checked) {
+            document.getElementById('ksa-agree-row').style.outline = '2px solid #e53e3e';
+            ok = false;
+            toastMsg('Please read and agree to the Service Contract terms.', true);
+        } else {
+            document.getElementById('ksa-agree-row').style.outline = '';
+        }
+    }
     return ok;
 }
 
@@ -549,6 +698,19 @@ function buildSum() {
         html += '<div class="sum-row"><span class="sum-key">' + k + '</span><span class="sum-val">' + v + '</span></div>';
     }
     document.getElementById('sum-content').innerHTML = html;
+}
+
+var DOC_IDS = ['has_bill_of_lading','has_invoice','has_packing_list','has_coo','has_saber_scoc','has_sfda','has_citc'];
+
+function contractFileSelected(input) {
+    var zone = document.getElementById('ksa-contract-zone');
+    var fname = document.getElementById('ksa-contract-fname');
+    var label = document.getElementById('ksa-contract-trigger-label');
+    if (input.files && input.files[0]) {
+        zone.classList.add('done');
+        fname.textContent = input.files[0].name;
+        label.innerHTML = '&#x2714; Signed Contract Selected <span class="ksa-optional-tag" style="background:#1a6b35;">Uploaded</span>';
+    }
 }
 
 function submitF() {
@@ -608,10 +770,33 @@ function submitF() {
     .then(function(resp) { return resp.json(); })
     .then(function(result) {
         if (result.success) {
-            document.getElementById('res-ref').textContent          = result.reference || '\u2014';
-            document.getElementById('res-link').href                = '/customs-portal/status/' + (result.token || '');
-            document.getElementById('ksa-form-body').style.display  = 'none';
-            document.getElementById('ksa-success').style.display    = 'block';
+            var token = result.token || '';
+            /* Collect files selected for checked doc types */
+            var uploads = [];
+            for (var i = 0; i < DOC_IDS.length; i++) {
+                var fi = document.getElementById('fi_' + DOC_IDS[i]);
+                if (fi && fi.files && fi.files[0]) {
+                    uploads.push({ docId: DOC_IDS[i], file: fi.files[0] });
+                }
+            }
+            /* Collect signed contract file if provided */
+            var contractFile = document.getElementById('ksa-contract-file');
+            if (contractFile && contractFile.files && contractFile.files[0]) {
+                uploads.push({ docId: 'contract_doc', file: contractFile.files[0] });
+            }
+            if (uploads.length === 0) { showSuccess(result); return; }
+            btn.textContent = 'Uploading files...';
+            var promises = [];
+            for (var j = 0; j < uploads.length; j++) {
+                var fd = new FormData();
+                fd.append('token', token);
+                fd.append('doc_field', uploads[j].docId);
+                fd.append('file', uploads[j].file, uploads[j].file.name);
+                promises.push(fetch('/customs-portal/upload-doc', { method: 'POST', body: fd }));
+            }
+            Promise.all(promises)
+                .then(function() { showSuccess(result); })
+                .catch(function() { showSuccess(result); });
         } else {
             toastMsg('Error: ' + (result.error || 'Submission failed'), true);
             btn.disabled = false;
@@ -625,6 +810,13 @@ function submitF() {
     });
 }
 
+function showSuccess(result) {
+    document.getElementById('res-ref').textContent          = result.reference || '\u2014';
+    document.getElementById('res-link').href                = '/customs-portal/status/' + (result.token || '');
+    document.getElementById('ksa-form-body').style.display  = 'none';
+    document.getElementById('ksa-success').style.display    = 'block';
+}
+
 function resetF() {
     document.getElementById('ksa-success').style.display   = 'none';
     document.getElementById('ksa-form-body').style.display = '';
@@ -632,6 +824,28 @@ function resetF() {
     for (var i = 0; i < inputs.length; i++) { inputs[i].value = ''; }
     var checkboxes = document.querySelectorAll('#ksa-form-body input[type=checkbox]');
     for (var i = 0; i < checkboxes.length; i++) { checkboxes[i].checked = false; }
+    /* Reset upload zones */
+    for (var j = 0; j < DOC_IDS.length; j++) {
+        var uz = document.getElementById('uz_' + DOC_IDS[j]);
+        var fi = document.getElementById('fi_' + DOC_IDS[j]);
+        var fn = document.getElementById('fn_' + DOC_IDS[j]);
+        if (uz) { uz.style.display = 'none'; uz.classList.remove('done'); }
+        if (fi) { fi.value = ''; }
+        if (fn) { fn.textContent = ''; }
+    }
+    var labels = document.querySelectorAll('.ksa-doc-chk');
+    for (var k = 0; k < labels.length; k++) { labels[k].classList.remove('active'); }
+    /* Reset contract zone */
+    var czone = document.getElementById('ksa-contract-zone');
+    var cfile = document.getElementById('ksa-contract-file');
+    var cfname = document.getElementById('ksa-contract-fname');
+    var clabel = document.getElementById('ksa-contract-trigger-label');
+    if (czone) { czone.classList.remove('done'); }
+    if (cfile) { cfile.value = ''; }
+    if (cfname) { cfname.textContent = ''; }
+    if (clabel) { clabel.innerHTML = 'Upload Signed Contract <span class="ksa-optional-tag">Optional</span>'; }
+    var agreeRow = document.getElementById('ksa-agree-row');
+    if (agreeRow) { agreeRow.style.outline = ''; }
     showS(0);
 }
 
@@ -660,11 +874,34 @@ function toastMsg(msg, isErr) {
 }
 
 function toggleDoc(checkbox) {
+    var docId = checkbox.id;
     var label = checkbox.closest('.ksa-doc-chk') || checkbox.parentElement;
+    var uz    = document.getElementById('uz_' + docId);
     if (checkbox.checked) {
         label.classList.add('active');
+        if (uz) { uz.style.display = ''; }
     } else {
         label.classList.remove('active');
+        if (uz) {
+            uz.style.display = 'none';
+            uz.classList.remove('done');
+            var fi = document.getElementById('fi_' + docId);
+            var fn = document.getElementById('fn_' + docId);
+            if (fi) { fi.value = ''; }
+            if (fn) { fn.textContent = ''; }
+        }
+    }
+}
+
+function fileSelected(input, docId) {
+    var uz = document.getElementById('uz_' + docId);
+    var fn = document.getElementById('fn_' + docId);
+    if (input.files && input.files[0]) {
+        uz.classList.add('done');
+        fn.textContent = input.files[0].name;
+    } else {
+        uz.classList.remove('done');
+        fn.textContent = '';
     }
 }
 showS(0);
@@ -678,88 +915,1262 @@ showS(0);
 <!-- ═══════════════════════════════════════════════════════════════════════
      STATUS PAGE  —  /customs-portal/status/<token>
 ═══════════════════════════════════════════════════════════════════════ -->
-<template id="portal_status_page" name="Customs Portal — Request Status">
+<template id="portal_status_entry_page" name="Customs Portal — Status Entry">
 <t t-call="website.layout">
-<t t-set="title">Request Status &#x2014; Customs Clearance Portal</t>
-
+<t t-set="title">Track Your Request &#x2014; Customs Clearance Portal</t>
 <style>
-.ksa-status-page{background:#0d1f35;min-height:100vh;padding:60px 0;font-family:'Syne',sans-serif;}
-.ksa-status-page::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 60% at 10% 20%,rgba(30,95,168,.18) 0%,transparent 60%),radial-gradient(ellipse 60% 80% at 90% 80%,rgba(14,157,130,.12) 0%,transparent 60%),linear-gradient(160deg,#0d1f35 0%,#0a1929 100%);z-index:0;pointer-events:none;}
-.ksa-sw{position:relative;z-index:1;max-width:660px;margin:0 auto;padding:0 24px;text-align:center;}
-.ksa-status-page h2{color:#fff;font-size:26px;font-weight:800;margin-bottom:8px;}
-.ksa-status-page p{color:#8a99ae;margin-bottom:18px;}
-.ksa-scard{background:#fff;border-radius:18px;padding:30px;box-shadow:0 16px 50px rgba(0,0,0,.3);text-align:left;margin-top:10px;}
-.ks-badge{display:inline-flex;align-items:center;gap:8px;padding:8px 18px;border-radius:20px;font-size:14px;font-weight:700;margin-bottom:20px;}
-.ks-badge.draft{background:#e8f4fd;color:#1e5fa8;}
-.ks-badge.review{background:#fef9e7;color:#7d5a00;}
-.ks-badge.approved{background:#d5f5e3;color:#1a6b35;}
-.ks-badge.rejected{background:#fdedec;color:#922b21;}
-.ks-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #dde4ee;font-size:13px;}
-.ks-row:last-child{border:none;}
-.ks-k{color:#4a5e75;font-weight:600;}
-.ks-v{color:#1c2a3a;font-weight:500;text-align:right;max-width:65%;}
-.ks-notes{background:#f4f7fb;border-radius:10px;padding:14px;margin-top:16px;font-size:13px;color:#1c2a3a;line-height:1.65;}
-.ks-notes strong{display:block;color:#4a5e75;font-size:11px;text-transform:uppercase;letter-spacing:.3px;margin-bottom:6px;}
-.ks-nf{color:#fff;padding:40px;}
-.ks-nf-icon{font-size:48px;margin-bottom:16px;}
-.ks-back{display:inline-flex;align-items:center;gap:6px;background:#1e5fa8;color:#fff;padding:11px 22px;border-radius:8px;font-size:14px;font-weight:600;text-decoration:none;margin-top:20px;}
-.ks-back:hover{background:#2575c4;color:#fff;}
+.kse{background:#0d1f35;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:60px 24px;font-family:'Syne',sans-serif;}
+.kse::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 60% at 10% 20%,rgba(30,95,168,.18) 0%,transparent 60%),linear-gradient(160deg,#0d1f35 0%,#0a1929 100%);z-index:0;pointer-events:none;}
+.kse-box{position:relative;z-index:1;background:#fff;border-radius:20px;padding:40px;max-width:480px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.4);text-align:center;}
+.kse-icon{font-size:48px;margin-bottom:16px;}
+.kse-box h2{font-size:24px;font-weight:800;color:#0d1f35;margin-bottom:6px;}
+.kse-box p{color:#64748b;font-size:14px;margin-bottom:24px;}
+.kse-input{width:100%;background:#f8fafd;border:2px solid #dde4ee;border-radius:12px;padding:13px 16px;font-family:'Syne',sans-serif;font-size:15px;color:#0d1f35;outline:none;box-sizing:border-box;margin-bottom:14px;transition:border .2s;}
+.kse-input:focus{border-color:#1e5fa8;box-shadow:0 0 0 3px rgba(30,95,168,.1);}
+.kse-btn{width:100%;padding:13px;background:linear-gradient(135deg,#1e5fa8,#2575c4);color:#fff;border:none;border-radius:12px;font-family:'Syne',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:opacity .2s;}
+.kse-btn:hover{opacity:.9;}
+.kse-links{margin-top:20px;font-size:13px;color:#8a99ae;}
+.kse-links a{color:#1e5fa8;text-decoration:none;font-weight:600;}
 </style>
-
-<div class="ksa-status-page">
-  <div class="ksa-sw">
-    <t t-if="not found">
-      <div class="ks-nf">
-        <div class="ks-nf-icon">&#x1F50D;</div>
-        <h2>Request Not Found</h2>
-        <p>No request found for: <strong style="color:#fff;" t-esc="token"/><br/>Please check your reference and try again.</p>
-        <a class="ks-back" href="/customs-portal/register">&#x2190; Submit New Request</a>
-      </div>
-    </t>
-    <t t-else="">
-      <h2>Request Status</h2>
-      <p>Reference: <strong style="color:#fff;" t-esc="req.name"/></p>
-
-      <div class="ksa-scard">
-        <div t-attf-class="ks-badge #{req.state}">
-          <t t-if="req.state == 'draft'">&#x1F4CB; Submitted &#x2014; Awaiting Review</t>
-          <t t-elif="req.state == 'review'">&#x1F50D; Being Reviewed</t>
-          <t t-elif="req.state == 'approved'">&#x2705; Approved</t>
-          <t t-elif="req.state == 'rejected'">&#x274C; Needs Updates</t>
-        </div>
-
-        <div class="ks-row"><span class="ks-k">Reference</span><span class="ks-v" style="font-family:monospace;" t-esc="req.name"/></div>
-        <div class="ks-row"><span class="ks-k">Submitted</span><span class="ks-v" t-esc="req.create_date"/></div>
-        <div class="ks-row"><span class="ks-k">Company</span><span class="ks-v" t-esc="req.requester_company"/></div>
-        <div class="ks-row"><span class="ks-k">Type</span><span class="ks-v" t-esc="req.clearance_type"/></div>
-        <div class="ks-row"><span class="ks-k">Shipment Mode</span><span class="ks-v" t-esc="req.shipment_type"/></div>
-        <t t-if="req.eta">
-          <div class="ks-row"><span class="ks-k">ETA</span><span class="ks-v" t-esc="req.eta"/></div>
-        </t>
-        <t t-if="req.clearance_id">
-          <div class="ks-row"><span class="ks-k">Clearance Order</span><span class="ks-v" style="color:#1a6b35;font-weight:700;" t-esc="req.clearance_id.name"/></div>
-        </t>
-
-        <t t-if="req.state == 'approved' and req.review_notes">
-          <div class="ks-notes">
-            <strong>Notes from our team</strong>
-            <span t-esc="req.review_notes"/>
-          </div>
-        </t>
-        <t t-if="req.state == 'rejected' and req.rejection_reason">
-          <div class="ks-notes" style="background:#fdedec;">
-            <strong style="color:#922b21;">Action Required</strong>
-            <span t-esc="req.rejection_reason"/>
-          </div>
-        </t>
-      </div>
-
-      <a class="ks-back" href="/customs-portal/register">&#x2190; Submit New Request</a>
-    </t>
+<div class="kse">
+  <div class="kse-box">
+    <div class="kse-icon">&#x1F4CB;</div>
+    <h2>Track Your Request</h2>
+    <p>Enter your reference number or tracking token to check the status of your customs clearance request.</p>
+    <form method="get" action="/customs-portal/status-search">
+      <input class="kse-input" type="text" name="ref" placeholder="PRT/2026/00001 or token…" required="required"/>
+      <button class="kse-btn" type="submit">Check Status &#x2192;</button>
+    </form>
+    <div class="kse-links">
+      <a href="/customs-portal/search">Search by name / phone</a> &#x2022;
+      <a href="/customs-portal/register">Submit new request</a>
+    </div>
   </div>
 </div>
 </t>
 </template>
+
+<template id="portal_status_page" name="Customs Portal — Request Status">
+<t t-call="website.layout">
+<t t-set="title">Shipment Status — Customs Clearance Portal</t>
+<style>
+/* ── Base ── */
+.trk{background:#0b1929;min-height:100vh;padding:40px 0 100px;font-family:'Syne',sans-serif;}
+.trk::before{content:'';position:fixed;inset:0;
+  background:radial-gradient(ellipse 70% 50% at 5% 15%,rgba(0,108,53,.14) 0%,transparent 60%),
+             radial-gradient(ellipse 60% 70% at 95% 85%,rgba(30,95,168,.13) 0%,transparent 60%),
+             linear-gradient(160deg,#0b1929 0%,#060f1a 100%);
+  z-index:0;pointer-events:none;}
+.trk-w{position:relative;z-index:1;max-width:1020px;margin:0 auto;padding:0 20px;}
+
+/* ── Topbar ── */
+.trk-topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:10px;}
+.trk-logo{display:flex;align-items:center;gap:10px;}
+.trk-logo-ico{width:38px;height:38px;border-radius:10px;background:rgba(0,108,53,.25);border:1px solid rgba(0,108,53,.4);display:flex;align-items:center;justify-content:center;font-size:18px;}
+.trk-logo strong{color:#fff;font-size:14px;font-weight:800;}
+.trk-logo span{display:block;color:#5a7a8a;font-size:11px;}
+.trk-topbar-links{display:flex;gap:10px;}
+.trk-tl-btn{padding:8px 16px;border-radius:8px;font-size:12px;font-weight:700;text-decoration:none;border:1px solid;transition:all .2s;}
+.trk-tl-btn.ghost{border-color:rgba(255,255,255,.15);color:#8a99ae;}
+.trk-tl-btn.ghost:hover{border-color:rgba(255,255,255,.35);color:#fff;}
+.trk-tl-btn.primary{border-color:rgba(0,108,53,.5);color:#4ade80;background:rgba(0,108,53,.15);}
+.trk-tl-btn.primary:hover{background:rgba(0,108,53,.3);}
+
+/* ── Hero header ── */
+.trk-hero{background:linear-gradient(135deg,rgba(0,108,53,.18) 0%,rgba(17,41,82,.4) 100%);border:1px solid rgba(0,108,53,.25);border-radius:20px;padding:28px 32px;margin-bottom:20px;}
+.trk-hero-top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:20px;}
+.trk-hero-ref{font-family:'JetBrains Mono',monospace;font-size:26px;font-weight:800;color:#fff;letter-spacing:-.5px;}
+.trk-hero-sub{color:#8a99ae;font-size:13px;margin-top:5px;}
+.trk-badge{display:inline-flex;align-items:center;gap:7px;padding:8px 18px;border-radius:999px;font-size:13px;font-weight:700;white-space:nowrap;}
+.trk-badge.draft{background:rgba(30,95,168,.15);border:1px solid rgba(30,95,168,.35);color:#7ab3f0;}
+.trk-badge.review{background:rgba(200,164,21,.12);border:1px solid rgba(200,164,21,.35);color:#f0c830;}
+.trk-badge.approved{background:rgba(0,108,53,.15);border:1px solid rgba(0,108,53,.4);color:#4ade80;}
+.trk-badge.rejected{background:rgba(192,57,43,.12);border:1px solid rgba(192,57,43,.35);color:#f87171;}
+.trk-badge.active{background:rgba(200,164,21,.12);border:1px solid rgba(200,164,21,.35);color:#f0c830;}
+.trk-badge.released{background:rgba(0,108,53,.15);border:1px solid rgba(0,108,53,.4);color:#4ade80;}
+.trk-badge-dot{width:7px;height:7px;border-radius:50%;background:currentColor;box-shadow:0 0 6px currentColor;}
+
+/* ── Progress bar ── */
+.trk-prog-wrap{overflow-x:auto;}
+.trk-prog-track{display:flex;align-items:flex-start;min-width:600px;padding-bottom:4px;}
+.trk-prog-step{display:flex;flex-direction:column;align-items:center;flex:1;position:relative;}
+.trk-prog-step:not(:last-child)::after{content:'';position:absolute;top:15px;left:50%;width:100%;height:2px;background:rgba(255,255,255,.08);z-index:0;}
+.trk-prog-step.done:not(:last-child)::after{background:linear-gradient(90deg,#006C35,rgba(0,108,53,.3));}
+.trk-prog-circle{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;position:relative;z-index:1;border:2px solid;transition:all .3s;}
+.trk-prog-step.done .trk-prog-circle{background:#006C35;border-color:#00a050;color:#fff;box-shadow:0 0 12px rgba(0,108,53,.5);}
+.trk-prog-step.active .trk-prog-circle{background:rgba(200,164,21,.2);border-color:#f0c830;color:#f0c830;animation:progPulse 2s ease-in-out infinite;}
+.trk-prog-step.pending .trk-prog-circle{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.12);color:#3a5060;}
+.trk-prog-step.cancelled .trk-prog-circle{background:rgba(192,57,43,.15);border-color:#f87171;color:#f87171;}
+@keyframes progPulse{0%,100%{box-shadow:0 0 0 0 rgba(240,200,48,.3)}50%{box-shadow:0 0 0 7px rgba(240,200,48,.0)}}
+.trk-prog-label{font-size:9px;font-weight:700;margin-top:7px;text-align:center;max-width:68px;line-height:1.3;}
+.trk-prog-step.done .trk-prog-label{color:#4ade80;}
+.trk-prog-step.active .trk-prog-label{color:#f0c830;}
+.trk-prog-step.pending .trk-prog-label{color:#3a5060;}
+.trk-prog-step.cancelled .trk-prog-label{color:#f87171;}
+.trk-prog-label .ar{display:block;font-size:8px;color:#8a99ae;margin-top:2px;}
+
+/* ── Not found ── */
+.trk-nf{text-align:center;padding:80px 20px;color:#fff;}
+.trk-nf-ico{font-size:64px;margin-bottom:20px;}
+.trk-nf h2{font-size:26px;font-weight:800;margin-bottom:12px;}
+.trk-nf p{color:#8a99ae;font-size:14px;}
+
+/* ── Cards ── */
+.trk-card{background:rgba(255,255,255,.97);border-radius:18px;padding:24px 28px;margin-bottom:16px;box-shadow:0 8px 32px rgba(0,0,0,.3);}
+.trk-card-title{font-size:11px;font-weight:800;color:#4a5e75;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:18px;display:flex;align-items:center;gap:8px;border-bottom:1px solid #eef2f7;padding-bottom:10px;}
+.trk-card-icon{width:26px;height:26px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;}
+.trk-card-icon.green{background:#d5f5e3;}
+.trk-card-icon.blue{background:#dbeafe;}
+.trk-card-icon.orange{background:#fef3c7;}
+.trk-card-icon.purple{background:#ede9fe;}
+.trk-card-icon.red{background:#fdedec;}
+
+/* ── Two column grid ── */
+.trk-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+@media(max-width:700px){.trk-grid{grid-template-columns:1fr;}}
+
+/* ── Info rows ── */
+.trk-row{display:flex;justify-content:space-between;align-items:flex-start;padding:8px 0;border-bottom:1px solid #eef2f7;font-size:13px;gap:12px;}
+.trk-row:last-child{border:none;padding-bottom:0;}
+.trk-rk{color:#64748b;font-weight:600;white-space:nowrap;min-width:110px;flex-shrink:0;}
+.trk-rv{color:#0f172a;font-weight:500;text-align:right;flex:1;word-break:break-word;}
+.trk-rv.mono{font-family:monospace;font-size:13px;font-weight:700;color:#1a3a5c;}
+.trk-rv.green{color:#006C35;font-weight:700;}
+.trk-rv.bold{font-weight:700;color:#0f172a;}
+
+/* ── State badge inline ── */
+.badge-pill{display:inline-flex;align-items:center;gap:5px;padding:3px 11px;border-radius:99px;font-size:11px;font-weight:700;}
+.badge-pill.green{background:#d5f5e3;color:#1a6b35;}
+.badge-pill.blue{background:#dbeafe;color:#1e40af;}
+.badge-pill.yellow{background:#fef9e7;color:#7d5a00;}
+.badge-pill.red{background:#fdedec;color:#922b21;}
+.badge-pill.gray{background:#f0f4f8;color:#4a5e75;}
+
+/* ── Lane color ── */
+.lane-red{background:#fdedec;color:#c0392b;padding:3px 10px;border-radius:8px;font-size:12px;font-weight:700;}
+.lane-yellow{background:#fef9e7;color:#7d5a00;padding:3px 10px;border-radius:8px;font-size:12px;font-weight:700;}
+.lane-green{background:#d5f5e3;color:#1a6b35;padding:3px 10px;border-radius:8px;font-size:12px;font-weight:700;}
+.lane-blue{background:#dbeafe;color:#1e40af;padding:3px 10px;border-radius:8px;font-size:12px;font-weight:700;}
+
+/* ── Compliance items ── */
+.comp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;}
+.comp-item{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;border:1px solid;}
+.comp-item.ok{background:#f0fdf4;border-color:#a7d9b5;}
+.comp-item.miss{background:#fef2f2;border-color:#fca5a5;}
+.comp-item.na{background:#f8fafc;border-color:#e2e8f0;}
+.comp-icon{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+.comp-item.ok .comp-icon{background:#d5f5e3;}
+.comp-item.miss .comp-icon{background:#fdedec;}
+.comp-item.na .comp-icon{background:#f0f4f8;}
+.comp-label{font-size:12px;font-weight:700;color:#0f172a;}
+.comp-val{font-size:11px;color:#64748b;margin-top:1px;}
+
+/* ── Doc items ── */
+.trk-doc-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #eef2f7;font-size:13px;}
+.trk-doc-item:last-child{border:none;}
+.trk-doc-ico{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0;}
+.trk-doc-ico.ok{background:#d5f5e3;color:#006C35;}
+.trk-doc-ico.miss{background:#fdedec;color:#c0392b;}
+.trk-doc-ico.na{background:#f0f4f8;color:#8a99ae;}
+.trk-doc-name{flex:1;color:#0f172a;font-weight:500;}
+.trk-doc-tag{font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px;}
+.trk-doc-tag.ok{background:#d5f5e3;color:#006C35;}
+.trk-doc-tag.miss{background:#fdedec;color:#c0392b;}
+.trk-doc-tag.na{background:#f0f4f8;color:#8a99ae;}
+
+/* ── Fee table ── */
+.trk-fee{width:100%;border-collapse:collapse;font-size:13px;}
+.trk-fee td{padding:8px 0;}
+.trk-fee .fk{color:#4a5e75;font-weight:600;}
+.trk-fee .fv{text-align:right;color:#0f172a;font-weight:600;}
+.trk-fee .tot td{border-top:2px solid #dde4ee;padding-top:10px;font-size:15px;font-weight:800;}
+.trk-fee .tot .fv{color:#006C35;font-size:16px;}
+
+/* ── Action banners ── */
+.trk-action{border-radius:16px;padding:18px 22px;margin-bottom:16px;display:flex;align-items:flex-start;gap:14px;}
+.trk-action.offer{background:linear-gradient(135deg,rgba(0,108,53,.12),rgba(0,80,40,.18));border:1px solid rgba(0,108,53,.35);}
+.trk-action.warning{background:linear-gradient(135deg,rgba(192,57,43,.1),rgba(150,30,20,.15));border:1px solid rgba(192,57,43,.35);}
+.trk-action.info{background:linear-gradient(135deg,rgba(30,95,168,.1),rgba(20,60,130,.15));border:1px solid rgba(30,95,168,.3);}
+.trk-action-ico{font-size:28px;line-height:1;flex-shrink:0;}
+.trk-action-body strong{display:block;font-size:14px;font-weight:800;color:#fff;margin-bottom:4px;}
+.trk-action-body p{font-size:13px;color:rgba(255,255,255,.75);margin:0 0 14px;line-height:1.6;}
+.trk-action-btns{display:flex;gap:10px;flex-wrap:wrap;}
+.trk-btn-accept{padding:10px 22px;background:linear-gradient(135deg,#006C35,#00a050);color:#fff;border-radius:9px;text-decoration:none;font-size:13px;font-weight:700;display:inline-block;}
+.trk-btn-decline{padding:10px 20px;background:rgba(255,255,255,.1);color:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.2);border-radius:9px;text-decoration:none;font-size:13px;font-weight:600;display:inline-block;}
+.trk-btn-resubmit{padding:10px 22px;background:linear-gradient(135deg,#1e5fa8,#2575c4);color:#fff;border-radius:9px;text-decoration:none;font-size:13px;font-weight:700;display:inline-block;}
+
+/* ── Goods table ── */
+.trk-goods-tbl{width:100%;border-collapse:collapse;font-size:12px;}
+.trk-goods-tbl th{text-align:left;color:#4a5e75;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:6px 8px;border-bottom:2px solid #eef2f7;}
+.trk-goods-tbl td{padding:8px;border-bottom:1px solid #f0f4f8;color:#0f172a;vertical-align:top;}
+.trk-goods-tbl tr:last-child td{border:none;}
+.trk-goods-tbl .hs{font-family:monospace;font-size:11px;color:#4a5e75;background:#f0f4f8;padding:2px 6px;border-radius:4px;}
+
+/* ── Timeline ── */
+.trk-tl{position:relative;padding-left:30px;}
+.trk-tl::before{content:'';position:absolute;left:10px;top:4px;bottom:4px;width:2px;background:#eef2f7;border-radius:2px;}
+.trk-tl-item{position:relative;padding:0 0 18px 16px;}
+.trk-tl-item:last-child{padding-bottom:0;}
+.trk-tl-dot{position:absolute;left:-20px;top:2px;width:16px;height:16px;border-radius:50%;border:2px solid;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;}
+.trk-tl-dot.done{background:#006C35;border-color:#00a050;color:#fff;}
+.trk-tl-dot.warn{background:#c0392b;border-color:#e74c3c;color:#fff;}
+.trk-tl-dot.offer-dot{background:#1e5fa8;border-color:#2575c4;color:#fff;}
+.trk-tl-dot.pending{background:#f8fafc;border-color:#dde4ee;color:#aaa;}
+.trk-tl-time{font-size:11px;color:#94a3b8;margin-bottom:2px;}
+.trk-tl-label{font-size:13px;font-weight:700;color:#0f172a;}
+.trk-tl-desc{font-size:12px;color:#64748b;margin-top:2px;line-height:1.5;}
+
+/* ── Notes ── */
+.trk-notes{background:#f0fdf4;border-left:4px solid #006C35;border-radius:0 10px 10px 0;padding:14px 16px;font-size:13px;color:#1c2a3a;line-height:1.65;}
+.trk-notes-lbl{font-size:10px;font-weight:800;color:#006C35;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px;}
+.trk-rejection-box{background:#fdedec;border-left:4px solid #c0392b;border-radius:0 10px 10px 0;padding:14px 16px;}
+.trk-rejection-box .lbl{font-size:10px;font-weight:800;color:#c0392b;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px;}
+.trk-rejection-box p{font-size:13px;color:#7b241c;margin:0;line-height:1.65;}
+
+/* ── Bottom nav ── */
+.trk-nav{display:flex;gap:12px;justify-content:center;margin-top:28px;flex-wrap:wrap;}
+.trk-nav-btn{padding:12px 24px;border-radius:10px;font-size:13px;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:7px;transition:all .2s;}
+.trk-nav-btn.secondary{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);color:#8a99ae;}
+.trk-nav-btn.secondary:hover{background:rgba(255,255,255,.12);color:#fff;}
+.trk-nav-btn.green{background:linear-gradient(135deg,#006C35,#00a050);color:#fff;}
+.trk-nav-btn.green:hover{opacity:.9;}
+
+/* ── Doc upload (status page) ── */
+.trk-doc-upload-toggle{display:inline-flex;align-items:center;gap:4px;cursor:pointer;font-size:10px;font-weight:700;color:#1e40af;padding:2px 9px;background:#dbeafe;border:1px solid #93c5fd;border-radius:99px;transition:all .2s;user-select:none;margin-left:4px;flex-shrink:0;}
+.trk-doc-upload-toggle:hover{background:#bfdbfe;}
+.trk-doc-upload-toggle.done{background:#d5f5e3;border-color:#86efac;color:#15803d;}
+.trk-doc-upload-zone{display:none;width:100%;margin-top:8px;padding:0 0 4px 32px;}
+.trk-doc-upload-label{display:flex;align-items:center;gap:8px;cursor:pointer;border:1.5px dashed #3b82f6;border-radius:9px;padding:9px 14px;background:#eff6ff;font-size:12px;color:#1d4ed8;font-weight:600;transition:all .2s;}
+.trk-doc-upload-label:hover{background:#dbeafe;}
+.trk-doc-upload-label.success{border-color:#22c55e;background:#f0fdf4;color:#15803d;}
+.trk-doc-fname{font-size:11px;color:#15803d;font-weight:600;margin-top:5px;padding:4px 10px;background:#f0fdf4;border-radius:6px;display:none;word-break:break-all;}
+.trk-doc-uploading{font-size:11px;color:#1e40af;margin-top:5px;display:none;}
+.trk-doc-err{font-size:11px;color:#dc2626;margin-top:5px;padding:4px 10px;background:#fef2f2;border-radius:6px;display:none;word-break:break-all;}
+
+@media(max-width:640px){
+  .trk-hero-top{flex-direction:column;}
+  .trk-hero-ref{font-size:20px;}
+  .trk-grid{grid-template-columns:1fr;}
+}
+</style>
+
+<div class="trk">
+<div class="trk-w">
+
+  <!-- Topbar -->
+  <div class="trk-topbar">
+    <div class="trk-logo">
+      <div class="trk-logo-ico">&#x2696;</div>
+      <div><strong>Customs Clearance KSA</strong><span>&#x627;&#x644;&#x62A;&#x62E;&#x644;&#x64A;&#x635; &#x627;&#x644;&#x62C;&#x645;&#x631;&#x643;&#x64A;</span></div>
+    </div>
+    <div class="trk-topbar-links">
+      <a href="/customs-portal/status" class="trk-tl-btn ghost">&#x2190; Track Another</a>
+      <a href="/customs-portal/register" class="trk-tl-btn primary">+ New Request</a>
+    </div>
+  </div>
+
+  <!-- ── NOT FOUND ── -->
+  <t t-if="not found">
+    <div class="trk-nf">
+      <div class="trk-nf-ico">&#x1F50D;</div>
+      <h2>Shipment Not Found</h2>
+      <p>No request found for: <strong style="color:#fff;" t-esc="token"/><br/>Please check your reference number or tracking token.</p>
+      <div class="trk-nav" style="margin-top:28px;">
+        <a href="/customs-portal/status" class="trk-nav-btn green">&#x2190; Try Again</a>
+      </div>
+    </div>
+  </t>
+
+  <!-- ── FOUND ── -->
+  <t t-else="">
+
+    <!-- Token holder for JS upload -->
+    <span id="trk-token-holder" t-att-data-token="token" style="display:none;"></span>
+
+    <!-- ═══════════════════════════════════════════════════
+         HERO HEADER
+    ═══════════════════════════════════════════════════ -->
+    <div class="trk-hero">
+      <div class="trk-hero-top">
+        <div>
+          <div class="trk-hero-ref" t-esc="req.name"/>
+          <div class="trk-hero-sub">
+            <t t-esc="req.requester_company"/> &#x2022; <t t-esc="req.requester_name"/>
+            <t t-if="clearance"> &#x2022; Clearance: <strong style="color:#4ade80;" t-esc="clearance.name"/></t>
+          </div>
+        </div>
+        <div>
+          <!-- Request state badge -->
+          <t t-if="clearance and clearance.state == 'released'">
+            <span class="trk-badge released"><span class="trk-badge-dot"/>&#x1F389; Goods Released</span>
+          </t>
+          <t t-elif="clearance and clearance.state == 'delivered'">
+            <span class="trk-badge released"><span class="trk-badge-dot"/>&#x1F69A; Delivered</span>
+          </t>
+          <t t-elif="clearance">
+            <span class="trk-badge active"><span class="trk-badge-dot"/>&#x231B; In Clearance Process</span>
+          </t>
+          <t t-elif="req.state == 'approved'">
+            <span class="trk-badge approved"><span class="trk-badge-dot"/>&#x2705; Approved</span>
+          </t>
+          <t t-elif="req.state == 'review'">
+            <span class="trk-badge review"><span class="trk-badge-dot"/>&#x1F50D; Under Review</span>
+          </t>
+          <t t-elif="req.state == 'rejected'">
+            <span class="trk-badge rejected"><span class="trk-badge-dot"/>&#x26A0; Action Required</span>
+          </t>
+          <t t-else="">
+            <span class="trk-badge draft"><span class="trk-badge-dot"/>&#x1F4CB; Submitted</span>
+          </t>
+        </div>
+      </div>
+
+      <!-- Progress bar: clearance steps when linked, else simple 5-step -->
+      <div class="trk-prog-wrap">
+        <div class="trk-prog-track">
+          <t t-if="steps">
+            <t t-foreach="steps" t-as="step">
+              <div t-attf-class="trk-prog-step #{step['status']}">
+                <div class="trk-prog-circle">
+                  <t t-if="step['status'] == 'done'">&#x2713;</t>
+                  <t t-elif="step['status'] == 'active'">&#x231B;</t>
+                  <t t-elif="step['status'] == 'cancelled'">&#x2715;</t>
+                  <t t-else=""><t t-esc="step_index + 1"/></t>
+                </div>
+                <div class="trk-prog-label">
+                  <t t-esc="step['label']"/>
+                  <span class="ar"><t t-esc="step['label_ar']"/></span>
+                </div>
+              </div>
+            </t>
+          </t>
+          <t t-else="">
+            <div t-attf-class="trk-prog-step done">
+              <div class="trk-prog-circle">&#x2713;</div>
+              <div class="trk-prog-label">Submitted<span class="ar">تم الإرسال</span></div>
+            </div>
+            <div t-attf-class="trk-prog-step #{req.state in ('review','approved','rejected') and 'done' or 'pending'}">
+              <div class="trk-prog-circle"><t t-if="req.state in ('review','approved','rejected')">&#x2713;</t><t t-else="">2</t></div>
+              <div class="trk-prog-label">Review<span class="ar">مراجعة</span></div>
+            </div>
+            <div t-attf-class="trk-prog-step #{req.state == 'approved' and 'done' or req.state == 'rejected' and 'cancelled' or 'pending'}">
+              <div class="trk-prog-circle"><t t-if="req.state == 'approved'">&#x2713;</t><t t-elif="req.state == 'rejected'">&#x26A0;</t><t t-else="">3</t></div>
+              <div class="trk-prog-label">Decision<span class="ar">القرار</span></div>
+            </div>
+            <div class="trk-prog-step pending">
+              <div class="trk-prog-circle">4</div>
+              <div class="trk-prog-label">Processing<span class="ar">التخليص</span></div>
+            </div>
+            <div class="trk-prog-step pending">
+              <div class="trk-prog-circle">5</div>
+              <div class="trk-prog-label">Released<span class="ar">الإفراج</span></div>
+            </div>
+          </t>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════
+         ACTION BANNERS
+    ═══════════════════════════════════════════════════ -->
+    <t t-if="req.state == 'approved' and req.offer_state == 'sent'">
+      <div class="trk-action offer">
+        <div class="trk-action-ico">&#x1F4CB;</div>
+        <div class="trk-action-body">
+          <strong>Service Offer Awaiting Your Response — عرض خدمات بانتظار ردك</strong>
+          <p>We have sent you a service offer with our fee estimate. Please review and confirm to proceed.</p>
+          <div class="trk-action-btns">
+            <a t-attf-href="/customs-portal/offer/accept/#{req.offer_token}" class="trk-btn-accept">&#x2713; Accept Offer</a>
+            <a t-attf-href="/customs-portal/offer/reject/#{req.offer_token}" class="trk-btn-decline">&#x2715; Decline</a>
+          </div>
+        </div>
+      </div>
+    </t>
+    <t t-if="req.state == 'rejected'">
+      <div class="trk-action warning">
+        <div class="trk-action-ico">&#x26A0;</div>
+        <div class="trk-action-body">
+          <strong>Action Required — يرجى إعادة التقديم</strong>
+          <p>Your request requires corrections. Review the reason below and resubmit.</p>
+          <div class="trk-action-btns">
+            <a href="/customs-portal/register" class="trk-btn-resubmit">&#x21BA; Resubmit Request</a>
+          </div>
+        </div>
+      </div>
+    </t>
+    <t t-if="req.state in ('draft','review') and not clearance">
+      <div class="trk-action info">
+        <div class="trk-action-ico">&#x1F50D;</div>
+        <div class="trk-action-body">
+          <strong>Your request is being reviewed — طلبك قيد المراجعة</strong>
+          <p>Our customs team typically responds within 1–2 business days. You will receive an email when a decision is made.</p>
+        </div>
+      </div>
+    </t>
+
+    <!-- ═══════════════════════════════════════════════════
+         SECTION A: CLEARANCE ACTIVE — full detail view
+    ═══════════════════════════════════════════════════ -->
+    <t t-if="clearance">
+
+      <!-- Grid row 1: Clearance Status + Shipment & Transport -->
+      <div class="trk-grid">
+
+        <!-- Clearance Status Card -->
+        <div class="trk-card">
+          <div class="trk-card-title">
+            <div class="trk-card-icon green">&#x1F4C4;</div>
+            Clearance Details — تفاصيل التخليص
+          </div>
+          <div class="trk-row">
+            <span class="trk-rk">Reference</span>
+            <span class="trk-rv mono" t-esc="clearance.name"/>
+          </div>
+          <div class="trk-row">
+            <span class="trk-rk">Type</span>
+            <span class="trk-rv bold" t-esc="(clearance.clearance_type or '').upper()"/>
+          </div>
+          <div class="trk-row">
+            <span class="trk-rk">Stage</span>
+            <span class="trk-rv">
+              <t t-if="clearance.state == 'draft'"><span class="badge-pill gray">Draft</span></t>
+              <t t-elif="clearance.state == 'acd_submitted'"><span class="badge-pill blue">ACD Submitted</span></t>
+              <t t-elif="clearance.state == 'submitted'"><span class="badge-pill blue">FASAH Filed</span></t>
+              <t t-elif="clearance.state == 'customs_review'"><span class="badge-pill yellow">Doc Review</span></t>
+              <t t-elif="clearance.state == 'inspection'"><span class="badge-pill yellow">Under Inspection</span></t>
+              <t t-elif="clearance.state == 'duty_payment'"><span class="badge-pill yellow">Duty Payment</span></t>
+              <t t-elif="clearance.state == 'released'"><span class="badge-pill green">&#x2713; Released</span></t>
+              <t t-elif="clearance.state == 'delivered'"><span class="badge-pill green">&#x1F69A; Delivered</span></t>
+              <t t-else=""><span class="badge-pill gray" t-esc="clearance.state"/></t>
+            </span>
+          </div>
+          <t t-if="clearance.inspection_lane">
+            <div class="trk-row">
+              <span class="trk-rk">Inspection Lane</span>
+              <span class="trk-rv">
+                <t t-if="clearance.inspection_lane == 'red'"><span class="lane-red">&#x1F534; Red Lane</span></t>
+                <t t-elif="clearance.inspection_lane == 'yellow'"><span class="lane-yellow">&#x1F7E1; Yellow Lane</span></t>
+                <t t-elif="clearance.inspection_lane == 'green'"><span class="lane-green">&#x1F7E2; Green Lane</span></t>
+                <t t-elif="clearance.inspection_lane == 'blue'"><span class="lane-blue">&#x1F535; Blue Lane</span></t>
+                <t t-else=""><t t-esc="clearance.inspection_lane"/></t>
+              </span>
+            </div>
+          </t>
+          <t t-if="clearance.customs_declaration_no">
+            <div class="trk-row">
+              <span class="trk-rk">Declaration No.</span>
+              <span class="trk-rv mono" t-esc="clearance.customs_declaration_no"/>
+            </div>
+          </t>
+          <t t-if="clearance.acd_reference_no">
+            <div class="trk-row">
+              <span class="trk-rk">ACD Reference</span>
+              <span class="trk-rv mono" t-esc="clearance.acd_reference_no"/>
+            </div>
+          </t>
+          <t t-if="clearance.fasah_declaration_no">
+            <div class="trk-row">
+              <span class="trk-rk">FASAH Declaration</span>
+              <span class="trk-rv mono" t-esc="clearance.fasah_declaration_no"/>
+            </div>
+          </t>
+          <t t-if="clearance.masar_tracking_no">
+            <div class="trk-row">
+              <span class="trk-rk">MASAR Tracking</span>
+              <span class="trk-rv mono" t-esc="clearance.masar_tracking_no"/>
+            </div>
+          </t>
+          <t t-if="clearance.release_permit_no">
+            <div class="trk-row">
+              <span class="trk-rk">Release Permit</span>
+              <span class="trk-rv green mono" t-esc="clearance.release_permit_no"/>
+            </div>
+          </t>
+        </div>
+
+        <!-- Shipment & Transport Card -->
+        <div class="trk-card">
+          <div class="trk-card-title">
+            <div class="trk-card-icon blue">&#x1F6A2;</div>
+            Shipment &amp; Transport — بيانات الشحنة
+          </div>
+          <div class="trk-row">
+            <span class="trk-rk">Mode</span>
+            <span class="trk-rv bold" t-esc="(req.shipment_type or '').title()"/>
+          </div>
+          <t t-if="req.vessel_name">
+            <div class="trk-row">
+              <span class="trk-rk">Vessel / Carrier</span>
+              <span class="trk-rv bold" t-esc="req.vessel_name"/>
+            </div>
+          </t>
+          <t t-if="clearance.bill_of_lading_no or req.bill_of_lading_no">
+            <div class="trk-row">
+              <span class="trk-rk">Bill of Lading</span>
+              <span class="trk-rv mono" t-esc="clearance.bill_of_lading_no or req.bill_of_lading_no"/>
+            </div>
+          </t>
+          <t t-if="clearance.airway_bill_no">
+            <div class="trk-row">
+              <span class="trk-rk">Airway Bill</span>
+              <span class="trk-rv mono" t-esc="clearance.airway_bill_no"/>
+            </div>
+          </t>
+          <t t-if="clearance.port_id">
+            <div class="trk-row">
+              <span class="trk-rk">Port of Entry</span>
+              <span class="trk-rv bold" t-esc="clearance.port_id.name"/>
+            </div>
+          </t>
+          <t t-if="req.port_of_loading">
+            <div class="trk-row">
+              <span class="trk-rk">Port of Loading</span>
+              <span class="trk-rv" t-esc="req.port_of_loading"/>
+            </div>
+          </t>
+          <t t-if="req.port_of_discharge">
+            <div class="trk-row">
+              <span class="trk-rk">Port of Discharge</span>
+              <span class="trk-rv" t-esc="req.port_of_discharge"/>
+            </div>
+          </t>
+          <t t-if="clearance.country_origin_id">
+            <div class="trk-row">
+              <span class="trk-rk">Origin Country</span>
+              <span class="trk-rv" t-esc="clearance.country_origin_id.name"/>
+            </div>
+          </t>
+          <t t-if="clearance.country_destination_id">
+            <div class="trk-row">
+              <span class="trk-rk">Destination</span>
+              <span class="trk-rv" t-esc="clearance.country_destination_id.name"/>
+            </div>
+          </t>
+          <t t-if="req.eta">
+            <div class="trk-row">
+              <span class="trk-rk">ETA</span>
+              <span class="trk-rv bold" t-esc="req.eta"/>
+            </div>
+          </t>
+          <t t-if="req.gross_weight">
+            <div class="trk-row">
+              <span class="trk-rk">Gross Weight</span>
+              <span class="trk-rv"><t t-esc="req.gross_weight"/> kg</span>
+            </div>
+          </t>
+          <t t-if="req.packages_count">
+            <div class="trk-row">
+              <span class="trk-rk">Packages</span>
+              <span class="trk-rv" t-esc="req.packages_count"/>
+            </div>
+          </t>
+        </div>
+
+      </div><!-- end grid row 1 -->
+
+      <!-- Grid row 2: Customs Broker + Key Dates -->
+      <div class="trk-grid">
+
+        <!-- Customs Broker Card -->
+        <div class="trk-card">
+          <div class="trk-card-title">
+            <div class="trk-card-icon purple">&#x1F4BC;</div>
+            Customs Broker — المخلص الجمركي
+          </div>
+          <t t-if="clearance.broker_id">
+            <div class="trk-row">
+              <span class="trk-rk">Broker</span>
+              <span class="trk-rv bold" t-esc="clearance.broker_id.name"/>
+            </div>
+          </t>
+          <t t-if="clearance.broker_license_no">
+            <div class="trk-row">
+              <span class="trk-rk">License No.</span>
+              <span class="trk-rv mono" t-esc="clearance.broker_license_no"/>
+            </div>
+          </t>
+          <t t-if="clearance.customs_office_id">
+            <div class="trk-row">
+              <span class="trk-rk">Customs Office</span>
+              <span class="trk-rv" t-esc="clearance.customs_office_id.name"/>
+            </div>
+          </t>
+          <div class="trk-row">
+            <span class="trk-rk">Importer</span>
+            <span class="trk-rv" t-esc="clearance.partner_id.name if clearance.partner_id else req.requester_company"/>
+          </div>
+          <t t-if="clearance.is_aeo">
+            <div class="trk-row">
+              <span class="trk-rk">AEO Status</span>
+              <span class="trk-rv"><span class="badge-pill green">&#x2B50; AEO Certified</span></span>
+            </div>
+          </t>
+          <t t-if="clearance.aeo_certificate_no">
+            <div class="trk-row">
+              <span class="trk-rk">AEO Certificate</span>
+              <span class="trk-rv mono" t-esc="clearance.aeo_certificate_no"/>
+            </div>
+          </t>
+          <t t-if="clearance.purchase_order_id">
+            <div class="trk-row">
+              <span class="trk-rk">Purchase Order</span>
+              <span class="trk-rv mono" t-esc="clearance.purchase_order_id.name"/>
+            </div>
+          </t>
+          <t t-if="clearance.sadad_payment_ref">
+            <div class="trk-row" style="background:#f0fdf4;margin:0 -4px;padding:8px 4px;border-radius:6px;">
+              <span class="trk-rk" style="color:#1a6b35;">SADAD Ref</span>
+              <span class="trk-rv mono" style="color:#006C35;font-weight:800;" t-esc="clearance.sadad_payment_ref"/>
+            </div>
+          </t>
+          <t t-if="clearance.payment_confirmed">
+            <div class="trk-row">
+              <span class="trk-rk">Payment</span>
+              <span class="trk-rv"><span class="badge-pill green">&#x2713; Confirmed</span></span>
+            </div>
+          </t>
+        </div>
+
+        <!-- Key Dates Card -->
+        <div class="trk-card">
+          <div class="trk-card-title">
+            <div class="trk-card-icon orange">&#x1F4C5;</div>
+            Key Dates — المواعيد الرئيسية
+          </div>
+          <div class="trk-row">
+            <span class="trk-rk">Request Date</span>
+            <span class="trk-rv" t-esc="req.create_date"/>
+          </div>
+          <t t-if="clearance.date">
+            <div class="trk-row">
+              <span class="trk-rk">Clearance Date</span>
+              <span class="trk-rv" t-esc="clearance.date"/>
+            </div>
+          </t>
+          <t t-if="clearance.acd_submission_date">
+            <div class="trk-row">
+              <span class="trk-rk">ACD Submitted</span>
+              <span class="trk-rv" t-esc="clearance.acd_submission_date"/>
+            </div>
+          </t>
+          <t t-if="clearance.customs_declaration_date">
+            <div class="trk-row">
+              <span class="trk-rk">Declaration Date</span>
+              <span class="trk-rv" t-esc="clearance.customs_declaration_date"/>
+            </div>
+          </t>
+          <t t-if="req.eta">
+            <div class="trk-row">
+              <span class="trk-rk">ETA</span>
+              <span class="trk-rv bold" t-esc="req.eta"/>
+            </div>
+          </t>
+          <t t-if="clearance.expected_clearance_date">
+            <div class="trk-row">
+              <span class="trk-rk">Expected Clearance</span>
+              <span class="trk-rv" t-esc="clearance.expected_clearance_date"/>
+            </div>
+          </t>
+          <t t-if="clearance.actual_clearance_date">
+            <div class="trk-row">
+              <span class="trk-rk" style="color:#1a6b35;">Actual Clearance</span>
+              <span class="trk-rv green bold" t-esc="clearance.actual_clearance_date"/>
+            </div>
+          </t>
+          <t t-if="clearance.release_date">
+            <div class="trk-row">
+              <span class="trk-rk" style="color:#1a6b35;">Release Date</span>
+              <span class="trk-rv green bold" t-esc="clearance.release_date"/>
+            </div>
+          </t>
+          <t t-if="clearance.customs_response_deadline">
+            <div class="trk-row">
+              <span class="trk-rk" style="color:#7d5a00;">Response Deadline</span>
+              <span class="trk-rv" style="color:#7d5a00;" t-esc="clearance.customs_response_deadline"/>
+            </div>
+          </t>
+        </div>
+
+      </div><!-- end grid row 2 -->
+
+      <!-- Goods & Cargo Card (full width) -->
+      <t t-if="clearance.goods_line_ids or clearance.description or req.goods_description">
+        <div class="trk-card">
+          <div class="trk-card-title">
+            <div class="trk-card-icon orange">&#x1F4E6;</div>
+            Goods &amp; Cargo — بيانات البضاعة
+          </div>
+          <t t-if="clearance.description or req.goods_description">
+            <div class="trk-row" style="margin-bottom:12px;">
+              <span class="trk-rk">Description</span>
+              <span class="trk-rv" t-esc="clearance.description or req.goods_description"/>
+            </div>
+          </t>
+          <t t-if="clearance.goods_line_ids">
+            <div style="overflow-x:auto;">
+              <table class="trk-goods-tbl">
+                <thead>
+                  <tr>
+                    <th>Description / الوصف</th>
+                    <th>HS Code</th>
+                    <th>Origin</th>
+                    <th style="text-align:right;">Qty</th>
+                    <th style="text-align:right;">Weight</th>
+                    <th style="text-align:right;">Value</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <t t-foreach="clearance.goods_line_ids" t-as="gl">
+                    <tr>
+                      <td t-esc="gl.description"/>
+                      <td><t t-if="gl.hs_code"><span class="hs" t-esc="gl.hs_code"/></t><t t-else="">—</t></td>
+                      <td t-esc="gl.country_origin_id.name if gl.country_origin_id else '—'"/>
+                      <td style="text-align:right;"><t t-esc="gl.quantity"/> <t t-if="gl.uom_id" t-esc="gl.uom_id.name"/></td>
+                      <td style="text-align:right;"><t t-if="gl.total_weight"><t t-esc="'%.1f' % gl.total_weight"/> kg</t><t t-else="">—</t></td>
+                      <td style="text-align:right;font-weight:700;color:#006C35;"><t t-if="gl.total_value"><t t-esc="'%.2f' % gl.total_value"/> <t t-esc="clearance.currency_id.symbol or 'SAR'"/></t><t t-else="">—</t></td>
+                    </tr>
+                  </t>
+                </tbody>
+              </table>
+            </div>
+          </t>
+          <!-- Financial summary row -->
+          <t t-if="clearance.goods_value or clearance.cif_value">
+            <div style="margin-top:16px;border-top:2px solid #eef2f7;padding-top:14px;">
+              <table class="trk-fee">
+                <t t-if="clearance.goods_value">
+                  <tr><td class="fk">Goods Value (FOB) — قيمة البضاعة</td><td class="fv"><t t-esc="'%.2f' % clearance.goods_value"/> <t t-esc="clearance.currency_id.name or 'SAR'"/></td></tr>
+                </t>
+                <t t-if="clearance.freight_amount">
+                  <tr><td class="fk">Freight — الشحن</td><td class="fv"><t t-esc="'%.2f' % clearance.freight_amount"/> <t t-esc="clearance.currency_id.name or 'SAR'"/></td></tr>
+                </t>
+                <t t-if="clearance.insurance_amount">
+                  <tr><td class="fk">Insurance — التأمين</td><td class="fv"><t t-esc="'%.2f' % clearance.insurance_amount"/> <t t-esc="clearance.currency_id.name or 'SAR'"/></td></tr>
+                </t>
+                <t t-if="clearance.cif_value">
+                  <tr class="tot"><td class="fk">CIF Value — القيمة CIF</td><td class="fv"><t t-esc="'%.2f' % clearance.cif_value"/> <t t-esc="clearance.currency_id.name or 'SAR'"/></td></tr>
+                </t>
+              </table>
+              <p style="font-size:11px;color:#94a3b8;margin:8px 0 0;">* CIF = Cost + Insurance + Freight (base for customs duty calculation)</p>
+            </div>
+          </t>
+        </div>
+      </t>
+
+      <!-- Compliance & Permits Card (full width, only if compliance info exists) -->
+      <t t-if="clearance.requires_saber or clearance.requires_sfda or clearance.requires_citc or clearance.requires_saso or clearance.requires_moi">
+        <div class="trk-card">
+          <div class="trk-card-title">
+            <div class="trk-card-icon red">&#x1F6E1;</div>
+            Compliance &amp; Permits — الشهادات والتصاريح
+          </div>
+          <div class="comp-grid">
+            <t t-if="clearance.requires_saber">
+              <div t-attf-class="comp-item #{clearance.saber_scoc_verified and 'ok' or 'miss'}">
+                <div t-attf-class="comp-icon">&#x1F4CB;</div>
+                <div>
+                  <div class="comp-label">SABER SCoC</div>
+                  <div class="comp-val">
+                    <t t-if="clearance.saber_scoc_no" t-esc="clearance.saber_scoc_no"/>
+                    <t t-elif="clearance.saber_scoc_verified">Verified &#x2713;</t>
+                    <t t-else="">Required — Pending</t>
+                  </div>
+                </div>
+              </div>
+            </t>
+            <t t-if="clearance.requires_sfda">
+              <div t-attf-class="comp-item #{clearance.sfda_approved and 'ok' or 'miss'}">
+                <div class="comp-icon">&#x1F48A;</div>
+                <div>
+                  <div class="comp-label">SFDA Approval</div>
+                  <div class="comp-val">
+                    <t t-if="clearance.sfda_approval_no" t-esc="clearance.sfda_approval_no"/>
+                    <t t-elif="clearance.sfda_approved">Approved &#x2713;</t>
+                    <t t-else="">Required — Pending</t>
+                  </div>
+                </div>
+              </div>
+            </t>
+            <t t-if="clearance.requires_citc">
+              <div t-attf-class="comp-item #{clearance.citc_approved and 'ok' or 'miss'}">
+                <div class="comp-icon">&#x1F4F6;</div>
+                <div>
+                  <div class="comp-label">CITC Certificate</div>
+                  <div class="comp-val">
+                    <t t-if="clearance.citc_certificate_no" t-esc="clearance.citc_certificate_no"/>
+                    <t t-elif="clearance.citc_approved">Approved &#x2713;</t>
+                    <t t-else="">Required — Pending</t>
+                  </div>
+                </div>
+              </div>
+            </t>
+            <t t-if="clearance.requires_saso">
+              <div t-attf-class="comp-item #{clearance.saso_approved and 'ok' or 'miss'}">
+                <div class="comp-icon">&#x1F3F7;</div>
+                <div>
+                  <div class="comp-label">SASO Certificate</div>
+                  <div class="comp-val">
+                    <t t-if="clearance.saso_certificate_no" t-esc="clearance.saso_certificate_no"/>
+                    <t t-elif="clearance.saso_approved">Approved &#x2713;</t>
+                    <t t-else="">Required — Pending</t>
+                  </div>
+                </div>
+              </div>
+            </t>
+            <t t-if="clearance.requires_moi">
+              <div t-attf-class="comp-item #{clearance.moi_approved and 'ok' or 'miss'}">
+                <div class="comp-icon">&#x1F3DB;</div>
+                <div>
+                  <div class="comp-label">MoI Permit</div>
+                  <div class="comp-val">
+                    <t t-if="clearance.moi_permit_no" t-esc="clearance.moi_permit_no"/>
+                    <t t-elif="clearance.moi_approved">Approved &#x2713;</t>
+                    <t t-else="">Required — Pending</t>
+                  </div>
+                </div>
+              </div>
+            </t>
+          </div>
+          <t t-if="clearance.inspection_notes">
+            <div style="margin-top:14px;" class="trk-notes">
+              <span class="trk-notes-lbl">Inspector Notes — ملاحظات المفتش</span>
+              <t t-esc="clearance.inspection_notes"/>
+            </div>
+          </t>
+        </div>
+      </t>
+
+    </t><!-- end clearance section -->
+
+    <!-- ═══════════════════════════════════════════════════
+         SECTION B: REQUEST-ONLY DETAILS (no clearance yet)
+    ═══════════════════════════════════════════════════ -->
+    <t t-if="not clearance">
+      <div class="trk-card">
+        <div class="trk-card-title">
+          <div class="trk-card-icon blue">&#x1F6A2;</div>
+          Request Details — تفاصيل الطلب
+        </div>
+        <div class="trk-row"><span class="trk-rk">Reference</span><span class="trk-rv mono" t-esc="req.name"/></div>
+        <div class="trk-row"><span class="trk-rk">Submitted</span><span class="trk-rv" t-esc="req.create_date"/></div>
+        <div class="trk-row"><span class="trk-rk">Company</span><span class="trk-rv bold" t-esc="req.requester_company"/></div>
+        <div class="trk-row"><span class="trk-rk">Contact</span><span class="trk-rv" t-esc="req.requester_name"/></div>
+        <t t-if="req.requester_phone"><div class="trk-row"><span class="trk-rk">Phone</span><span class="trk-rv" t-esc="req.requester_phone"/></div></t>
+        <div class="trk-row"><span class="trk-rk">Type</span><span class="trk-rv bold" t-esc="(req.clearance_type or '').upper()"/></div>
+        <div class="trk-row"><span class="trk-rk">Shipment Mode</span><span class="trk-rv" t-esc="(req.shipment_type or '').title()"/></div>
+        <t t-if="req.bill_of_lading_no"><div class="trk-row"><span class="trk-rk">Bill of Lading</span><span class="trk-rv mono" t-esc="req.bill_of_lading_no"/></div></t>
+        <t t-if="req.vessel_name"><div class="trk-row"><span class="trk-rk">Vessel / Carrier</span><span class="trk-rv" t-esc="req.vessel_name"/></div></t>
+        <t t-if="req.port_of_loading"><div class="trk-row"><span class="trk-rk">Port of Loading</span><span class="trk-rv" t-esc="req.port_of_loading"/></div></t>
+        <t t-if="req.port_of_discharge"><div class="trk-row"><span class="trk-rk">Port of Discharge</span><span class="trk-rv" t-esc="req.port_of_discharge"/></div></t>
+        <t t-if="req.country_origin_id"><div class="trk-row"><span class="trk-rk">Origin</span><span class="trk-rv" t-esc="req.country_origin_id.name"/></div></t>
+        <t t-if="req.eta"><div class="trk-row"><span class="trk-rk">ETA</span><span class="trk-rv bold" t-esc="req.eta"/></div></t>
+        <t t-if="req.gross_weight"><div class="trk-row"><span class="trk-rk">Gross Weight</span><span class="trk-rv"><t t-esc="req.gross_weight"/> kg</span></div></t>
+        <t t-if="req.packages_count"><div class="trk-row"><span class="trk-rk">Packages</span><span class="trk-rv" t-esc="req.packages_count"/></div></t>
+        <div class="trk-row"><span class="trk-rk">Goods</span><span class="trk-rv" t-esc="req.goods_description"/></div>
+        <t t-if="req.estimated_value"><div class="trk-row"><span class="trk-rk">Est. Value</span><span class="trk-rv"><t t-esc="req.estimated_value"/> <t t-esc="req.currency_note or 'USD'"/></span></div></t>
+        <t t-if="req.review_notes"><div style="margin-top:12px;" class="trk-notes"><span class="trk-notes-lbl">Message from Our Team</span><t t-esc="req.review_notes"/></div></t>
+        <t t-if="req.state == 'rejected' and req.rejection_reason"><div style="margin-top:12px;" class="trk-rejection-box"><span class="lbl">Rejection Reason — سبب الرفض</span><p t-esc="req.rejection_reason"/></div></t>
+      </div>
+    </t>
+
+    <!-- ═══════════════════════════════════════════════════
+         SERVICE OFFER CARD
+    ═══════════════════════════════════════════════════ -->
+    <t t-if="req.offer_state and req.offer_state != 'none'">
+      <div class="trk-card">
+        <div class="trk-card-title">
+          <div class="trk-card-icon green">&#x1F4B0;</div>
+          Service Offer — عرض الخدمات
+        </div>
+        <t t-if="req.estimated_service_fee or req.estimated_duty_amount">
+          <table class="trk-fee">
+            <t t-if="req.estimated_service_fee">
+              <tr><td class="fk">Clearance Service Fee</td><td class="fv">SAR <t t-esc="'%.2f' % req.estimated_service_fee"/></td></tr>
+              <tr><td class="fk">VAT 15%</td><td class="fv">SAR <t t-esc="'%.2f' % (req.estimated_service_fee * 0.15)"/></td></tr>
+            </t>
+            <t t-if="req.estimated_duty_amount">
+              <tr><td class="fk">Estimated Customs Duty (pass-through)</td><td class="fv">SAR <t t-esc="'%.2f' % req.estimated_duty_amount"/></td></tr>
+            </t>
+            <tr class="tot"><td class="fk">Total Estimated</td><td class="fv">SAR <t t-esc="'%.2f' % (req.estimated_service_fee * 1.15 + req.estimated_duty_amount)"/></td></tr>
+          </table>
+          <p style="font-size:11px;color:#94a3b8;margin:8px 0 0;">* Customs duties assessed by ZATCA. VAT on service fee only.</p>
+        </t>
+        <div style="margin-top:14px;padding:14px;border-radius:10px;text-align:center;"
+             t-attf-style="#{req.offer_state == 'accepted' and 'background:#f0fdf4;border:1px solid #a7d9b5;' or req.offer_state == 'rejected' and 'background:#fdedec;border:1px solid #f5b0a8;' or 'background:#f0f9ff;border:1px solid #bae6fd;'}">
+          <t t-if="req.offer_state == 'sent'"><p style="font-size:13px;color:#0369a1;font-weight:600;margin:0;">Awaiting your response — use the buttons above.</p></t>
+          <t t-elif="req.offer_state == 'accepted'"><p style="font-size:14px;color:#006C35;font-weight:700;margin:0;">&#x2705; Offer Accepted — Our team will contact you for payment.</p><t t-if="req.offer_replied_date"><p style="font-size:11px;color:#64748b;margin:4px 0 0;">Accepted on: <t t-esc="req.offer_replied_date"/></p></t></t>
+          <t t-elif="req.offer_state == 'rejected'"><p style="font-size:14px;color:#c0392b;font-weight:700;margin:0;">&#x274C; Offer Declined — Please contact us to discuss revised terms.</p></t>
+        </div>
+      </div>
+    </t>
+
+    <!-- ═══════════════════════════════════════════════════
+         ACTIVITY TIMELINE
+    ═══════════════════════════════════════════════════ -->
+    <div class="trk-card">
+      <div class="trk-card-title">
+        <div class="trk-card-icon blue">&#x1F4CB;</div>
+        Activity &amp; Updates — سجل الأحداث
+      </div>
+      <div class="trk-tl">
+        <div class="trk-tl-item">
+          <div class="trk-tl-dot done">&#x2713;</div>
+          <div class="trk-tl-time" t-esc="req.create_date"/>
+          <div class="trk-tl-label">Request Submitted — تم تقديم الطلب</div>
+          <div class="trk-tl-desc">Received from <t t-esc="req.requester_company"/>. Confirmation sent to <t t-esc="req.requester_email"/>.</div>
+        </div>
+        <t t-if="req.state in ('review','approved','rejected')">
+          <div class="trk-tl-item">
+            <div class="trk-tl-dot done">&#x2713;</div>
+            <t t-if="req.review_date"><div class="trk-tl-time" t-esc="req.review_date"/></t>
+            <div class="trk-tl-label">Review Started — بدء المراجعة</div>
+            <div class="trk-tl-desc">Request taken under review<t t-if="req.reviewed_by"> by <strong><t t-esc="req.reviewed_by.name"/></strong></t>.</div>
+          </div>
+        </t>
+        <t t-if="req.state == 'approved'">
+          <div class="trk-tl-item">
+            <div class="trk-tl-dot done">&#x2713;</div>
+            <t t-if="req.review_date"><div class="trk-tl-time" t-esc="req.review_date"/></t>
+            <div class="trk-tl-label">Request Approved &#x2705; — تمت الموافقة</div>
+            <div class="trk-tl-desc">Clearance order <t t-if="clearance"><strong t-esc="clearance.name"/></t> created and assigned to processing team.</div>
+          </div>
+        </t>
+        <t t-elif="req.state == 'rejected'">
+          <div class="trk-tl-item">
+            <div class="trk-tl-dot warn">&#x26A0;</div>
+            <t t-if="req.review_date"><div class="trk-tl-time" t-esc="req.review_date"/></t>
+            <div class="trk-tl-label">Updates Required — يلزم التحديث</div>
+            <div class="trk-tl-desc">Request requires corrections. Details sent to <t t-esc="req.requester_email"/>.</div>
+          </div>
+        </t>
+        <t t-if="req.offer_state != 'none' and req.offer_sent_date">
+          <div class="trk-tl-item">
+            <div class="trk-tl-dot offer-dot">&#x2709;</div>
+            <div class="trk-tl-time" t-esc="req.offer_sent_date"/>
+            <div class="trk-tl-label">Service Offer Sent — تم إرسال عرض الخدمات</div>
+            <div class="trk-tl-desc">Fee estimate emailed to <t t-esc="req.requester_email"/>.</div>
+          </div>
+        </t>
+        <t t-if="req.offer_replied_date">
+          <div class="trk-tl-item">
+            <div t-attf-class="trk-tl-dot #{req.offer_state == 'accepted' and 'done' or 'warn'}">
+              <t t-if="req.offer_state == 'accepted'">&#x2713;</t><t t-else="">&#x2715;</t>
+            </div>
+            <div class="trk-tl-time" t-esc="req.offer_replied_date"/>
+            <div class="trk-tl-label">
+              <t t-if="req.offer_state == 'accepted'">Offer Accepted &#x2705;</t><t t-else="">Offer Declined</t>
+            </div>
+          </div>
+        </t>
+        <t t-if="clearance and clearance.acd_submission_date">
+          <div class="trk-tl-item">
+            <div class="trk-tl-dot done">&#x2713;</div>
+            <div class="trk-tl-time" t-esc="clearance.acd_submission_date"/>
+            <div class="trk-tl-label">ACD Submitted — تم تقديم بيان ACD</div>
+            <div class="trk-tl-desc">Customs declaration filed with Saudi Customs via FASAH.</div>
+          </div>
+        </t>
+        <t t-if="clearance and clearance.state in ('inspection','duty_payment','released','delivered')">
+          <div class="trk-tl-item">
+            <div class="trk-tl-dot done">&#x2713;</div>
+            <div class="trk-tl-label">Documents Reviewed — تمت مراجعة المستندات</div>
+            <div class="trk-tl-desc">Customs authority completed document verification.</div>
+          </div>
+        </t>
+        <t t-if="clearance and clearance.state in ('duty_payment','released','delivered') and clearance.inspection_lane">
+          <div class="trk-tl-item">
+            <div class="trk-tl-dot done">&#x2713;</div>
+            <div class="trk-tl-label">Inspection Complete — اكتمل الفحص</div>
+            <div class="trk-tl-desc">Physical inspection completed. Lane: <strong t-esc="(clearance.inspection_lane or '').upper()"/>.</div>
+          </div>
+        </t>
+        <t t-if="clearance and clearance.payment_confirmed">
+          <div class="trk-tl-item">
+            <div class="trk-tl-dot done">&#x2713;</div>
+            <div class="trk-tl-label">Duty Payment Confirmed — تم تأكيد سداد الرسوم</div>
+            <t t-if="clearance.sadad_payment_ref"><div class="trk-tl-desc">SADAD Ref: <strong t-esc="clearance.sadad_payment_ref"/></div></t>
+          </div>
+        </t>
+        <t t-if="clearance and clearance.actual_clearance_date">
+          <div class="trk-tl-item">
+            <div class="trk-tl-dot done">&#x2713;</div>
+            <div class="trk-tl-time" t-esc="clearance.actual_clearance_date"/>
+            <div class="trk-tl-label">Goods Cleared &#x1F389; — تم الإفراج</div>
+            <div class="trk-tl-desc">Customs clearance complete. Goods released for pickup or delivery.</div>
+          </div>
+        </t>
+        <t t-if="clearance and clearance.release_permit_no">
+          <div class="trk-tl-item">
+            <div class="trk-tl-dot done">&#x2713;</div>
+            <div class="trk-tl-label">Release Permit Issued — تصريح الإفراج</div>
+            <div class="trk-tl-desc">Permit No.: <strong t-esc="clearance.release_permit_no"/></div>
+          </div>
+        </t>
+        <t t-if="not clearance and req.state in ('draft','review')">
+          <div class="trk-tl-item">
+            <div class="trk-tl-dot pending"/>
+            <div class="trk-tl-label" style="color:#94a3b8;">Decision Pending...</div>
+            <div class="trk-tl-desc" style="color:#94a3b8;">Our team will notify you by email.</div>
+          </div>
+        </t>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════
+         DOCUMENT CHECKLIST & UPLOADS
+    ═══════════════════════════════════════════════════ -->
+    <div class="trk-grid">
+
+      <!-- Document Checklist — interactive upload -->
+      <div class="trk-card">
+        <div class="trk-card-title">
+          <div class="trk-card-icon blue">&#x1F4CB;</div>
+          Document Checklist — قائمة المستندات
+          <span style="margin-left:auto;font-size:10px;font-weight:500;color:#64748b;text-transform:none;letter-spacing:0;">Tick a document to attach its file</span>
+        </div>
+
+        <!-- Bill of Lading -->
+        <div class="trk-doc-item" style="flex-wrap:wrap;">
+          <div t-attf-class="trk-doc-ico #{req.has_bill_of_lading and 'ok' or 'miss'}" id="trkico_bol"><t t-if="req.has_bill_of_lading">&#x2713;</t><t t-else="">&#x2717;</t></div>
+          <span class="trk-doc-name">Bill of Lading / &#x628;&#x648;&#x644;&#x64A;&#x635;&#x629; &#x627;&#x644;&#x634;&#x62D;&#x646;</span>
+          <span t-attf-class="trk-doc-tag #{req.has_bill_of_lading and 'ok' or 'miss'}" id="trktag_bol"><t t-if="req.has_bill_of_lading">Ready</t><t t-else="">Missing</t></span>
+          <label class="trk-doc-upload-toggle" id="trklbl_bol"><input type="checkbox" style="display:none;" onchange="trkToggle(this,'bol')"/>&#x1F4CE; Upload</label>
+          <div class="trk-doc-upload-zone" id="trkuz_bol">
+            <label class="trk-doc-upload-label" id="trkzone_bol" onclick="document.getElementById('trkfi_bol').click()">&#x1F4CE; Choose file &#x2014; &#x627;&#x62E;&#x62A;&#x631; &#x645;&#x644;&#x641;<input type="file" id="trkfi_bol" style="display:none;" onchange="trkUpload(this,'bol')"/></label>
+            <div class="trk-doc-uploading" id="trkprog_bol">Uploading&#x2026;</div>
+            <div class="trk-doc-fname" id="trkfn_bol"></div>
+            <div class="trk-doc-err" id="trkerr_bol"></div>
+          </div>
+        </div>
+
+        <!-- Commercial Invoice -->
+        <div class="trk-doc-item" style="flex-wrap:wrap;">
+          <div t-attf-class="trk-doc-ico #{req.has_invoice and 'ok' or 'miss'}" id="trkico_inv"><t t-if="req.has_invoice">&#x2713;</t><t t-else="">&#x2717;</t></div>
+          <span class="trk-doc-name">Commercial Invoice / &#x641;&#x627;&#x62A;&#x648;&#x631;&#x629; &#x62A;&#x62C;&#x627;&#x631;&#x64A;&#x629;</span>
+          <span t-attf-class="trk-doc-tag #{req.has_invoice and 'ok' or 'miss'}" id="trktag_inv"><t t-if="req.has_invoice">Ready</t><t t-else="">Missing</t></span>
+          <label class="trk-doc-upload-toggle" id="trklbl_inv"><input type="checkbox" style="display:none;" onchange="trkToggle(this,'inv')"/>&#x1F4CE; Upload</label>
+          <div class="trk-doc-upload-zone" id="trkuz_inv">
+            <label class="trk-doc-upload-label" id="trkzone_inv" onclick="document.getElementById('trkfi_inv').click()">&#x1F4CE; Choose file &#x2014; &#x627;&#x62E;&#x62A;&#x631; &#x645;&#x644;&#x641;<input type="file" id="trkfi_inv" style="display:none;" onchange="trkUpload(this,'inv')"/></label>
+            <div class="trk-doc-uploading" id="trkprog_inv">Uploading&#x2026;</div>
+            <div class="trk-doc-fname" id="trkfn_inv"></div>
+            <div class="trk-doc-err" id="trkerr_inv"></div>
+          </div>
+        </div>
+
+        <!-- Packing List -->
+        <div class="trk-doc-item" style="flex-wrap:wrap;">
+          <div t-attf-class="trk-doc-ico #{req.has_packing_list and 'ok' or 'miss'}" id="trkico_pl"><t t-if="req.has_packing_list">&#x2713;</t><t t-else="">&#x2717;</t></div>
+          <span class="trk-doc-name">Packing List / &#x642;&#x627;&#x626;&#x645;&#x629; &#x627;&#x644;&#x62A;&#x639;&#x628;&#x626;&#x629;</span>
+          <span t-attf-class="trk-doc-tag #{req.has_packing_list and 'ok' or 'miss'}" id="trktag_pl"><t t-if="req.has_packing_list">Ready</t><t t-else="">Missing</t></span>
+          <label class="trk-doc-upload-toggle" id="trklbl_pl"><input type="checkbox" style="display:none;" onchange="trkToggle(this,'pl')"/>&#x1F4CE; Upload</label>
+          <div class="trk-doc-upload-zone" id="trkuz_pl">
+            <label class="trk-doc-upload-label" id="trkzone_pl" onclick="document.getElementById('trkfi_pl').click()">&#x1F4CE; Choose file &#x2014; &#x627;&#x62E;&#x62A;&#x631; &#x645;&#x644;&#x641;<input type="file" id="trkfi_pl" style="display:none;" onchange="trkUpload(this,'pl')"/></label>
+            <div class="trk-doc-uploading" id="trkprog_pl">Uploading&#x2026;</div>
+            <div class="trk-doc-fname" id="trkfn_pl"></div>
+            <div class="trk-doc-err" id="trkerr_pl"></div>
+          </div>
+        </div>
+
+        <!-- Certificate of Origin -->
+        <div class="trk-doc-item" style="flex-wrap:wrap;">
+          <div t-attf-class="trk-doc-ico #{req.has_coo and 'ok' or 'na'}" id="trkico_coo"><t t-if="req.has_coo">&#x2713;</t><t t-else="">&#x2014;</t></div>
+          <span class="trk-doc-name">Certificate of Origin / &#x634;&#x647;&#x627;&#x62F;&#x629; &#x627;&#x644;&#x645;&#x646;&#x634;&#x623;</span>
+          <span t-attf-class="trk-doc-tag #{req.has_coo and 'ok' or 'na'}" id="trktag_coo"><t t-if="req.has_coo">Ready</t><t t-else="">N/A</t></span>
+          <label class="trk-doc-upload-toggle" id="trklbl_coo"><input type="checkbox" style="display:none;" onchange="trkToggle(this,'coo')"/>&#x1F4CE; Upload</label>
+          <div class="trk-doc-upload-zone" id="trkuz_coo">
+            <label class="trk-doc-upload-label" id="trkzone_coo" onclick="document.getElementById('trkfi_coo').click()">&#x1F4CE; Choose file &#x2014; &#x627;&#x62E;&#x62A;&#x631; &#x645;&#x644;&#x641;<input type="file" id="trkfi_coo" style="display:none;" onchange="trkUpload(this,'coo')"/></label>
+            <div class="trk-doc-uploading" id="trkprog_coo">Uploading&#x2026;</div>
+            <div class="trk-doc-fname" id="trkfn_coo"></div>
+            <div class="trk-doc-err" id="trkerr_coo"></div>
+          </div>
+        </div>
+
+        <!-- SABER SCoC -->
+        <div class="trk-doc-item" style="flex-wrap:wrap;">
+          <div t-attf-class="trk-doc-ico #{req.has_saber_scoc and 'ok' or 'na'}" id="trkico_saber"><t t-if="req.has_saber_scoc">&#x2713;</t><t t-else="">&#x2014;</t></div>
+          <span class="trk-doc-name">SABER SCoC Certificate</span>
+          <span t-attf-class="trk-doc-tag #{req.has_saber_scoc and 'ok' or 'na'}" id="trktag_saber"><t t-if="req.has_saber_scoc">Ready</t><t t-else="">N/A</t></span>
+          <label class="trk-doc-upload-toggle" id="trklbl_saber"><input type="checkbox" style="display:none;" onchange="trkToggle(this,'saber')"/>&#x1F4CE; Upload</label>
+          <div class="trk-doc-upload-zone" id="trkuz_saber">
+            <label class="trk-doc-upload-label" id="trkzone_saber" onclick="document.getElementById('trkfi_saber').click()">&#x1F4CE; Choose file &#x2014; &#x627;&#x62E;&#x62A;&#x631; &#x645;&#x644;&#x641;<input type="file" id="trkfi_saber" style="display:none;" onchange="trkUpload(this,'saber')"/></label>
+            <div class="trk-doc-uploading" id="trkprog_saber">Uploading&#x2026;</div>
+            <div class="trk-doc-fname" id="trkfn_saber"></div>
+            <div class="trk-doc-err" id="trkerr_saber"></div>
+          </div>
+        </div>
+
+        <!-- SFDA -->
+        <div class="trk-doc-item" style="flex-wrap:wrap;">
+          <div t-attf-class="trk-doc-ico #{req.has_sfda and 'ok' or 'na'}" id="trkico_sfda"><t t-if="req.has_sfda">&#x2713;</t><t t-else="">&#x2014;</t></div>
+          <span class="trk-doc-name">SFDA Approval / &#x647;&#x64A;&#x626;&#x629; &#x627;&#x644;&#x63A;&#x630;&#x627;&#x621; &#x648;&#x627;&#x644;&#x62F;&#x648;&#x627;&#x621;</span>
+          <span t-attf-class="trk-doc-tag #{req.has_sfda and 'ok' or 'na'}" id="trktag_sfda"><t t-if="req.has_sfda">Ready</t><t t-else="">N/A</t></span>
+          <label class="trk-doc-upload-toggle" id="trklbl_sfda"><input type="checkbox" style="display:none;" onchange="trkToggle(this,'sfda')"/>&#x1F4CE; Upload</label>
+          <div class="trk-doc-upload-zone" id="trkuz_sfda">
+            <label class="trk-doc-upload-label" id="trkzone_sfda" onclick="document.getElementById('trkfi_sfda').click()">&#x1F4CE; Choose file &#x2014; &#x627;&#x62E;&#x62A;&#x631; &#x645;&#x644;&#x641;<input type="file" id="trkfi_sfda" style="display:none;" onchange="trkUpload(this,'sfda')"/></label>
+            <div class="trk-doc-uploading" id="trkprog_sfda">Uploading&#x2026;</div>
+            <div class="trk-doc-fname" id="trkfn_sfda"></div>
+            <div class="trk-doc-err" id="trkerr_sfda"></div>
+          </div>
+        </div>
+
+        <!-- CITC -->
+        <div class="trk-doc-item" style="flex-wrap:wrap;">
+          <div t-attf-class="trk-doc-ico #{req.has_citc and 'ok' or 'na'}" id="trkico_citc"><t t-if="req.has_citc">&#x2713;</t><t t-else="">&#x2014;</t></div>
+          <span class="trk-doc-name">CITC Certificate</span>
+          <span t-attf-class="trk-doc-tag #{req.has_citc and 'ok' or 'na'}" id="trktag_citc"><t t-if="req.has_citc">Ready</t><t t-else="">N/A</t></span>
+          <label class="trk-doc-upload-toggle" id="trklbl_citc"><input type="checkbox" style="display:none;" onchange="trkToggle(this,'citc')"/>&#x1F4CE; Upload</label>
+          <div class="trk-doc-upload-zone" id="trkuz_citc">
+            <label class="trk-doc-upload-label" id="trkzone_citc" onclick="document.getElementById('trkfi_citc').click()">&#x1F4CE; Choose file &#x2014; &#x627;&#x62E;&#x62A;&#x631; &#x645;&#x644;&#x641;<input type="file" id="trkfi_citc" style="display:none;" onchange="trkUpload(this,'citc')"/></label>
+            <div class="trk-doc-uploading" id="trkprog_citc">Uploading&#x2026;</div>
+            <div class="trk-doc-fname" id="trkfn_citc"></div>
+            <div class="trk-doc-err" id="trkerr_citc"></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Uploaded Files -->
+      <div class="trk-card">
+        <div class="trk-card-title">
+          <div class="trk-card-icon green">&#x1F4CE;</div>
+          Uploaded Documents — ملفات مرفوعة
+        </div>
+        <div id="trk-uploaded-list">
+          <t t-if="req.attachment_ids">
+            <t t-foreach="req.attachment_ids" t-as="att">
+              <div class="trk-doc-item">
+                <div class="trk-doc-ico ok">&#x1F4CE;</div>
+                <span class="trk-doc-name" t-esc="att.name"/>
+                <a t-attf-href="/customs-portal/doc/#{token}/#{att.id}" target="_blank" class="trk-doc-tag ok" style="text-decoration:none;cursor:pointer;">&#x2B07; Download</a>
+              </div>
+            </t>
+          </t>
+        </div>
+        <div id="trk-uploaded-empty" t-attf-style="#{req.attachment_ids and 'display:none;' or ''}text-align:center;padding:30px 20px;color:#94a3b8;font-size:13px;">
+          <div style="font-size:32px;margin-bottom:8px;">&#x1F4C2;</div>
+          No files uploaded yet.
+        </div>
+      </div>
+
+    </div><!-- end doc grid -->
+
+    <!-- Bottom navigation -->
+    <div class="trk-nav">
+      <a href="/customs-portal/status" class="trk-nav-btn secondary">&#x2190; Track Another</a>
+      <a href="/customs-portal/search" class="trk-nav-btn secondary">&#x1F50D; My Requests</a>
+      <a href="/customs-portal/register" class="trk-nav-btn green">+ New Request</a>
+    </div>
+
+  <!-- ── Document upload JS ── -->
+  <script type="text/javascript">
+  //<![CDATA[
+  var TRK_TOKEN = '';
+  (function() {
+      var el = document.getElementById('trk-token-holder');
+      if (el) { TRK_TOKEN = el.getAttribute('data-token') || ''; }
+  })();
+
+  function trkToggle(checkbox, docId) {
+      var uz   = document.getElementById('trkuz_'   + docId);
+      var lbl  = document.getElementById('trklbl_'  + docId);
+      if (checkbox.checked) {
+          if (uz)  { uz.style.display = ''; }
+          if (lbl) { lbl.className = 'trk-doc-upload-toggle done'; }
+      } else {
+          if (uz)  { uz.style.display = 'none'; }
+          if (lbl) { lbl.className = 'trk-doc-upload-toggle'; }
+          var fi   = document.getElementById('trkfi_'   + docId);
+          var fn   = document.getElementById('trkfn_'   + docId);
+          var prog = document.getElementById('trkprog_' + docId);
+          var err  = document.getElementById('trkerr_'  + docId);
+          var zone = document.getElementById('trkzone_' + docId);
+          if (fi)   { fi.value = ''; }
+          if (fn)   { fn.style.display = 'none'; fn.textContent = ''; }
+          if (prog) { prog.style.display = 'none'; }
+          if (err)  { err.style.display = 'none'; err.textContent = ''; }
+          if (zone) { zone.className = 'trk-doc-upload-label'; }
+      }
+  }
+
+  function trkUpload(input, docId) {
+      if (!input.files || !input.files[0]) { return; }
+      var file = input.files[0];
+      var prog = document.getElementById('trkprog_' + docId);
+      var fn   = document.getElementById('trkfn_'   + docId);
+      var err  = document.getElementById('trkerr_'  + docId);
+      var zone = document.getElementById('trkzone_' + docId);
+      var ico  = document.getElementById('trkico_'  + docId);
+      var tag  = document.getElementById('trktag_'  + docId);
+      var lbl  = document.getElementById('trklbl_'  + docId);
+
+      if (fn)   { fn.style.display = 'none'; }
+      if (err)  { err.style.display = 'none'; }
+      if (prog) { prog.style.display = ''; }
+      if (zone) { zone.className = 'trk-doc-upload-label'; }
+
+      var fd = new FormData();
+      fd.append('token',     TRK_TOKEN);
+      fd.append('doc_field', docId);
+      fd.append('file',      file, file.name);
+
+      fetch('/customs-portal/upload-doc', { method: 'POST', body: fd })
+      .then(function(r) { return r.json(); })
+      .then(function(resp) {
+          if (prog) { prog.style.display = 'none'; }
+          if (resp.success) {
+              /* show file name */
+              if (fn) { fn.textContent = '✓ ' + file.name; fn.style.display = ''; }
+              /* green upload zone */
+              if (zone) { zone.className = 'trk-doc-upload-label success'; }
+              /* update row icon + tag */
+              if (ico) { ico.className = 'trk-doc-ico ok'; ico.textContent = '✓'; }
+              if (tag) { tag.className = 'trk-doc-tag ok'; tag.textContent = 'Uploaded'; }
+              if (lbl) { lbl.className = 'trk-doc-upload-toggle done'; }
+              /* add to uploaded files list */
+              trkAddFile(file.name, resp.attachment_id || 0);
+          } else {
+              if (err) {
+                  err.textContent = 'Upload failed: ' + (resp.error || 'Unknown error');
+                  err.style.display = '';
+              }
+          }
+      })
+      .catch(function() {
+          if (prog) { prog.style.display = 'none'; }
+          if (err) { err.textContent = 'Connection error. Please try again.'; err.style.display = ''; }
+      });
+  }
+
+  function trkAddFile(name, attId) {
+      var list  = document.getElementById('trk-uploaded-list');
+      var empty = document.getElementById('trk-uploaded-empty');
+      if (!list) { return; }
+      if (empty) { empty.style.display = 'none'; }
+      var row  = document.createElement('div');
+      row.className = 'trk-doc-item';
+      var ico  = document.createElement('div');
+      ico.className = 'trk-doc-ico ok';
+      ico.textContent = '📎';
+      var nm   = document.createElement('span');
+      nm.className = 'trk-doc-name';
+      nm.textContent = name;
+      var tag  = document.createElement('span');
+      tag.className = 'trk-doc-tag ok';
+      tag.textContent = '✓ Uploaded';
+      row.appendChild(ico);
+      row.appendChild(nm);
+      row.appendChild(tag);
+      list.appendChild(row);
+  }
+  //]]>
+  </script>
+
+  </t><!-- end found -->
+</div>
+</div>
+</t>
+</template>
+
 
   <!-- ═══════════════════════════════════════════════════════════════════════
      SEARCH PAGE  —  /customs-portal/search
@@ -948,8 +2359,8 @@ showS(0);
                 </div>
               </t>
             </div>
-            <a t-attf-href="/customs-portal/status/#{req.portal_token}" class="ksp-track-btn">
-              View Detail &#x2192;
+            <a t-attf-href="/customs-portal/tracking/#{req.portal_token}" class="ksp-track-btn">
+              &#x1F6A2; Track Shipment &#x2192;
             </a>
           </div>
 
@@ -961,4 +2372,86 @@ showS(0);
 </div>
 </t>
 </template>
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     OFFER RESPONSE PAGE  —  /customs-portal/offer/accept|reject/<token>
+═══════════════════════════════════════════════════════════════════════ -->
+<template id="portal_offer_response_page" name="Offer Response">
+<div style="font-family:Inter,-apple-system,sans-serif;min-height:100vh;background:linear-gradient(135deg,#0a0f1e 0%,#0c1a2e 100%);display:flex;align-items:center;justify-content:center;padding:40px 16px">
+  <div style="max-width:500px;width:100%;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 25px 60px rgba(0,0,0,0.4)">
+
+    <t t-if="success and action == 'accept'">
+      <div style="background:linear-gradient(135deg,#059669,#10b981);padding:32px;text-align:center">
+        <div style="font-size:48px;margin-bottom:8px">&#10003;</div>
+        <h2 style="color:#ffffff;margin:0;font-size:22px;font-weight:700">Offer Accepted!</h2>
+        <p style="color:rgba(255,255,255,0.8);margin:6px 0 0;font-size:14px">&#x634;&#x643;&#x631;&#x64B;&#x627; &#x644;&#x642;&#x628;&#x648;&#x644;&#x643; &#x639;&#x631;&#x636;&#x646;&#x627;</p>
+      </div>
+      <div style="padding:28px;text-align:center">
+        <t t-if="already">
+          <p style="color:#334155;font-size:15px">You have already accepted this offer. Our team will be in touch shortly.</p>
+        </t>
+        <t t-else="">
+          <p style="color:#334155;font-size:15px">
+            Thank you! Your acceptance has been recorded. Our customs team will contact you
+            shortly to confirm next steps and payment arrangements.
+          </p>
+          <t t-if="req">
+            <div style="background:#f0fdf4;border-radius:8px;padding:14px;margin:16px 0;text-align:left">
+              <p style="margin:0;color:#166534;font-size:13px"><strong>Request Ref:</strong> <t t-esc="req.name"/></p>
+              <p style="margin:4px 0 0;color:#166534;font-size:13px"><strong>Company:</strong> <t t-esc="req.requester_company"/></p>
+            </div>
+          </t>
+        </t>
+        <a t-attf-href="/customs-portal/status/#{req.portal_token if req else ''}"
+           style="display:inline-block;margin-top:16px;padding:11px 28px;background:#059669;color:#ffffff;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px">
+          Track Your Request
+        </a>
+      </div>
+    </t>
+
+    <t t-elif="success and action == 'reject'">
+      <div style="background:linear-gradient(135deg,#dc2626,#ef4444);padding:32px;text-align:center">
+        <div style="font-size:48px;margin-bottom:8px">&#10007;</div>
+        <h2 style="color:#ffffff;margin:0;font-size:22px;font-weight:700">Offer Declined</h2>
+        <p style="color:rgba(255,255,255,0.8);margin:6px 0 0;font-size:14px">&#x62A;&#x645; &#x631;&#x641;&#x636; &#x627;&#x644;&#x639;&#x631;&#x636;</p>
+      </div>
+      <div style="padding:28px;text-align:center">
+        <t t-if="already">
+          <p style="color:#334155;font-size:15px">You have already responded to this offer.</p>
+        </t>
+        <t t-else="">
+          <p style="color:#334155;font-size:15px">
+            We have noted your decision. If you would like to discuss the terms or submit
+            a new request, please contact us or resubmit via the portal.
+          </p>
+        </t>
+        <a href="/customs-portal/register"
+           style="display:inline-block;margin-top:16px;padding:11px 28px;background:#0369a1;color:#ffffff;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px">
+          Submit New Request
+        </a>
+      </div>
+    </t>
+
+    <t t-else="">
+      <div style="background:linear-gradient(135deg,#64748b,#94a3b8);padding:32px;text-align:center">
+        <h2 style="color:#ffffff;margin:0;font-size:22px;font-weight:700">Invalid Link</h2>
+      </div>
+      <div style="padding:28px;text-align:center">
+        <p style="color:#334155;font-size:15px">
+          This offer link is invalid or has expired. Please contact our team for assistance.
+        </p>
+        <a href="/customs-portal"
+           style="display:inline-block;margin-top:16px;padding:11px 28px;background:#0369a1;color:#ffffff;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px">
+          Go to Portal
+        </a>
+      </div>
+    </t>
+
+    <div style="background:#f8fafc;padding:14px;text-align:center;border-top:1px solid #e2e8f0">
+      <p style="color:#94a3b8;font-size:11px;margin:0">Customs Clearance KSA — ZATCA · FASAH · SABER Compliant</p>
+    </div>
+  </div>
+</div>
+</template>
+
 </odoo>
