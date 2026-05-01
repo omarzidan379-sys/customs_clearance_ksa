@@ -468,44 +468,120 @@ class CustomsPortalController(http.Controller):
         'GBFXT': [51.8761, 1.2875],   # Felixstowe UK
     }
 
-    def _get_port_coords(self, port):
-        """Return [lat, lon] for a port record, falling back to country capital."""
-        if not port:
+    def _get_port_coords(self, port_name):
+        """Return [lat, lon] for a port name string, matching against known ports."""
+        if not port_name:
             return None
-        coords = self._PORT_COORDS.get(port.code or '')
-        if coords:
-            return coords
-        # fallback: Saudi Arabia default
-        return [24.7136, 46.6753]
-
-    def _build_timeline(self, clearance, shipment):
-        """Build a list of timeline events from clearance state history."""
-        events = []
-        if not clearance:
-            return events
-
-        _STATE_LABELS = {
-            'draft':          ('Clearance Request Received', 'fa-file-text', '#6c757d'),
-            'acd_submitted':  ('ACD Filed with Customs', 'fa-paper-plane', '#0d6efd'),
-            'submitted':      ('FASAH Declaration Submitted', 'fa-check-circle', '#0d6efd'),
-            'customs_review': ('Under Customs Review', 'fa-search', '#fd7e14'),
-            'inspection':     ('Physical Inspection', 'fa-eye', '#fd7e14'),
-            'duty_payment':   ('Duty Payment Required', 'fa-credit-card', '#ffc107'),
-            'released':       ('Customs Released', 'fa-unlock', '#198754'),
-            'delivered':      ('Delivered to Consignee', 'fa-flag-checkered', '#198754'),
-            'refused':        ('Refused by Customs', 'fa-times-circle', '#dc3545'),
-            'cancelled':      ('Cancelled', 'fa-ban', '#dc3545'),
+        name_upper = (port_name or '').upper().strip()
+        # Direct code match
+        if name_upper in self._PORT_COORDS:
+            return self._PORT_COORDS[name_upper]
+        # Partial name match against known port keywords
+        _PORT_KEYWORDS = {
+            'JEDDAH': [21.5433, 39.1728], 'JEDDA': [21.5433, 39.1728],
+            'DAMMAM': [26.4207, 50.0888], 'KING ABDULAZIZ': [26.4207, 50.0888],
+            'RIYADH': [24.7136, 46.6753],
+            'JUBAIL': [27.0046, 49.6617],
+            'YANBU': [24.0884, 38.0618],
+            'AQABA': [29.5267, 35.0078],
+            'DUBAI': [25.2048, 55.2708], 'UAE': [25.2048, 55.2708],
+            'ABU DHABI': [24.4539, 54.3773],
+            'MUSCAT': [23.5880, 58.3829],
+            'BAHRAIN': [26.2154, 50.5860],
+            'KUWAIT': [29.3759, 47.9774],
+            'DOHA': [25.2854, 51.5310], 'QATAR': [25.2854, 51.5310],
+            'SINGAPORE': [1.2897, 103.8501],
+            'HONG KONG': [22.3193, 114.1694],
+            'SHANGHAI': [31.2304, 121.4737],
+            'ROTTERDAM': [51.9244, 4.4777],
+            'HAMBURG': [53.5511, 9.9937],
+            'PORT SAID': [31.2357, 32.3051],
+            'SUEZ': [29.9668, 32.5498],
+            'MUMBAI': [18.9322, 72.8264], 'BOMBAY': [18.9322, 72.8264],
+            'KARACHI': [24.8607, 67.0011],
+            'ISTANBUL': [41.0082, 28.9784],
+            'ANTWERP': [51.2213, 4.4051],
+            'FELIXSTOWE': [51.8761, 1.2875],
+            'BRAZIL': [-15.7801, -47.9292],
+            'CHINA': [35.8617, 104.1954],
+            'INDIA': [20.5937, 78.9629],
         }
+        for keyword, coords in _PORT_KEYWORDS.items():
+            if keyword in name_upper:
+                return coords
+        return None
+
+    def _build_timeline(self, req, clearance, shipment):
+        """Build timeline events from portal request + clearance state history."""
+        from odoo import fields as odoo_fields
+        events = []
+
+        # Step 1: Request submitted
+        events.append({
+            'date': req.create_date.date() if req.create_date else None,
+            'time': req.create_date.strftime('%H:%M') if req.create_date else '',
+            'location': req.requester_city or req.requester_company or 'Client',
+            'description': 'Clearance Request Submitted',
+            'description_ar': 'تم تقديم طلب التخليص',
+            'icon': 'fa-paper-plane',
+            'color': '#0d6efd',
+            'done': True,
+        })
+
+        # Step 2: Approved or Rejected
+        _REQ_STATE = {
+            'draft':    ('Request Under Review', 'fa-clock-o', '#fd7e14', 'قيد المراجعة'),
+            'approved': ('Request Approved — Clearance Started', 'fa-check-circle', '#198754', 'تمت الموافقة'),
+            'rejected': ('Request Rejected', 'fa-times-circle', '#dc3545', 'مرفوض'),
+        }
+        if req.state != 'draft':
+            lbl = _REQ_STATE.get(req.state, ('Status Updated', 'fa-circle', '#6c757d', ''))
+            events.append({
+                'date': req.review_date.date() if getattr(req, 'review_date', None) and req.review_date else None,
+                'time': req.review_date.strftime('%H:%M') if getattr(req, 'review_date', None) and req.review_date else '',
+                'location': 'Customs Clearance Office',
+                'description': lbl[0],
+                'description_ar': lbl[3],
+                'icon': lbl[1],
+                'color': lbl[2],
+                'done': True,
+            })
+
+        # Step 3: Clearance stages (from linked clearance record)
+        if clearance:
+            _CL_STATES = [
+                ('acd_submitted',  'ACD Filed with Saudi Customs', 'fa-file-text', '#0d6efd', 'تقديم ACD للجمارك'),
+                ('submitted',      'FASAH Declaration Submitted', 'fa-send', '#0d6efd', 'إدخال البيان في فساح'),
+                ('customs_review', 'Under Customs Review', 'fa-search', '#fd7e14', 'قيد مراجعة الجمارك'),
+                ('inspection',     'Physical Inspection in Progress', 'fa-eye', '#fd7e14', 'جاري الفحص المادي'),
+                ('duty_payment',   'Duty Payment Required', 'fa-credit-card', '#ffc107', 'مطلوب سداد الجمارك'),
+                ('released',       'Customs Released ✓', 'fa-unlock', '#198754', 'الإفراج الجمركي'),
+                ('delivered',      'Delivered to Consignee ✓', 'fa-flag-checkered', '#198754', 'تم التسليم'),
+                ('refused',        'Refused by Customs', 'fa-ban', '#dc3545', 'مرفوض جمركياً'),
+                ('cancelled',      'Cancelled', 'fa-times', '#dc3545', 'ملغى'),
+            ]
+            state_order = [s[0] for s in _CL_STATES]
+            current_idx = state_order.index(clearance.state) if clearance.state in state_order else -1
+
+            for i, (state_key, label, icon, color, label_ar) in enumerate(_CL_STATES):
+                is_done = (i <= current_idx) and clearance.state not in ('refused', 'cancelled')
+                is_active = (i == current_idx)
+                if is_done or is_active:
+                    events.append({
+                        'date': None,
+                        'time': '',
+                        'location': (clearance.customs_office_id.name if clearance.customs_office_id else '') or 'Saudi Customs',
+                        'description': label,
+                        'description_ar': label_ar,
+                        'icon': icon,
+                        'color': color,
+                        'done': is_done,
+                        'active': is_active,
+                    })
+
+        # Step 4: Shipment events
         if shipment:
-            _SHIP_LABELS = {
-                'draft':      ('Shipment Booking Created', 'fa-anchor', '#6c757d'),
-                'in_transit': ('Departed – In Transit', 'fa-ship', '#0d6efd'),
-                'arrived':    ('Arrived at Destination Port', 'fa-map-marker', '#fd7e14'),
-                'cleared':    ('Customs Cleared', 'fa-check', '#198754'),
-                'delivered':  ('Delivered', 'fa-flag-checkered', '#198754'),
-            }
             if shipment.departure_date:
-                lbl = _SHIP_LABELS.get(shipment.state, ('Shipment Update', 'fa-circle', '#6c757d'))
                 events.append({
                     'date': shipment.departure_date,
                     'time': '00:00',
@@ -526,52 +602,23 @@ class CustomsPortalController(http.Controller):
                     'done': shipment.state in ('arrived', 'cleared', 'delivered'),
                 })
 
-        # Clearance state events from chatter
-        for msg in clearance.message_ids.filtered(
-            lambda m: m.message_type in ('comment', 'email') and m.tracking_value_ids
-        ).sorted('date'):
-            for tv in msg.tracking_value_ids:
-                if tv.field_id.name == 'state':
-                    lbl_data = _STATE_LABELS.get(tv.new_value_char, ('Status Update', 'fa-circle', '#0d6efd'))
-                    events.append({
-                        'date': msg.date.date() if msg.date else None,
-                        'time': msg.date.strftime('%H:%M') if msg.date else '',
-                        'location': (clearance.customs_office_id.name if clearance.customs_office_id else '') or 'Saudi Customs',
-                        'description': lbl_data[0],
-                        'icon': lbl_data[1],
-                        'color': lbl_data[2],
-                        'done': True,
-                    })
-
-        # Always show current state as last active
-        current = _STATE_LABELS.get(clearance.state, ('Current Status', 'fa-circle', '#0d6efd'))
-        if not any(e.get('description') == current[0] for e in events):
-            events.append({
-                'date': clearance.date,
-                'time': '',
-                'location': (clearance.customs_office_id.name if clearance.customs_office_id else '') or 'Saudi Customs',
-                'description': current[0],
-                'icon': current[1],
-                'color': current[2],
-                'done': clearance.state in ('released', 'delivered'),
-                'active': clearance.state not in ('released', 'delivered', 'refused', 'cancelled'),
-            })
-
-        events.sort(key=lambda e: e.get('date') or fields.Date.today())
         return events
 
-    def _calc_progress(self, shipment, clearance):
-        """Return integer 0-100 progress percentage."""
+    def _calc_progress(self, req, clearance, shipment):
+        """Return integer 0-100 progress percentage based on best available state."""
         if shipment:
-            _PROG = {'draft': 5, 'in_transit': 40, 'arrived': 65, 'cleared': 85, 'delivered': 100}
-            return _PROG.get(shipment.state, 10)
+            _PROG = {'draft': 15, 'in_transit': 45, 'arrived': 70, 'cleared': 88, 'delivered': 100}
+            return _PROG.get(shipment.state, 15)
         if clearance:
             _PROG = {
-                'draft': 5, 'acd_submitted': 20, 'submitted': 35,
-                'customs_review': 50, 'inspection': 60, 'duty_payment': 70,
-                'released': 88, 'delivered': 100, 'refused': 0, 'cancelled': 0,
+                'draft': 15, 'acd_submitted': 30, 'submitted': 45,
+                'customs_review': 55, 'inspection': 65, 'duty_payment': 75,
+                'released': 90, 'delivered': 100, 'refused': 5, 'cancelled': 5,
             }
-            return _PROG.get(clearance.state, 10)
+            return _PROG.get(clearance.state, 15)
+        if req:
+            _PROG = {'draft': 10, 'approved': 20, 'rejected': 5}
+            return _PROG.get(req.state, 10)
         return 0
 
     @http.route('/customs-portal/tracking', type='http', auth='public', website=True)
@@ -596,7 +643,7 @@ class CustomsPortalController(http.Controller):
 
     @http.route('/customs-portal/tracking/<string:token>', type='http', auth='public', website=True)
     def portal_tracking_detail(self, token, **kwargs):
-        """Modern shipment tracking dashboard — linked from View Details button."""
+        """Modern shipment tracking dashboard — pulls data from portal request."""
         portal_req = request.env['customs.portal.request'].sudo().search(
             [('portal_token', '=', token)], limit=1
         )
@@ -608,34 +655,50 @@ class CustomsPortalController(http.Controller):
         clearance = portal_req.clearance_id or None
         shipment  = (clearance.shipment_id if clearance else None) or None
 
-        timeline = self._build_timeline(clearance, shipment)
-        progress = self._calc_progress(shipment, clearance)
+        # Resolve port names — prefer shipment record, fall back to portal request text fields
+        origin_name = (
+            (shipment.port_origin_id.name if shipment and shipment.port_origin_id else None)
+            or portal_req.port_of_loading or ''
+        )
+        dest_name = (
+            (shipment.port_destination_id.name if shipment and shipment.port_destination_id else None)
+            or portal_req.port_of_discharge or ''
+        )
 
-        origin_coords = self._get_port_coords(shipment.port_origin_id if shipment else None)
-        dest_coords   = self._get_port_coords(shipment.port_destination_id if shipment else None)
+        origin_coords = self._get_port_coords(origin_name) or [24.7136, 46.6753]
+        dest_coords   = self._get_port_coords(dest_name)   or [21.5433, 39.1728]
 
-        # Current position: if in_transit use midpoint, else use arrived port
-        if shipment and shipment.state == 'in_transit' and origin_coords and dest_coords:
+        # Current ship position
+        ship_state = shipment.state if shipment else None
+        req_done   = portal_req.state in ('approved',)
+        if ship_state == 'in_transit':
             current_coords = [
                 round((origin_coords[0] + dest_coords[0]) / 2, 4),
                 round((origin_coords[1] + dest_coords[1]) / 2, 4),
             ]
-        elif shipment and shipment.state in ('arrived', 'cleared', 'delivered'):
+        elif ship_state in ('arrived', 'cleared', 'delivered'):
+            current_coords = dest_coords
+        elif req_done and clearance and clearance.state in ('released', 'delivered'):
             current_coords = dest_coords
         else:
             current_coords = origin_coords
 
+        timeline = self._build_timeline(portal_req, clearance, shipment)
+        progress = self._calc_progress(portal_req, clearance, shipment)
+
         return request.render('customs_clearance.portal_tracking_detail', {
-            'found':           True,
-            'token':           token,
-            'req':             portal_req,
-            'clearance':       clearance,
-            'shipment':        shipment,
-            'timeline':        timeline,
-            'progress':        progress,
-            'origin_coords':   origin_coords   or [24.7, 46.7],
-            'dest_coords':     dest_coords     or [24.7, 46.7],
-            'current_coords':  current_coords  or [24.7, 46.7],
+            'found':          True,
+            'token':          token,
+            'req':            portal_req,
+            'clearance':      clearance,
+            'shipment':       shipment,
+            'timeline':       timeline,
+            'progress':       progress,
+            'origin_name':    origin_name or 'Origin',
+            'dest_name':      dest_name   or 'Destination',
+            'origin_coords':  origin_coords,
+            'dest_coords':    dest_coords,
+            'current_coords': current_coords,
         })
     @http.route('/customs-portal/contract', type='http', auth='public', website=True)
     def portal_contract_page(self, **kwargs):

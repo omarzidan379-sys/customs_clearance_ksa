@@ -202,11 +202,12 @@
             <t t-esc="req.requester_company or req.requester_name"/>
           </div>
           <div class="trd-type-pill">
-            <t t-if="shipment and shipment.shipment_type == 'sea'"><i class="fa fa-ship"/> Sea Freight</t>
-            <t t-elif="shipment and shipment.shipment_type == 'air'"><i class="fa fa-plane"/> Air Freight</t>
-            <t t-elif="shipment and shipment.shipment_type == 'road'"><i class="fa fa-truck"/> Road Freight</t>
-            <t t-elif="shipment and shipment.shipment_type == 'rail'"><i class="fa fa-train"/> Rail Freight</t>
-            <t t-else=""><i class="fa fa-box"/> Customs Clearance</t>
+            <t t-set="stype" t-value="(shipment.shipment_type if shipment else None) or req.shipment_type or ''"/>
+            <t t-if="stype == 'sea'"><i class="fa fa-ship"/> Sea Freight</t>
+            <t t-elif="stype == 'air'"><i class="fa fa-plane"/> Air Freight</t>
+            <t t-elif="stype in ('road','land')"><i class="fa fa-truck"/> Road Freight</t>
+            <t t-elif="stype == 'rail'"><i class="fa fa-train"/> Rail Freight</t>
+            <t t-else=""><i class="fa fa-anchor"/> Customs Clearance</t>
           </div>
         </div>
 
@@ -239,14 +240,21 @@
             </div>
           </t>
           <t t-else="">
-            <div class="trd-status-badge draft"><span class="trd-badge-dot"/> Under Review</div>
+            <t t-set="rbadge" t-value="req.state"/>
+            <div t-attf-class="trd-status-badge #{rbadge == 'approved' and 'released' or rbadge == 'rejected' and 'refused' or 'draft'}">
+              <span class="trd-badge-dot"/>
+              <t t-if="rbadge == 'approved'">Approved &#x2014; Processing</t>
+              <t t-elif="rbadge == 'rejected'">Request Rejected</t>
+              <t t-else="">Under Review</t>
+            </div>
           </t>
 
           <!-- ETA pill -->
-          <t t-if="shipment and shipment.eta">
+          <t t-set="eta_val" t-value="(shipment.eta if shipment and shipment.eta else None) or req.eta"/>
+          <t t-if="eta_val">
             <div class="trd-eta-pill">
               <span>ETA</span>
-              <t t-esc="shipment.eta"/>
+              <t t-esc="eta_val"/>
             </div>
           </t>
         </div>
@@ -290,7 +298,7 @@
         <div class="trd-stat-ico">&#x1F4E6;</div>
         <div class="trd-stat-val">
           <t t-if="shipment and shipment.packages_count" t-esc="shipment.packages_count"/>
-          <t t-elif="clearance">1</t>
+          <t t-elif="req.packages_count" t-esc="req.packages_count"/>
           <t t-else="">—</t>
         </div>
         <div class="trd-stat-lbl">Packages</div>
@@ -301,6 +309,9 @@
         <div class="trd-stat-val">
           <t t-if="shipment and shipment.gross_weight">
             <t t-esc="'%.0f' % shipment.gross_weight"/> <small style="font-size:11px;color:#94a3b8;">kg</small>
+          </t>
+          <t t-elif="req.gross_weight">
+            <t t-esc="'%.0f' % req.gross_weight"/> <small style="font-size:11px;color:#94a3b8;">kg</small>
           </t>
           <t t-else="">—</t>
         </div>
@@ -557,6 +568,9 @@
               <t t-if="ev.get('time')"> &#x2022; <t t-esc="ev['time']"/></t>
             </div>
             <div class="trd-tl-title" t-esc="ev.get('description', '')"/>
+            <t t-if="ev.get('description_ar')">
+              <div style="font-size:11px;color:#475569;direction:rtl;text-align:right;margin-top:2px;" t-esc="ev.get('description_ar')"/>
+            </t>
             <div class="trd-tl-loc">
               <i class="fa fa-map-marker" style="font-size:10px;color:#94a3b8;"/>
               <t t-esc="ev.get('location', '')"/>
@@ -605,6 +619,8 @@
     var destCoords    = <t t-out="json.dumps(dest_coords)"/>;
     var currentCoords = <t t-out="json.dumps(current_coords)"/>;
     var progress      = <t t-out="progress"/>;
+    var originName    = '<t t-out="(origin_name or '').replace(&quot;'&quot;, '')"/>';
+    var destName      = '<t t-out="(dest_name or '').replace(&quot;'&quot;, '')"/>';
 
     var mapEl = document.getElementById('trd-map');
     if (!mapEl) { return; }
@@ -641,12 +657,12 @@
     /* Origin marker */
     L.marker(originCoords, { icon: makeIcon('#0d6efd', '&#x1F7E6;') })
         .addTo(map)
-        .bindPopup('<strong>&#x1F4CD; Origin Port</strong><br/>Departure point');
+        .bindPopup('<strong>&#x1F4CD; ' + (originName || 'Origin Port') + '</strong><br/>Port of Loading');
 
     /* Destination marker */
     L.marker(destCoords, { icon: makeIcon('#059669', '&#x1F3C1;') })
         .addTo(map)
-        .bindPopup('<strong>&#x1F3C1; Destination Port</strong><br/>Delivery point');
+        .bindPopup('<strong>&#x1F3C1; ' + (destName || 'Destination Port') + '</strong><br/>Port of Discharge');
 
     /* Current position marker (only if different from origin/dest) */
     var sameAsOrigin = (currentCoords[0] === originCoords[0] && currentCoords[1] === originCoords[1]);
