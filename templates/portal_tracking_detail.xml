@@ -613,8 +613,45 @@
 <script type="text/javascript">
 //<![CDATA[
 
-/* ── Map initialisation ── */
-(function() {
+/* ── Utility functions — defined first so onclick handlers always work ── */
+
+function scrollToMap() {
+    var el = document.getElementById('trd-map');
+    if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        /* Brief highlight pulse on the map */
+        el.style.transition = 'box-shadow .3s';
+        el.style.boxShadow  = '0 0 0 4px rgba(13,110,253,.5)';
+        setTimeout(function() { el.style.boxShadow = ''; }, 1200);
+    }
+}
+
+function animateTimeline() {
+    var items = document.querySelectorAll('.trd-tl-item');
+    if (!items.length) { return; }
+    if (typeof IntersectionObserver !== 'undefined') {
+        var observer = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+                if (entry.isIntersecting) {
+                    var el = entry.target;
+                    var delay = parseInt(el.getAttribute('data-idx') || '0') * 90;
+                    setTimeout(function() { el.classList.add('visible'); }, delay);
+                    observer.unobserve(el);
+                }
+            });
+        }, { threshold: 0.1 });
+        items.forEach(function(item, idx) {
+            item.setAttribute('data-idx', idx);
+            observer.observe(item);
+        });
+    } else {
+        /* Fallback for browsers without IntersectionObserver */
+        items.forEach(function(item) { item.classList.add('visible'); });
+    }
+}
+
+/* ── Map initialisation (try-catch so errors never block other functions) ── */
+(function() { try {
     var originCoords  = <t t-out="json.dumps(origin_coords)"/>;
     var destCoords    = <t t-out="json.dumps(dest_coords)"/>;
     var currentCoords = <t t-out="json.dumps(current_coords)"/>;
@@ -623,7 +660,7 @@
     var destName      = '<t t-out="(dest_name or '').replace(&quot;'&quot;, '')"/>';
 
     var mapEl = document.getElementById('trd-map');
-    if (!mapEl) { return; }
+    if (!mapEl || typeof L === 'undefined') { return; }
 
     /* Centre map between origin and destination */
     var centerLat = (originCoords[0] + destCoords[0]) / 2;
@@ -690,32 +727,7 @@
             color: '#0d6efd', weight: 3, opacity: .9,
         }).addTo(map);
     }
-})();
-
-/* ── Timeline scroll animation ── */
-function animateTimeline() {
-    var items = document.querySelectorAll('.trd-tl-item');
-    var observer = new IntersectionObserver(function(entries) {
-        entries.forEach(function(entry, idx) {
-            if (entry.isIntersecting) {
-                var el = entry.target;
-                var delay = parseInt(el.getAttribute('data-idx') || '0') * 80;
-                setTimeout(function() { el.classList.add('visible'); }, delay);
-                observer.unobserve(el);
-            }
-        });
-    }, { threshold: 0.1 });
-    items.forEach(function(item, idx) {
-        item.setAttribute('data-idx', idx);
-        observer.observe(item);
-    });
-}
-
-/* ── Track Live button ── */
-function scrollToMap() {
-    var el = document.getElementById('trd-map');
-    if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
-}
+} catch(e) { console.warn('Map init error:', e); } })();
 
 document.addEventListener('DOMContentLoaded', function() {
     animateTimeline();
